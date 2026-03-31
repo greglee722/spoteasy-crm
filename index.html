@@ -879,11 +879,11 @@
     </div>
     <div class="stat-card">
       <div class="stat-val accent" id="statReached">—</div>
-      <div class="stat-label">Reached Out</div>
+      <div class="stat-label">1st Reach Out</div>
     </div>
     <div class="stat-card">
       <div class="stat-val blue" id="statResponded">—</div>
-      <div class="stat-label">Responded</div>
+      <div class="stat-label">Active Deals</div>
     </div>
     <div class="stat-card">
       <div class="stat-val orange" id="statPipeline">—</div>
@@ -899,13 +899,6 @@
           <span class="search-icon">🔍</span>
           <input type="text" class="search-input" id="searchAll" placeholder="Search leads..." oninput="renderAll()">
         </div>
-        <select class="filter-select" id="filterStatus" onchange="renderAll()">
-          <option value="">All Statuses</option>
-          <option>Not Reached Out</option>
-          <option>Reached Out</option>
-          <option>Responded</option>
-          <option>No Response</option>
-        </select>
         <select class="filter-select" id="filterLocation" onchange="renderAll()">
           <option value="">All Locations</option>
         </select>
@@ -923,7 +916,6 @@
             <th onclick="sortBy('domainRating')">DR ↕</th>
             <th>Instagram</th>
             <th onclick="sortBy('igReachOutDate')">Reach Out Date ↕</th>
-            <th>IG Status</th>
             <th>Pipeline</th>
             <th>Last Email</th>
             <th onclick="sortBy('lastUpdated')">Last Updated ↕</th>
@@ -961,7 +953,7 @@
             <th>Location</th>
             <th>Instagram</th>
             <th>Reach Out Date</th>
-            <th>IG Status</th>
+            <th>Pipeline</th>
             <th>Notes</th>
             <th></th>
           </tr>
@@ -996,8 +988,8 @@
             <th>Location</th>
             <th>Instagram</th>
             <th>Reach Out Date</th>
-            <th>IG Status</th>
             <th>Pipeline Stage</th>
+            <th>Last Email</th>
             <th>Notes</th>
             <th></th>
           </tr>
@@ -1047,7 +1039,13 @@
         </div>
         <div class="form-group">
           <label>Business Type</label>
-          <input type="text" id="f-businessType" placeholder="e.g. restaurants">
+          <select id="f-businessType">
+            <option value=""></option>
+            <option>Restaurants</option>
+            <option>Cafe/Bakery</option>
+            <option>Clothing</option>
+            <option>Services</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Website URL</label>
@@ -1074,15 +1072,6 @@
           <input type="date" id="f-igReachOutDate">
         </div>
         <div class="form-group">
-          <label>IG Status</label>
-          <select id="f-igStatus">
-            <option>Not Reached Out</option>
-            <option>Reached Out</option>
-            <option>Responded</option>
-            <option>No Response</option>
-          </select>
-        </div>
-        <div class="form-group">
           <label>Pipeline Stage</label>
           <select id="f-pipelineStage">
             <option value=""></option>
@@ -1095,10 +1084,6 @@
             <option>No Response</option>
             <option>Declined Offer</option>
           </select>
-        </div>
-        <div class="form-group">
-          <label>Mock Up Sent Date</label>
-          <input type="date" id="f-mockUpSentDate">
         </div>
         <div class="form-group">
           <label>Last Email Sent</label>
@@ -1155,14 +1140,14 @@ const SHEET_NAME = 'Sheet1';
 
 const COLUMNS = [
   'businessName','businessType','url','firstName','location',
-  'domainRating','instagram','igReachOutDate','igStatus','pipelineStage',
-  'mockUpSentDate','lastEmailSent','lastUpdated','notes'
+  'domainRating','instagram','igReachOutDate','pipelineStage',
+  'lastEmailSent','lastUpdated','notes'
 ];
 
 const COL_HEADERS = [
   'Business Name','Business Type','URL','First Name','Location',
-  'Domain Rating','Instagram','IG Reach Out Date','IG Status','Pipeline Stage',
-  'Mock Up Sent Date','Last Email Sent','Last Updated','Notes'
+  'Domain Rating','Instagram','IG Reach Out Date','Pipeline Stage',
+  'Last Email Sent','Last Updated','Notes'
 ];
 
 let leads = [];
@@ -1182,13 +1167,6 @@ const STAGE_COLORS = {
   'Backlink Acquired': 'green',
   'No Response': 'gray',
   'Declined Offer': 'red'
-};
-
-const STATUS_COLORS = {
-  'Not Reached Out': 'gray',
-  'Reached Out': 'yellow',
-  'Responded': 'green',
-  'No Response': 'red'
 };
 
 const LAST_EMAIL_OPTIONS = [
@@ -1270,7 +1248,7 @@ async function loadLeads() {
 }
 
 async function writeRow(rowNum, values) {
-  const range = `${SHEET_NAME}!A${rowNum}:N${rowNum}`;
+  const range = `${SHEET_NAME}!A${rowNum}:L${rowNum}`;
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED&key=${API_KEY}`;
   const res = await fetch(url, {
     method: 'PUT',
@@ -1281,7 +1259,7 @@ async function writeRow(rowNum, values) {
 }
 
 async function appendRow(values) {
-  const range = `${SHEET_NAME}!A:N`;
+  const range = `${SHEET_NAME}!A:L`;
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key=${API_KEY}`;
   const res = await fetch(url, {
     method: 'POST',
@@ -1350,9 +1328,9 @@ function showSetup() {
 // ============================================================
 function updateStats() {
   document.getElementById('statTotal').textContent = leads.length;
-  document.getElementById('statReached').textContent = leads.filter(l => l.igStatus === 'Reached Out').length;
-  document.getElementById('statResponded').textContent = leads.filter(l => l.igStatus === 'Responded').length;
-  document.getElementById('statPipeline').textContent = leads.filter(l => l.igStatus === 'Responded' && l.pipelineStage).length;
+  document.getElementById('statReached').textContent = leads.filter(l => l.pipelineStage === '1st Reach Out').length;
+  document.getElementById('statResponded').textContent = leads.filter(l => ['Mock Up Required','Mock Up Sent','Backlink Required','Backlink Acquired'].includes(l.pipelineStage)).length;
+  document.getElementById('statPipeline').textContent = leads.filter(l => l.pipelineStage && l.pipelineStage !== 'Opportunity').length;
 }
 
 function populateLocationFilter() {
@@ -1365,9 +1343,13 @@ function populateLocationFilter() {
 // ============================================================
 // HELPERS
 // ============================================================
-function igStatusPill(status) {
-  const c = STATUS_COLORS[status] || 'gray';
-  return `<span class="pill pill-${c}"><span class="pill-dot"></span>${status || 'Not Reached Out'}</span>`;
+function igHandle(url) {
+  if (!url) return '—';
+  // Strip trailing slash, then grab last path segment
+  const clean = url.replace(/\/$/, '');
+  const parts = clean.split('/');
+  const handle = parts[parts.length - 1] || clean;
+  return '@' + handle;
 }
 
 function pipelinePill(stage) {
@@ -1406,13 +1388,12 @@ function sortBy(col) {
   renderAll();
 }
 
-function filteredLeads(search, status, location) {
+function filteredLeads(search, location) {
   let list = [...leads];
   if (search) {
     const q = search.toLowerCase();
     list = list.filter(l => (l.businessName + l.location + l.businessType + l.firstName).toLowerCase().includes(q));
   }
-  if (status) list = list.filter(l => (l.igStatus || 'Not Reached Out') === status);
   if (location) list = list.filter(l => l.location === location);
   if (sortCol) {
     list.sort((a, b) => {
@@ -1429,9 +1410,8 @@ function filteredLeads(search, status, location) {
 // ============================================================
 function renderAll() {
   const search = document.getElementById('searchAll').value;
-  const status = document.getElementById('filterStatus').value;
   const location = document.getElementById('filterLocation').value;
-  const list = filteredLeads(search, status, location);
+  const list = filteredLeads(search, location);
   document.getElementById('countAll').textContent = list.length;
 
   const tbody = document.getElementById('tableAll');
@@ -1448,9 +1428,8 @@ function renderAll() {
       <td>${l.businessType || '—'}</td>
       <td>${l.location || '—'}</td>
       <td>${drCell(l.domainRating)}</td>
-      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">@ig</a>` : '—'}</td>
+      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">${igHandle(l.instagram)}</a>` : '—'}</td>
       <td>${formatDate(l.igReachOutDate)}</td>
-      <td>${igStatusPill(l.igStatus)}</td>
       <td>${pipelinePill(l.pipelineStage)}</td>
       <td style="font-size:12px;color:var(--text3)">${l.lastEmailSent || '—'}</td>
       <td style="font-size:12px;color:var(--text3)">${l.lastUpdated || '—'}</td>
@@ -1469,7 +1448,7 @@ function renderAll() {
 // ============================================================
 function renderReached() {
   const search = document.getElementById('searchReached').value.toLowerCase();
-  const list = leads.filter(l => l.igStatus === 'Reached Out' &&
+  const list = leads.filter(l => l.pipelineStage === '1st Reach Out' &&
     (!search || (l.businessName + l.location + l.firstName).toLowerCase().includes(search)));
 
   document.getElementById('countReached').textContent = list.length;
@@ -1487,9 +1466,9 @@ function renderReached() {
       <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName || '—'}</div></td>
       <td>${l.firstName || '—'}</td>
       <td>${l.location || '—'}</td>
-      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">@ig</a>` : '—'}</td>
+      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">${igHandle(l.instagram)}</a>` : '—'}</td>
       <td>${formatDate(l.igReachOutDate)}</td>
-      <td>${igStatusPill(l.igStatus)}</td>
+      <td>${pipelinePill(l.pipelineStage)}</td>
       <td style="max-width:200px;color:var(--text3);font-size:12px">${l.notes || '—'}</td>
       <td>
         <div class="row-actions">
@@ -1505,7 +1484,8 @@ function renderReached() {
 // ============================================================
 function renderResponded() {
   const search = document.getElementById('searchResponded').value.toLowerCase();
-  const list = leads.filter(l => l.igStatus === 'Responded' &&
+  const respondedStages = ['Mock Up Required','Mock Up Sent','Backlink Required','Backlink Acquired'];
+  const list = leads.filter(l => respondedStages.includes(l.pipelineStage) &&
     (!search || (l.businessName + l.location + l.firstName).toLowerCase().includes(search)));
 
   document.getElementById('countResponded').textContent = list.length;
@@ -1523,10 +1503,10 @@ function renderResponded() {
       <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName || '—'}</div></td>
       <td>${l.firstName || '—'}</td>
       <td>${l.location || '—'}</td>
-      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">@ig</a>` : '—'}</td>
+      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">${igHandle(l.instagram)}</a>` : '—'}</td>
       <td>${formatDate(l.igReachOutDate)}</td>
-      <td>${igStatusPill(l.igStatus)}</td>
       <td>${pipelinePill(l.pipelineStage)}</td>
+      <td style="font-size:12px;color:var(--text3)">${l.lastEmailSent || '—'}</td>
       <td style="max-width:180px;color:var(--text3);font-size:12px">${l.notes || '—'}</td>
       <td>
         <div class="row-actions">
@@ -1543,7 +1523,7 @@ function renderResponded() {
 // ============================================================
 function renderPipeline() {
   const search = document.getElementById('searchPipeline').value.toLowerCase();
-  const list = leads.filter(l => l.igStatus === 'Responded' &&
+  const list = leads.filter(l => l.pipelineStage &&
     (!search || (l.businessName + l.location).toLowerCase().includes(search)));
 
   const board = document.getElementById('kanbanBoard');
@@ -1560,17 +1540,15 @@ function renderPipeline() {
     const color = STAGE_COLORS[stage] || 'gray';
 
     const cardHTML = cards.map(l => {
-      const daysMU = daysSince(l.mockUpSentDate);
       const daysUpdated = daysSince(l.lastUpdated ? new Date(l.lastUpdated).toISOString().split('T')[0] : null);
       return `
         <div class="kanban-card" onclick="openEditModal(${l._row})">
           <div class="kanban-card-name">${l.businessName}</div>
           <div class="kanban-card-type">${l.businessType || ''}</div>
-          ${l.url ? `<div class="kanban-card-url">${l.url.replace('https://','')}</div>` : ''}
+          ${l.instagram ? `<div class="kanban-card-url">${igHandle(l.instagram)}</div>` : ''}
           <div class="kanban-card-meta">
             ${l.location ? `<div class="kanban-card-meta-row"><span>📍</span><span class="kanban-card-meta-val">${l.location}</span></div>` : ''}
             ${l.lastEmailSent ? `<div class="kanban-card-meta-row"><span>📧</span><span class="kanban-card-meta-val">${l.lastEmailSent}</span></div>` : ''}
-            ${daysMU !== null ? `<div class="kanban-card-meta-row"><span>🎨 Mock Up</span>${daysBadge(daysMU)}</div>` : ''}
             ${daysUpdated !== null ? `<div class="kanban-card-meta-row"><span>🕐 Updated</span>${daysBadge(daysUpdated)}</div>` : ''}
           </div>
         </div>
@@ -1690,13 +1668,13 @@ async function saveLead() {
   const values = getFormValues();
   if (!values[0]) { showToast('Business Name is required', 'error'); return; }
 
-  // Auto-set lastUpdated (index 12) if pipeline stage changed or is new
+  // Auto-set lastUpdated (index 10) if pipeline stage changed or is new
   const prevLead = editingRow ? leads.find(l => l._row === editingRow) : null;
-  const newStage = values[9]; // pipelineStage index
+  const newStage = values[8]; // pipelineStage index
   const prevStage = prevLead ? prevLead.pipelineStage : null;
   if (newStage !== prevStage || !editingRow) {
     const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    values[12] = today;
+    values[10] = today;
     document.getElementById('f-lastUpdated').value = today;
   }
 
