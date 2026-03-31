@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpotEasy — Local Spots CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e28;
+    --border: #252a38;
+    --accent: #00e5a0;
+    --accent2: #0099ff;
+    --accent3: #ff6b35;
+    --text: #e8eaf0;
+    --text2: #8b93a8;
+    --text3: #555e73;
+    --yellow: #ffd166;
+    --pink: #ff5fa0;
+    --purple: #a78bfa;
+    --green: #00e5a0;
+    --red: #ff4d6d;
+    --orange: #ff6b35;
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot { color: var(--accent); }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .config-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .config-btn:hover { opacity: 0.85; }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .status-pill.connected { background: rgba(0,229,160,0.12); color: var(--accent); }
+  .status-pill.disconnected { background: rgba(255,77,109,0.12); color: var(--red); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* NAV TABS */
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-tab {
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .nav-tab:hover { color: var(--text2); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* MAIN */
+  .main { padding: 24px; max-width: 1600px; margin: 0 auto; }
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+
+  .search-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px 8px 36px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.15s;
+    position: relative;
+  }
+
+  .search-wrap { position: relative; }
+  .search-icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text3); }
+
+  .filter-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .filter-select:focus { border-color: var(--accent); }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-secondary { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--text3); color: var(--text); }
+  .btn-danger { background: rgba(255,77,109,0.12); color: var(--red); border: 1px solid rgba(255,77,109,0.2); }
+  .btn-danger:hover { background: rgba(255,77,109,0.2); }
+
+  .count-badge {
+    background: var(--surface2);
+    color: var(--text3);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    border: 1px solid var(--border);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead tr {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-family: 'DM Mono', monospace;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  th:hover { color: var(--text2); }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .td-name {
+    font-weight: 500;
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    max-width: 200px;
+  }
+
+  .td-name:hover { color: var(--accent); }
+
+  .td-url a {
+    color: var(--accent2);
+    text-decoration: none;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .td-url a:hover { text-decoration: underline; }
+
+  .td-dr {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+
+  .dr-high { color: var(--accent); }
+  .dr-mid { color: var(--yellow); }
+  .dr-low { color: var(--text3); }
+
+  /* PILLS */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  .pill-gray { background: rgba(139,147,168,0.12); color: var(--text3); }
+  .pill-yellow { background: rgba(255,209,102,0.12); color: var(--yellow); }
+  .pill-green { background: rgba(0,229,160,0.12); color: var(--green); }
+  .pill-red { background: rgba(255,77,109,0.12); color: var(--red); }
+  .pill-blue { background: rgba(0,153,255,0.12); color: var(--accent2); }
+  .pill-purple { background: rgba(167,139,250,0.12); color: var(--purple); }
+  .pill-orange { background: rgba(255,107,53,0.12); color: var(--orange); }
+  .pill-pink { background: rgba(255,95,160,0.12); color: var(--pink); }
+
+  /* ROW ACTIONS */
+  .row-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  tr:hover .row-actions { opacity: 1; }
+
+  .action-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text3);
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+
+  .action-btn:hover { color: var(--text); border-color: var(--text3); }
+  .action-btn.edit:hover { color: var(--accent2); border-color: var(--accent2); }
+  .action-btn.email:hover { color: var(--accent); border-color: var(--accent); }
+  .action-btn.delete:hover { color: var(--red); border-color: var(--red); }
+
+  /* KANBAN */
+  .kanban {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    min-height: 60vh;
+  }
+
+  .kanban-col {
+    flex: 0 0 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .kanban-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .kanban-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .kanban-count {
+    background: var(--surface2);
+    color: var(--text3);
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .kanban-body { display: flex; flex-direction: column; gap: 8px; }
+
+  .kanban-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .kanban-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,229,160,0.08);
+  }
+
+  .kanban-card-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .kanban-card-type {
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .kanban-card-url {
+    font-size: 11px;
+    color: var(--accent2);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .kanban-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .kanban-card-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .kanban-card-meta-val {
+    font-family: 'DM Mono', monospace;
+    color: var(--text2);
+    font-size: 11px;
+  }
+
+  .days-badge {
+    background: rgba(255,107,53,0.12);
+    color: var(--orange);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+  }
+
+  .days-badge.fresh { background: rgba(0,229,160,0.12); color: var(--accent); }
+  .days-badge.warn { background: rgba(255,209,102,0.12); color: var(--yellow); }
+  .days-badge.stale { background: rgba(255,77,109,0.12); color: var(--red); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: 90%;
+    max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(10px);
+    transition: transform 0.2s;
+  }
+
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+
+  .modal-close:hover { color: var(--text); border-color: var(--text3); }
+
+  .modal-body { padding: 20px 24px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-grid.single { grid-template-columns: 1fr; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .form-group.span2 { grid-column: span 2; }
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  input[type="text"], input[type="url"], input[type="email"], input[type="number"], input[type="date"], select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  input::placeholder, textarea::placeholder { color: var(--text3); }
+
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* EMAIL DRAFT */
+  .email-draft-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .email-draft-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .email-draft-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .copy-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .email-preview {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* CONFIG PANEL */
+  .config-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .config-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .config-steps { display: flex; flex-direction: column; gap: 12px; }
+
+  .config-step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .step-content { flex: 1; }
+
+  .step-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 12px;
+    color: var(--text3);
+    line-height: 1.5;
+  }
+
+  .step-desc a { color: var(--accent2); }
+
+  .sheet-id-row { display: flex; gap: 10px; margin-top: 12px; }
+  .sheet-id-row input { flex: 1; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text3);
+  }
+
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-title { font-size: 16px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+  .empty-desc { font-size: 13px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 2000;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: rgba(0,229,160,0.3); }
+  .toast.error { border-color: rgba(255,77,109,0.3); }
+
+  /* LOADING */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    gap: 10px;
+    color: var(--text3);
+  }
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  .section-hidden { display: none; }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    flex: 1;
+    min-width: 130px;
+  }
+
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-val.accent { color: var(--accent); }
+  .stat-val.blue { color: var(--accent2); }
+  .stat-val.orange { color: var(--orange); }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">SpotEasy<span class="logo-dot">.</span> CRM</div>
+  <div class="topbar-right">
+    <div class="status-pill" id="connectionStatus">
+      <div class="status-dot"></div>
+      <span id="statusText">Not connected</span>
+    </div>
+    <button class="config-btn" onclick="showSetup()">⚙ Setup</button>
+  </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav">
+  <div class="nav-tab active" onclick="switchTab('all')" id="tab-all">📋 All Leads</div>
+  <div class="nav-tab" onclick="switchTab('reached')" id="tab-reached">📩 IG Reach Out</div>
+  <div class="nav-tab" onclick="switchTab('responded')" id="tab-responded">💬 Responded</div>
+  <div class="nav-tab" onclick="switchTab('pipeline')" id="tab-pipeline">🏆 Pipeline</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SETUP PANEL -->
+  <div id="setupPanel" class="config-panel">
+    <div class="config-title">🔌 Connect to Google Sheets</div>
+    <div class="config-steps">
+      <div class="config-step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Create a Google Sheet</div>
+          <div class="step-desc">Create a new Google Sheet with these exact column headers in row 1:<br>
+          <code style="font-size:11px;color:var(--accent)">Business Name, Business Type, URL, First Name, Location, Domain Rating, Instagram, IG Reach Out Date, IG Status, Pipeline Stage, Mock Up Sent Date, Follow Up Date 1, Follow Up Date 2, Last Follow Up Date, Notes</code></div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Publish your Sheet to the web</div>
+          <div class="step-desc">In Google Sheets: <strong>File → Share → Publish to web</strong> → Select your sheet → Publish as CSV. Copy the URL and paste it below.</div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Get a Google Sheets API Key</div>
+          <div class="step-desc">Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Create project → Enable Google Sheets API → Create an API Key. This lets the app write data back to your sheet.</div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Enter your Sheet ID & API Key</div>
+          <div class="step-desc">Your Sheet ID is in the URL: docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</div>
+          <div class="sheet-id-row">
+            <input type="text" id="sheetIdInput" placeholder="Sheet ID (e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms)" />
+            <button class="btn btn-secondary" onclick="saveSheetId()">Save</button>
+          </div>
+          <div class="sheet-id-row">
+            <input type="text" id="apiKeyInput" placeholder="Google API Key" />
+            <button class="btn btn-primary" onclick="connect()">Connect</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row" id="statsRow" style="display:none">
+    <div class="stat-card">
+      <div class="stat-val" id="statTotal">—</div>
+      <div class="stat-label">Total Leads</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val accent" id="statReached">—</div>
+      <div class="stat-label">Reached Out</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val blue" id="statResponded">—</div>
+      <div class="stat-label">Responded</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val orange" id="statPipeline">—</div>
+      <div class="stat-label">In Pipeline</div>
+    </div>
+  </div>
+
+  <!-- ALL LEADS TAB -->
+  <div id="section-all">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchAll" placeholder="Search leads..." oninput="renderAll()">
+        </div>
+        <select class="filter-select" id="filterStatus" onchange="renderAll()">
+          <option value="">All Statuses</option>
+          <option>Not Reached Out</option>
+          <option>Reached Out</option>
+          <option>Responded</option>
+          <option>No Response</option>
+        </select>
+        <select class="filter-select" id="filterLocation" onchange="renderAll()">
+          <option value="">All Locations</option>
+        </select>
+        <span class="count-badge" id="countAll">0</span>
+      </div>
+      <button class="btn btn-primary" onclick="openAddModal()">+ Add Lead</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('businessName')">Business ↕</th>
+            <th onclick="sortBy('businessType')">Type ↕</th>
+            <th>Location</th>
+            <th onclick="sortBy('domainRating')">DR ↕</th>
+            <th>Instagram</th>
+            <th onclick="sortBy('igReachOutDate')">Reach Out Date ↕</th>
+            <th>IG Status</th>
+            <th>Pipeline</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableAll"></tbody>
+      </table>
+      <div id="loadingAll" class="loading"><div class="spinner"></div> Loading leads...</div>
+      <div id="emptyAll" class="empty-state section-hidden">
+        <div class="empty-icon">📭</div>
+        <div class="empty-title">No leads found</div>
+        <div class="empty-desc">Try adjusting your search or filters</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IG REACH OUT TAB -->
+  <div id="section-reached" class="section-hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchReached" placeholder="Search..." oninput="renderReached()">
+        </div>
+        <span class="count-badge" id="countReached">0</span>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Business</th>
+            <th>First Name</th>
+            <th>Location</th>
+            <th>Instagram</th>
+            <th>Reach Out Date</th>
+            <th>IG Status</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableReached"></tbody>
+      </table>
+      <div id="emptyReached" class="empty-state section-hidden">
+        <div class="empty-icon">📩</div>
+        <div class="empty-title">No reached out leads</div>
+        <div class="empty-desc">Leads with IG Status "Reached Out" will appear here</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESPONDED TAB -->
+  <div id="section-responded" class="section-hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchResponded" placeholder="Search..." oninput="renderResponded()">
+        </div>
+        <span class="count-badge" id="countResponded">0</span>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Business</th>
+            <th>First Name</th>
+            <th>Location</th>
+            <th>Instagram</th>
+            <th>Reach Out Date</th>
+            <th>IG Status</th>
+            <th>Pipeline Stage</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableResponded"></tbody>
+      </table>
+      <div id="emptyResponded" class="empty-state section-hidden">
+        <div class="empty-icon">💬</div>
+        <div class="empty-title">No responded leads</div>
+        <div class="empty-desc">Leads with IG Status "Responded" will appear here</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIPELINE KANBAN TAB -->
+  <div id="section-pipeline" class="section-hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchPipeline" placeholder="Search pipeline..." oninput="renderPipeline()">
+        </div>
+      </div>
+    </div>
+    <div class="kanban" id="kanbanBoard"></div>
+    <div id="emptyPipeline" class="empty-state section-hidden">
+      <div class="empty-icon">🏆</div>
+      <div class="empty-title">No pipeline leads</div>
+      <div class="empty-desc">Responded leads with a Pipeline Stage will appear here</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="leadModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add Lead</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Business Name *</label>
+          <input type="text" id="f-businessName" placeholder="e.g. Aceituna Grill">
+        </div>
+        <div class="form-group">
+          <label>Business Type</label>
+          <input type="text" id="f-businessType" placeholder="e.g. restaurants">
+        </div>
+        <div class="form-group">
+          <label>Website URL</label>
+          <input type="url" id="f-url" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="f-firstName" placeholder="Contact first name">
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" id="f-location" placeholder="e.g. Boston">
+        </div>
+        <div class="form-group">
+          <label>Domain Rating</label>
+          <input type="number" id="f-domainRating" placeholder="0–100" min="0" max="100">
+        </div>
+        <div class="form-group span2">
+          <label>Instagram URL</label>
+          <input type="url" id="f-instagram" placeholder="https://instagram.com/...">
+        </div>
+        <div class="form-group">
+          <label>IG Reach Out Date</label>
+          <input type="date" id="f-igReachOutDate">
+        </div>
+        <div class="form-group">
+          <label>IG Status</label>
+          <select id="f-igStatus">
+            <option>Not Reached Out</option>
+            <option>Reached Out</option>
+            <option>Responded</option>
+            <option>No Response</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Pipeline Stage</label>
+          <select id="f-pipelineStage">
+            <option value=""></option>
+            <option>Opportunity</option>
+            <option>Replied</option>
+            <option>Mock Up Required</option>
+            <option>Mock Up Sent</option>
+            <option>Follow Up</option>
+            <option>Confirming Backlink</option>
+            <option>Closed</option>
+            <option>Lost</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mock Up Sent Date</label>
+          <input type="date" id="f-mockUpSentDate">
+        </div>
+        <div class="form-group">
+          <label>Follow Up Date 1</label>
+          <input type="date" id="f-followUpDate1">
+        </div>
+        <div class="form-group">
+          <label>Follow Up Date 2</label>
+          <input type="date" id="f-followUpDate2">
+        </div>
+        <div class="form-group">
+          <label>Last Follow Up Date</label>
+          <input type="date" id="f-lastFollowUpDate">
+        </div>
+        <div class="form-group span2">
+          <label>Notes</label>
+          <textarea id="f-notes" placeholder="Any notes..."></textarea>
+        </div>
+      </div>
+
+      <!-- FOLLOW UP EMAIL DRAFT -->
+      <div class="email-draft-section" id="emailDraftSection" style="display:none">
+        <div class="email-draft-header">
+          <div class="email-draft-label">📧 Follow Up Email Draft</div>
+          <button class="copy-btn" onclick="copyEmail()">Copy Email</button>
+        </div>
+        <div class="email-preview" id="emailPreview"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" id="deleteBtn" style="display:none" onclick="deleteLead()">Delete</button>
+      <button class="btn btn-primary" onclick="saveLead()">Save Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG & STATE
+// ============================================================
+let SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
+let API_KEY = localStorage.getItem('spoteasy_api_key') || '';
+const SHEET_NAME = 'Sheet1';
+
+const COLUMNS = [
+  'businessName','businessType','url','firstName','location',
+  'domainRating','instagram','igReachOutDate','igStatus','pipelineStage',
+  'mockUpSentDate','followUpDate1','followUpDate2','lastFollowUpDate','notes'
+];
+
+const COL_HEADERS = [
+  'Business Name','Business Type','URL','First Name','Location',
+  'Domain Rating','Instagram','IG Reach Out Date','IG Status','Pipeline Stage',
+  'Mock Up Sent Date','Follow Up Date 1','Follow Up Date 2','Last Follow Up Date','Notes'
+];
+
+let leads = [];
+let currentTab = 'all';
+let editingRow = null; // 1-based row number in sheet
+let sortCol = null;
+let sortDir = 1;
+
+const PIPELINE_STAGES = ['Opportunity','Replied','Mock Up Required','Mock Up Sent','Follow Up','Confirming Backlink','Closed','Lost'];
+
+const STAGE_COLORS = {
+  'Opportunity': 'blue',
+  'Replied': 'purple',
+  'Mock Up Required': 'orange',
+  'Mock Up Sent': 'yellow',
+  'Follow Up': 'pink',
+  'Confirming Backlink': 'green',
+  'Closed': 'green',
+  'Lost': 'red'
+};
+
+const STATUS_COLORS = {
+  'Not Reached Out': 'gray',
+  'Reached Out': 'yellow',
+  'Responded': 'green',
+  'No Response': 'red'
+};
+
+// ============================================================
+// INIT
+// ============================================================
+window.onload = () => {
+  if (SHEET_ID) document.getElementById('sheetIdInput').value = SHEET_ID;
+  if (API_KEY) document.getElementById('apiKeyInput').value = API_KEY;
+
+  if (SHEET_ID && API_KEY) {
+    document.getElementById('setupPanel').style.display = 'none';
+    loadLeads();
+  }
+};
+
+// ============================================================
+// GOOGLE SHEETS API
+// ============================================================
+function saveSheetId() {
+  SHEET_ID = document.getElementById('sheetIdInput').value.trim();
+  localStorage.setItem('spoteasy_sheet_id', SHEET_ID);
+  showToast('Sheet ID saved', 'success');
+}
+
+async function connect() {
+  SHEET_ID = document.getElementById('sheetIdInput').value.trim();
+  API_KEY = document.getElementById('apiKeyInput').value.trim();
+  localStorage.setItem('spoteasy_sheet_id', SHEET_ID);
+  localStorage.setItem('spoteasy_api_key', API_KEY);
+
+  if (!SHEET_ID || !API_KEY) {
+    showToast('Please enter both Sheet ID and API Key', 'error');
+    return;
+  }
+
+  await loadLeads();
+  document.getElementById('setupPanel').style.display = 'none';
+}
+
+async function loadLeads() {
+  setStatus('loading');
+  document.getElementById('loadingAll').style.display = 'flex';
+  document.getElementById('tableAll').innerHTML = '';
+
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch');
+    const data = await res.json();
+    const rows = data.values || [];
+
+    // Skip header row (row 1)
+    leads = rows.slice(1).map((row, i) => {
+      const obj = { _row: i + 2 }; // 1-based, +2 for header
+      COLUMNS.forEach((col, ci) => { obj[col] = row[ci] || ''; });
+      return obj;
+    });
+
+    setStatus('connected');
+    populateLocationFilter();
+    updateStats();
+    renderAll();
+    renderReached();
+    renderResponded();
+    renderPipeline();
+    document.getElementById('statsRow').style.display = 'flex';
+    document.getElementById('loadingAll').style.display = 'none';
+    showToast(`Loaded ${leads.length} leads`, 'success');
+  } catch (e) {
+    setStatus('error');
+    document.getElementById('loadingAll').style.display = 'none';
+    showToast('Failed to load sheet. Check your Sheet ID and API Key.', 'error');
+  }
+}
+
+async function writeRow(rowNum, values) {
+  const range = `${SHEET_NAME}!A${rowNum}:O${rowNum}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [values] })
+  });
+  if (!res.ok) throw new Error('Write failed');
+}
+
+async function appendRow(values) {
+  const range = `${SHEET_NAME}!A:O`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key=${API_KEY}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [values] })
+  });
+  if (!res.ok) throw new Error('Append failed');
+}
+
+async function deleteRow(rowNum) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate?key=${API_KEY}`;
+  // Get sheet ID first
+  const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}`);
+  const meta = await metaRes.json();
+  const sheetId = meta.sheets[0].properties.sheetId;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId: sheetId,
+            dimension: 'ROWS',
+            startIndex: rowNum - 1,
+            endIndex: rowNum
+          }
+        }
+      }]
+    })
+  });
+  if (!res.ok) throw new Error('Delete failed');
+}
+
+// ============================================================
+// STATUS
+// ============================================================
+function setStatus(s) {
+  const el = document.getElementById('connectionStatus');
+  const txt = document.getElementById('statusText');
+  el.className = 'status-pill';
+  if (s === 'connected') { el.classList.add('connected'); txt.textContent = 'Connected'; }
+  else if (s === 'error') { el.classList.add('disconnected'); txt.textContent = 'Error'; }
+  else { txt.textContent = 'Connecting...'; }
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(tab) {
+  currentTab = tab;
+  ['all','reached','responded','pipeline'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    document.getElementById(`section-${t}`).classList.toggle('section-hidden', t !== tab);
+  });
+}
+
+function showSetup() {
+  const p = document.getElementById('setupPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+  document.getElementById('statTotal').textContent = leads.length;
+  document.getElementById('statReached').textContent = leads.filter(l => l.igStatus === 'Reached Out').length;
+  document.getElementById('statResponded').textContent = leads.filter(l => l.igStatus === 'Responded').length;
+  document.getElementById('statPipeline').textContent = leads.filter(l => l.igStatus === 'Responded' && l.pipelineStage).length;
+}
+
+function populateLocationFilter() {
+  const locs = [...new Set(leads.map(l => l.location).filter(Boolean))].sort();
+  const sel = document.getElementById('filterLocation');
+  sel.innerHTML = '<option value="">All Locations</option>';
+  locs.forEach(l => { const o = document.createElement('option'); o.value = l; o.textContent = l; sel.appendChild(o); });
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function igStatusPill(status) {
+  const c = STATUS_COLORS[status] || 'gray';
+  return `<span class="pill pill-${c}"><span class="pill-dot"></span>${status || 'Not Reached Out'}</span>`;
+}
+
+function pipelinePill(stage) {
+  if (!stage) return '—';
+  const c = STAGE_COLORS[stage] || 'gray';
+  return `<span class="pill pill-${c}">${stage}</span>`;
+}
+
+function drCell(val) {
+  const n = parseFloat(val) || 0;
+  const cls = n >= 20 ? 'dr-high' : n >= 10 ? 'dr-mid' : 'dr-low';
+  return `<span class="td-dr ${cls}">${n || '—'}</span>`;
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  const now = new Date();
+  return Math.floor((now - d) / 86400000);
+}
+
+function daysBadge(days) {
+  if (days === null) return '';
+  const cls = days <= 3 ? 'fresh' : days <= 7 ? 'warn' : 'stale';
+  return `<span class="days-badge ${cls}">${days}d ago</span>`;
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  renderAll();
+}
+
+function filteredLeads(search, status, location) {
+  let list = [...leads];
+  if (search) {
+    const q = search.toLowerCase();
+    list = list.filter(l => (l.businessName + l.location + l.businessType + l.firstName).toLowerCase().includes(q));
+  }
+  if (status) list = list.filter(l => (l.igStatus || 'Not Reached Out') === status);
+  if (location) list = list.filter(l => l.location === location);
+  if (sortCol) {
+    list.sort((a, b) => {
+      let av = a[sortCol] || '', bv = b[sortCol] || '';
+      if (sortCol === 'domainRating') { av = parseFloat(av) || 0; bv = parseFloat(bv) || 0; }
+      return av > bv ? sortDir : av < bv ? -sortDir : 0;
+    });
+  }
+  return list;
+}
+
+// ============================================================
+// RENDER ALL LEADS
+// ============================================================
+function renderAll() {
+  const search = document.getElementById('searchAll').value;
+  const status = document.getElementById('filterStatus').value;
+  const location = document.getElementById('filterLocation').value;
+  const list = filteredLeads(search, status, location);
+  document.getElementById('countAll').textContent = list.length;
+
+  const tbody = document.getElementById('tableAll');
+  if (list.length === 0) {
+    tbody.innerHTML = '';
+    document.getElementById('emptyAll').classList.remove('section-hidden');
+    return;
+  }
+  document.getElementById('emptyAll').classList.add('section-hidden');
+
+  tbody.innerHTML = list.map(l => `
+    <tr>
+      <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName || '—'}</div></td>
+      <td>${l.businessType || '—'}</td>
+      <td>${l.location || '—'}</td>
+      <td>${drCell(l.domainRating)}</td>
+      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">@ig</a>` : '—'}</td>
+      <td>${formatDate(l.igReachOutDate)}</td>
+      <td>${igStatusPill(l.igStatus)}</td>
+      <td>${pipelinePill(l.pipelineStage)}</td>
+      <td>
+        <div class="row-actions">
+          <div class="action-btn edit" title="Edit" onclick="openEditModal(${l._row})">✏</div>
+          <div class="action-btn email" title="Draft Email" onclick="openEmailModal(${l._row})">📧</div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ============================================================
+// RENDER IG REACH OUT
+// ============================================================
+function renderReached() {
+  const search = document.getElementById('searchReached').value.toLowerCase();
+  const list = leads.filter(l => l.igStatus === 'Reached Out' &&
+    (!search || (l.businessName + l.location + l.firstName).toLowerCase().includes(search)));
+
+  document.getElementById('countReached').textContent = list.length;
+  const tbody = document.getElementById('tableReached');
+
+  if (list.length === 0) {
+    tbody.innerHTML = '';
+    document.getElementById('emptyReached').classList.remove('section-hidden');
+    return;
+  }
+  document.getElementById('emptyReached').classList.add('section-hidden');
+
+  tbody.innerHTML = list.map(l => `
+    <tr>
+      <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName || '—'}</div></td>
+      <td>${l.firstName || '—'}</td>
+      <td>${l.location || '—'}</td>
+      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">@ig</a>` : '—'}</td>
+      <td>${formatDate(l.igReachOutDate)}</td>
+      <td>${igStatusPill(l.igStatus)}</td>
+      <td style="max-width:200px;color:var(--text3);font-size:12px">${l.notes || '—'}</td>
+      <td>
+        <div class="row-actions">
+          <div class="action-btn edit" onclick="openEditModal(${l._row})">✏</div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ============================================================
+// RENDER RESPONDED
+// ============================================================
+function renderResponded() {
+  const search = document.getElementById('searchResponded').value.toLowerCase();
+  const list = leads.filter(l => l.igStatus === 'Responded' &&
+    (!search || (l.businessName + l.location + l.firstName).toLowerCase().includes(search)));
+
+  document.getElementById('countResponded').textContent = list.length;
+  const tbody = document.getElementById('tableResponded');
+
+  if (list.length === 0) {
+    tbody.innerHTML = '';
+    document.getElementById('emptyResponded').classList.remove('section-hidden');
+    return;
+  }
+  document.getElementById('emptyResponded').classList.add('section-hidden');
+
+  tbody.innerHTML = list.map(l => `
+    <tr>
+      <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName || '—'}</div></td>
+      <td>${l.firstName || '—'}</td>
+      <td>${l.location || '—'}</td>
+      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">@ig</a>` : '—'}</td>
+      <td>${formatDate(l.igReachOutDate)}</td>
+      <td>${igStatusPill(l.igStatus)}</td>
+      <td>${pipelinePill(l.pipelineStage)}</td>
+      <td style="max-width:180px;color:var(--text3);font-size:12px">${l.notes || '—'}</td>
+      <td>
+        <div class="row-actions">
+          <div class="action-btn edit" onclick="openEditModal(${l._row})">✏</div>
+          <div class="action-btn email" onclick="openEmailModal(${l._row})">📧</div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ============================================================
+// RENDER PIPELINE KANBAN
+// ============================================================
+function renderPipeline() {
+  const search = document.getElementById('searchPipeline').value.toLowerCase();
+  const list = leads.filter(l => l.igStatus === 'Responded' &&
+    (!search || (l.businessName + l.location).toLowerCase().includes(search)));
+
+  const board = document.getElementById('kanbanBoard');
+
+  if (list.length === 0) {
+    board.innerHTML = '';
+    document.getElementById('emptyPipeline').classList.remove('section-hidden');
+    return;
+  }
+  document.getElementById('emptyPipeline').classList.add('section-hidden');
+
+  board.innerHTML = PIPELINE_STAGES.map(stage => {
+    const cards = list.filter(l => l.pipelineStage === stage);
+    const color = STAGE_COLORS[stage] || 'gray';
+
+    const cardHTML = cards.map(l => {
+      const daysFU = daysSince(l.lastFollowUpDate);
+      const daysMU = daysSince(l.mockUpSentDate);
+      return `
+        <div class="kanban-card" onclick="openEditModal(${l._row})">
+          <div class="kanban-card-name">${l.businessName}</div>
+          <div class="kanban-card-type">${l.businessType || ''}</div>
+          ${l.url ? `<div class="kanban-card-url">${l.url.replace('https://','')}</div>` : ''}
+          <div class="kanban-card-meta">
+            ${l.location ? `<div class="kanban-card-meta-row"><span>📍</span><span class="kanban-card-meta-val">${l.location}</span></div>` : ''}
+            ${daysMU !== null ? `<div class="kanban-card-meta-row"><span>🎨 Mock Up</span>${daysBadge(daysMU)}</div>` : ''}
+            ${daysFU !== null ? `<div class="kanban-card-meta-row"><span>📅 Follow Up</span>${daysBadge(daysFU)}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="kanban-col">
+        <div class="kanban-header">
+          <span class="kanban-title" style="color:var(--${color === 'gray' ? 'text3' : color})">${stage}</span>
+          <span class="kanban-count">${cards.length}</span>
+        </div>
+        <div class="kanban-body">${cardHTML || `<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">Empty</div>`}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openAddModal() {
+  editingRow = null;
+  document.getElementById('modalTitle').textContent = 'Add Lead';
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('emailDraftSection').style.display = 'none';
+  clearForm();
+  document.getElementById('leadModal').classList.add('open');
+}
+
+function openEditModal(row) {
+  const lead = leads.find(l => l._row === row);
+  if (!lead) return;
+  editingRow = row;
+  document.getElementById('modalTitle').textContent = 'Edit Lead';
+  document.getElementById('deleteBtn').style.display = 'flex';
+  fillForm(lead);
+
+  // Show email draft if Follow Up stage
+  if (lead.pipelineStage === 'Follow Up') {
+    showEmailDraft(lead);
+  } else {
+    document.getElementById('emailDraftSection').style.display = 'none';
+  }
+
+  document.getElementById('leadModal').classList.add('open');
+}
+
+function openEmailModal(row) {
+  const lead = leads.find(l => l._row === row);
+  if (!lead) return;
+  editingRow = row;
+  document.getElementById('modalTitle').textContent = 'Edit Lead';
+  document.getElementById('deleteBtn').style.display = 'flex';
+  fillForm(lead);
+  showEmailDraft(lead);
+  document.getElementById('leadModal').classList.add('open');
+}
+
+function showEmailDraft(lead) {
+  const name = lead.firstName || lead.businessName || '[NAME]';
+  const bizName = lead.businessName || '[BUSINESS NAME]';
+  const draft = `Hi ${name},
+
+Just wanted to follow up on my email from a few days ago about featuring ${bizName} on Spot Easy's Local Spots section.
+
+Here's an example of how a current partner's ad appears on the platform: [LINK TO EXAMPLE BUSINESS PAGE]
+
+As a quick reminder, your ad will be rotated across all listings in your neighborhood, so you'll get consistent visibility to renters actively exploring the area.
+
+No pressure at all — just wanted to make sure it didn't get buried. Happy to answer any questions or jump on a quick call if that's easier.
+
+Thanks,
+Greg
+Head of Local Partnerships | Spot Easy
+7818662270
+Spoteasy.com
+Supporting Boston's local business community`;
+
+  document.getElementById('emailPreview').textContent = draft;
+  document.getElementById('emailDraftSection').style.display = 'block';
+}
+
+function copyEmail() {
+  const text = document.getElementById('emailPreview').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Email copied to clipboard!', 'success'));
+}
+
+function closeModal() {
+  document.getElementById('leadModal').classList.remove('open');
+  editingRow = null;
+}
+
+function clearForm() {
+  COLUMNS.forEach(col => {
+    const el = document.getElementById(`f-${col}`);
+    if (el) el.value = '';
+  });
+}
+
+function fillForm(lead) {
+  COLUMNS.forEach(col => {
+    const el = document.getElementById(`f-${col}`);
+    if (el) el.value = lead[col] || '';
+  });
+}
+
+function getFormValues() {
+  return COLUMNS.map(col => {
+    const el = document.getElementById(`f-${col}`);
+    return el ? el.value : '';
+  });
+}
+
+async function saveLead() {
+  const values = getFormValues();
+  if (!values[0]) { showToast('Business Name is required', 'error'); return; }
+
+  try {
+    if (editingRow) {
+      await writeRow(editingRow, values);
+      const idx = leads.findIndex(l => l._row === editingRow);
+      if (idx >= 0) {
+        const updated = { _row: editingRow };
+        COLUMNS.forEach((col, i) => { updated[col] = values[i]; });
+        leads[idx] = updated;
+      }
+      showToast('Lead updated!', 'success');
+    } else {
+      await appendRow(values);
+      const newRow = leads.length + 2;
+      const newLead = { _row: newRow };
+      COLUMNS.forEach((col, i) => { newLead[col] = values[i]; });
+      leads.push(newLead);
+      showToast('Lead added!', 'success');
+    }
+
+    closeModal();
+    updateStats();
+    populateLocationFilter();
+    renderAll();
+    renderReached();
+    renderResponded();
+    renderPipeline();
+  } catch (e) {
+    showToast('Failed to save. Check your API Key has write access.', 'error');
+  }
+}
+
+async function deleteLead() {
+  if (!editingRow) return;
+  if (!confirm('Delete this lead? This cannot be undone.')) return;
+
+  try {
+    await deleteRow(editingRow);
+    leads = leads.filter(l => l._row !== editingRow);
+    // Reindex rows
+    leads.forEach((l, i) => { l._row = i + 2; });
+    closeModal();
+    updateStats();
+    renderAll();
+    renderReached();
+    renderResponded();
+    renderPipeline();
+    showToast('Lead deleted', 'success');
+  } catch (e) {
+    showToast('Failed to delete. Check API Key permissions.', 'error');
+  }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => { t.classList.remove('show'); }, 3000);
+}
+
+// Close modal on overlay click
+document.getElementById('leadModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Pipeline stage → show email draft toggle
+document.getElementById('f-pipelineStage').addEventListener('change', function() {
+  if (this.value === 'Follow Up' && editingRow) {
+    const lead = leads.find(l => l._row === editingRow);
+    if (lead) showEmailDraft({...lead, pipelineStage: 'Follow Up'});
+  } else if (this.value === 'Follow Up') {
+    // New lead, use form values
+    showEmailDraft({
+      firstName: document.getElementById('f-firstName').value,
+      businessName: document.getElementById('f-businessName').value
+    });
+  }
+});
+</script>
+</body>
+</html>
