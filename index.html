@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SpotEasy — Local Spots CRM</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
     --bg: #061520;
@@ -817,63 +818,41 @@
 
   .login-logo span { color: var(--accent); }
 
-  .login-title {
-    font-size: 15px;
-    color: var(--text3);
-    font-family: 'DM Mono', monospace;
-    text-align: center;
-  }
-
-  .login-cards {
-    display: flex;
-    gap: 16px;
-  }
-
-  .login-card {
+  .login-box {
     background: var(--surface);
-    border: 2px solid var(--border);
+    border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 28px 32px;
-    cursor: pointer;
-    transition: all 0.2s;
+    padding: 36px 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
-    min-width: 160px;
+    gap: 16px;
+    min-width: 320px;
   }
 
-  .login-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(37,150,190,0.15);
-  }
-
-  .login-avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    font-weight: 700;
+  .login-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
     font-family: 'Syne', sans-serif;
   }
 
-  .avatar-greg { background: rgba(37,150,190,0.2); color: var(--accent2); }
-  .avatar-sanket { background: rgba(167,139,250,0.2); color: var(--purple); }
-
-  .login-name {
-    font-weight: 600;
-    font-size: 15px;
-    color: var(--text);
-  }
-
-  .login-email {
-    font-size: 11px;
+  .login-subtitle {
+    font-size: 12px;
     color: var(--text3);
     font-family: 'DM Mono', monospace;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .login-error {
+    font-size: 12px;
+    color: var(--red);
+    background: rgba(255,77,109,0.1);
+    border: 1px solid rgba(255,77,109,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
   }
 
   /* USER BADGE IN TOPBAR */
@@ -901,6 +880,15 @@
     font-size: 11px;
     font-weight: 700;
     font-family: 'Syne', sans-serif;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .user-badge-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
   }
 
   .user-badge-name {
@@ -908,6 +896,9 @@
     font-weight: 500;
     color: var(--text2);
   }
+
+  .avatar-greg { background: rgba(37,150,190,0.2); color: var(--accent2); }
+  .avatar-sanket { background: rgba(167,139,250,0.2); color: var(--purple); }
 
   /* ATTRIBUTION TAG in notes */
   .attr-tag {
@@ -934,18 +925,11 @@
 <!-- LOGIN OVERLAY -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-logo">SpotEasy<span>.</span> CRM</div>
-  <div class="login-title">Who's using the CRM today?</div>
-  <div class="login-cards">
-    <div class="login-card" onclick="loginAs('Greg', 'greg@spoteasy.com')">
-      <div class="login-avatar avatar-greg">G</div>
-      <div class="login-name">Greg</div>
-      <div class="login-email">greg@spoteasy.com</div>
-    </div>
-    <div class="login-card" onclick="loginAs('Sanket', 'sanket@spoteasy.com')">
-      <div class="login-avatar avatar-sanket">S</div>
-      <div class="login-name">Sanket</div>
-      <div class="login-email">sanket@spoteasy.com</div>
-    </div>
+  <div class="login-box">
+    <div class="login-title">Sign in to continue</div>
+    <div class="login-subtitle">Only authorised SpotEasy accounts can access this CRM.</div>
+    <div id="googleSignInBtn"></div>
+    <div id="loginError" class="login-error" style="display:none">⚠ This Google account is not authorised. Please use your SpotEasy account.</div>
   </div>
 </div>
 
@@ -983,36 +967,21 @@
       <div class="config-step">
         <div class="step-num">1</div>
         <div class="step-content">
-          <div class="step-title">Create a Google Sheet</div>
-          <div class="step-desc">Create a new Google Sheet with these exact column headers in row 1:<br>
-          <code style="font-size:11px;color:var(--accent)">Business Name, Business Type, URL, First Name, Location, Domain Rating, Instagram, IG Reach Out Date, IG Status, Pipeline Stage, Mock Up Sent Date, Follow Up Date 1, Follow Up Date 2, Last Follow Up Date, Notes</code></div>
+          <div class="step-title">Create an OAuth Client ID</div>
+          <div class="step-desc">Go to <a href="https://console.cloud.google.com" target="_blank" style="color:var(--accent2)">console.cloud.google.com</a> → Create/select a project → Enable <strong>Google Sheets API</strong> → Go to <strong>APIs & Services → Credentials</strong> → Create <strong>OAuth 2.0 Client ID</strong> → Application type: <strong>Web application</strong> → Add your app's URL to <em>Authorised JavaScript origins</em>. Copy the Client ID.</div>
+          <div class="sheet-id-row" style="margin-top:10px">
+            <input type="text" id="clientIdInput" placeholder="Client ID (e.g. 123456789.apps.googleusercontent.com)" value="${localStorage.getItem('spoteasy_client_id')||''}" />
+            <button class="btn btn-secondary" onclick="saveClientId()">Save & Reload</button>
+          </div>
         </div>
       </div>
       <div class="config-step">
         <div class="step-num">2</div>
         <div class="step-content">
-          <div class="step-title">Publish your Sheet to the web</div>
-          <div class="step-desc">In Google Sheets: <strong>File → Share → Publish to web</strong> → Select your sheet → Publish as CSV. Copy the URL and paste it below.</div>
-        </div>
-      </div>
-      <div class="config-step">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Get a Google Sheets API Key</div>
-          <div class="step-desc">Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Create project → Enable Google Sheets API → Create an API Key. This lets the app write data back to your sheet.</div>
-        </div>
-      </div>
-      <div class="config-step">
-        <div class="step-num">4</div>
-        <div class="step-content">
-          <div class="step-title">Enter your Sheet ID & API Key</div>
-          <div class="step-desc">Your Sheet ID is in the URL: docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</div>
-          <div class="sheet-id-row">
+          <div class="step-title">Enter your Sheet ID</div>
+          <div class="step-desc">Your Sheet ID is in the URL: docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit<br>Make sure you've shared the sheet with both <code style="color:var(--accent)">greg@spoteasy.com</code> and <code style="color:var(--accent)">sanket@spoteasy.com</code> with <strong>Editor</strong> access.</div>
+          <div class="sheet-id-row" style="margin-top:10px">
             <input type="text" id="sheetIdInput" placeholder="Sheet ID (e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms)" />
-            <button class="btn btn-secondary" onclick="saveSheetId()">Save</button>
-          </div>
-          <div class="sheet-id-row">
-            <input type="text" id="apiKeyInput" placeholder="Google API Key" />
             <button class="btn btn-primary" onclick="connect()">Connect</button>
           </div>
         </div>
@@ -1287,50 +1256,134 @@
 
 <script>
 // ============================================================
-// USER AUTH
+// USER AUTH — Google OAuth2 via GIS
 // ============================================================
-const USERS = {
-  'Greg':   { email: 'greg@spoteasy.com',   initial: 'G', color: 'greg' },
-  'Sanket': { email: 'sanket@spoteasy.com', initial: 'S', color: 'sanket' }
-};
+// ALLOWED USERS — only these emails can log in
+const ALLOWED_EMAILS = ['greg@spoteasy.com', 'sanket@spoteasy.com'];
 
-let currentUser = sessionStorage.getItem('spoteasy_user') || null;
+// Your Google OAuth Client ID — replace this with yours from console.cloud.google.com
+// Scopes needed: https://www.googleapis.com/auth/spreadsheets
+const GOOGLE_CLIENT_ID = localStorage.getItem('spoteasy_client_id') || '';
 
-function loginAs(name, email) {
-  currentUser = name;
-  sessionStorage.setItem('spoteasy_user', name);
+let currentUser = null;   // { name, email, picture, initial, color }
+let oauthToken = null;    // access token for write calls
+let tokenClient = null;   // GIS token client
+
+function getColorForEmail(email) {
+  if (email === 'greg@spoteasy.com') return 'greg';
+  if (email === 'sanket@spoteasy.com') return 'sanket';
+  return 'greg';
+}
+
+function initGoogleAuth() {
+  if (!GOOGLE_CLIENT_ID) return; // will init after client ID is entered
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: false,
+    cancel_on_tap_outside: false
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('googleSignInBtn'),
+    { theme: 'filled_blue', size: 'large', text: 'signin_with_google', shape: 'rectangular', width: 240 }
+  );
+
+  // Token client for OAuth2 (write access)
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: 'https://www.googleapis.com/auth/spreadsheets',
+    callback: (tokenResponse) => {
+      if (tokenResponse.error) { showToast('Auth error: ' + tokenResponse.error, 'error'); return; }
+      oauthToken = tokenResponse.access_token;
+      // Schedule refresh before expiry (55 min)
+      setTimeout(() => { oauthToken = null; tokenClient.requestAccessToken({ prompt: '' }); }, 55 * 60 * 1000);
+    }
+  });
+}
+
+function handleGoogleCredential(response) {
+  // Decode the JWT id_token to get user info
+  const payload = JSON.parse(atob(response.credential.split('.')[1]));
+  const email = payload.email;
+
+  if (!ALLOWED_EMAILS.includes(email)) {
+    document.getElementById('loginError').style.display = 'block';
+    return;
+  }
+  document.getElementById('loginError').style.display = 'none';
+
+  currentUser = {
+    name: payload.given_name || payload.name,
+    email: email,
+    picture: payload.picture || '',
+    initial: (payload.given_name || payload.name || '?')[0].toUpperCase(),
+    color: getColorForEmail(email)
+  };
+
+  sessionStorage.setItem('spoteasy_user', JSON.stringify(currentUser));
   document.getElementById('loginOverlay').style.display = 'none';
   updateUserBadge();
+
+  // Request write token silently (no prompt since just signed in)
+  if (tokenClient) tokenClient.requestAccessToken({ prompt: '' });
+
+  // Load sheet if we have an ID
+  if (SHEET_ID) { loadLeads(); document.getElementById('setupPanel').style.display = 'none'; }
 }
 
 function switchUser() {
   currentUser = null;
+  oauthToken = null;
   sessionStorage.removeItem('spoteasy_user');
+  google.accounts.id.disableAutoSelect();
   document.getElementById('loginOverlay').style.display = 'flex';
   document.getElementById('userBadge').style.display = 'none';
+  // Re-render the sign-in button
+  if (GOOGLE_CLIENT_ID) {
+    google.accounts.id.renderButton(
+      document.getElementById('googleSignInBtn'),
+      { theme: 'filled_blue', size: 'large', text: 'signin_with_google', shape: 'rectangular', width: 240 }
+    );
+  }
 }
 
 function updateUserBadge() {
   if (!currentUser) return;
-  const u = USERS[currentUser];
   const badge = document.getElementById('userBadge');
   const avatar = document.getElementById('userBadgeAvatar');
-  const name = document.getElementById('userBadgeName');
-  avatar.textContent = u.initial;
-  avatar.className = `user-badge-avatar avatar-${u.color}`;
-  name.textContent = currentUser;
+  const nameEl = document.getElementById('userBadgeName');
+  avatar.innerHTML = currentUser.picture
+    ? `<img src="${currentUser.picture}" alt="${currentUser.initial}">`
+    : currentUser.initial;
+  if (!currentUser.picture) avatar.className = `user-badge-avatar avatar-${currentUser.color}`;
+  nameEl.textContent = currentUser.name;
   badge.style.display = 'flex';
+}
+
+function ensureToken() {
+  // If we have a token, resolve immediately; otherwise request one (shows popup)
+  return new Promise((resolve, reject) => {
+    if (oauthToken) { resolve(oauthToken); return; }
+    const origCallback = tokenClient.callback;
+    tokenClient.callback = (resp) => {
+      tokenClient.callback = origCallback;
+      if (resp.error) { reject(new Error(resp.error)); return; }
+      oauthToken = resp.access_token;
+      origCallback(resp);
+      resolve(oauthToken);
+    };
+    tokenClient.requestAccessToken({ prompt: 'none' });
+  });
 }
 
 function getAttribution(action = 'Added') {
   if (!currentUser) return '';
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  return `\n[${action} by ${currentUser} · ${dateStr}]`;
+  return `\n[${action} by ${currentUser.name} · ${dateStr}]`;
 }
 
 function parseAttribution(notes) {
-  // Extracts the attribution tag(s) from notes
   const clean = (notes || '').replace(/\n?\[(?:Added|Updated) by .+? · .+?\]/g, '').trim();
   const matches = [...(notes || '').matchAll(/\[(Added|Updated) by (.+?) · (.+?)\]/g)];
   return { clean, attributions: matches.map(m => ({ action: m[1], user: m[2], date: m[3] })) };
@@ -1347,7 +1400,6 @@ function renderAttributionTag(attributions) {
 // CONFIG & STATE
 // ============================================================
 let SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
-let API_KEY = localStorage.getItem('spoteasy_api_key') || '';
 const SHEET_NAME = 'Sheet1';
 
 const COLUMNS = [
@@ -1392,21 +1444,27 @@ const STATUS_COLORS = {
 // INIT
 // ============================================================
 window.onload = () => {
+  SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
   if (SHEET_ID) document.getElementById('sheetIdInput').value = SHEET_ID;
-  if (API_KEY) document.getElementById('apiKeyInput').value = API_KEY;
 
-  // Handle login state
+  // Restore session from sessionStorage
+  const savedUser = sessionStorage.getItem('spoteasy_user');
+  if (savedUser) {
+    try { currentUser = JSON.parse(savedUser); } catch(e) { currentUser = null; }
+  }
+
   if (currentUser) {
     document.getElementById('loginOverlay').style.display = 'none';
     updateUserBadge();
+    if (SHEET_ID) { document.getElementById('setupPanel').style.display = 'none'; loadLeads(); }
   } else {
     document.getElementById('loginOverlay').style.display = 'flex';
   }
+};
 
-  if (SHEET_ID && API_KEY) {
-    document.getElementById('setupPanel').style.display = 'none';
-    loadLeads();
-  }
+// Called once GIS script loads
+window.onGoogleLibraryLoad = () => {
+  initGoogleAuth();
 };
 
 // ============================================================
@@ -1418,17 +1476,18 @@ function saveSheetId() {
   showToast('Sheet ID saved', 'success');
 }
 
+function saveClientId() {
+  const id = document.getElementById('clientIdInput').value.trim();
+  localStorage.setItem('spoteasy_client_id', id);
+  showToast('Client ID saved — reloading...', 'success');
+  setTimeout(() => location.reload(), 1000);
+}
+
 async function connect() {
   SHEET_ID = document.getElementById('sheetIdInput').value.trim();
-  API_KEY = document.getElementById('apiKeyInput').value.trim();
   localStorage.setItem('spoteasy_sheet_id', SHEET_ID);
-  localStorage.setItem('spoteasy_api_key', API_KEY);
-
-  if (!SHEET_ID || !API_KEY) {
-    showToast('Please enter both Sheet ID and API Key', 'error');
-    return;
-  }
-
+  if (!SHEET_ID) { showToast('Please enter a Sheet ID', 'error'); return; }
+  if (!currentUser) { showToast('Please sign in first', 'error'); return; }
   await loadLeads();
   document.getElementById('setupPanel').style.display = 'none';
 }
@@ -1439,15 +1498,16 @@ async function loadLeads() {
   document.getElementById('tableAll').innerHTML = '';
 
   try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
-    const res = await fetch(url);
+    // Reads can use the OAuth token directly
+    const token = await ensureToken();
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
     if (!res.ok) throw new Error('Failed to fetch');
     const data = await res.json();
     const rows = data.values || [];
 
-    // Skip header row (row 1)
     leads = rows.slice(1).map((row, i) => {
-      const obj = { _row: i + 2 }; // 1-based, +2 for header
+      const obj = { _row: i + 2 };
       COLUMNS.forEach((col, ci) => { obj[col] = row[ci] || ''; });
       return obj;
     });
@@ -1465,53 +1525,47 @@ async function loadLeads() {
   } catch (e) {
     setStatus('error');
     document.getElementById('loadingAll').style.display = 'none';
-    showToast('Failed to load sheet. Check your Sheet ID and API Key.', 'error');
+    showToast('Failed to load sheet. Check your Sheet ID.', 'error');
   }
 }
 
 async function writeRow(rowNum, values) {
+  const token = await ensureToken();
   const range = `${SHEET_NAME}!A${rowNum}:O${rowNum}`;
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
   const res = await fetch(url, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ values: [values] })
   });
-  if (!res.ok) throw new Error('Write failed');
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Write failed'); }
 }
 
 async function appendRow(values) {
+  const token = await ensureToken();
   const range = `${SHEET_NAME}!A:O`;
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key=${API_KEY}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ values: [values] })
   });
-  if (!res.ok) throw new Error('Append failed');
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Append failed'); }
 }
 
 async function deleteRow(rowNum) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate?key=${API_KEY}`;
-  // Get sheet ID first
-  const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}`);
+  const token = await ensureToken();
+  const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
   const meta = await metaRes.json();
   const sheetId = meta.sheets[0].properties.sheetId;
 
-  const res = await fetch(url, {
+  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({
-      requests: [{
-        deleteDimension: {
-          range: {
-            sheetId: sheetId,
-            dimension: 'ROWS',
-            startIndex: rowNum - 1,
-            endIndex: rowNum
-          }
-        }
-      }]
+      requests: [{ deleteDimension: { range: { sheetId, dimension: 'ROWS', startIndex: rowNum - 1, endIndex: rowNum } } }]
     })
   });
   if (!res.ok) throw new Error('Delete failed');
