@@ -827,7 +827,9 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
-    min-width: 320px;
+    min-width: 340px;
+    max-width: 420px;
+    width: 100%;
   }
 
   .login-title {
@@ -925,11 +927,24 @@
 <!-- LOGIN OVERLAY -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-logo">SpotEasy<span>.</span> CRM</div>
-  <div class="login-box">
+
+  <!-- Step 1: Enter Client ID (shown when not configured) -->
+  <div class="login-box" id="loginSetupBox" style="display:none">
+    <div class="login-title">One-time setup</div>
+    <div class="login-subtitle">Paste your Google OAuth Client ID to enable sign-in.<br>Get it from <a href="https://console.cloud.google.com" target="_blank" style="color:var(--accent2)">console.cloud.google.com</a> → Credentials.</div>
+    <input type="text" id="loginClientIdInput" placeholder="123456789-abc.apps.googleusercontent.com" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
+    <button onclick="saveClientIdFromLogin()" style="background:var(--accent);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;width:100%">Save & Continue</button>
+  </div>
+
+  <!-- Step 2: Sign in with Google (shown when client ID is set) -->
+  <div class="login-box" id="loginSignInBox" style="display:none">
     <div class="login-title">Sign in to continue</div>
     <div class="login-subtitle">Only authorised SpotEasy accounts can access this CRM.</div>
     <div id="googleSignInBtn"></div>
     <div id="loginError" class="login-error" style="display:none">⚠ This Google account is not authorised. Please use your SpotEasy account.</div>
+    <div style="margin-top:4px">
+      <span onclick="showClientIdSetup()" style="font-size:11px;color:var(--text3);cursor:pointer;font-family:'DM Mono',monospace;">⚙ Change Client ID</span>
+    </div>
   </div>
 </div>
 
@@ -1275,8 +1290,31 @@ function getColorForEmail(email) {
   return 'greg';
 }
 
+function showClientIdSetup() {
+  document.getElementById('loginSetupBox').style.display = 'flex';
+  document.getElementById('loginSignInBox').style.display = 'none';
+  const saved = localStorage.getItem('spoteasy_client_id') || '';
+  if (saved) document.getElementById('loginClientIdInput').value = saved;
+}
+
+function saveClientIdFromLogin() {
+  const id = document.getElementById('loginClientIdInput').value.trim();
+  if (!id) { alert('Please paste your Client ID first.'); return; }
+  localStorage.setItem('spoteasy_client_id', id);
+  location.reload();
+}
+
 function initGoogleAuth() {
-  if (!GOOGLE_CLIENT_ID) return; // will init after client ID is entered
+  if (!GOOGLE_CLIENT_ID) {
+    // No client ID yet — show setup box
+    document.getElementById('loginSetupBox').style.display = 'flex';
+    document.getElementById('loginSignInBox').style.display = 'none';
+    return;
+  }
+  // Client ID present — show sign-in box
+  document.getElementById('loginSetupBox').style.display = 'none';
+  document.getElementById('loginSignInBox').style.display = 'flex';
+
   google.accounts.id.initialize({
     client_id: GOOGLE_CLIENT_ID,
     callback: handleGoogleCredential,
@@ -1288,14 +1326,12 @@ function initGoogleAuth() {
     { theme: 'filled_blue', size: 'large', text: 'signin_with_google', shape: 'rectangular', width: 240 }
   );
 
-  // Token client for OAuth2 (write access)
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_CLIENT_ID,
     scope: 'https://www.googleapis.com/auth/spreadsheets',
     callback: (tokenResponse) => {
       if (tokenResponse.error) { showToast('Auth error: ' + tokenResponse.error, 'error'); return; }
       oauthToken = tokenResponse.access_token;
-      // Schedule refresh before expiry (55 min)
       setTimeout(() => { oauthToken = null; tokenClient.requestAccessToken({ prompt: '' }); }, 55 * 60 * 1000);
     }
   });
@@ -1447,7 +1483,7 @@ window.onload = () => {
   SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
   if (SHEET_ID) document.getElementById('sheetIdInput').value = SHEET_ID;
 
-  // Restore session from sessionStorage
+  // Restore session
   const savedUser = sessionStorage.getItem('spoteasy_user');
   if (savedUser) {
     try { currentUser = JSON.parse(savedUser); } catch(e) { currentUser = null; }
@@ -1459,6 +1495,14 @@ window.onload = () => {
     if (SHEET_ID) { document.getElementById('setupPanel').style.display = 'none'; loadLeads(); }
   } else {
     document.getElementById('loginOverlay').style.display = 'flex';
+    // Show correct box immediately (don't wait for GIS to load)
+    if (GOOGLE_CLIENT_ID) {
+      document.getElementById('loginSetupBox').style.display = 'none';
+      document.getElementById('loginSignInBox').style.display = 'flex';
+    } else {
+      document.getElementById('loginSetupBox').style.display = 'flex';
+      document.getElementById('loginSignInBox').style.display = 'none';
+    }
   }
 };
 
