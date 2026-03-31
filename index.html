@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spot Easy — Backlink Reach Out</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Mulish:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root {
   --bg: #f0f6fb;
@@ -225,7 +224,10 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
   <div class="login-box" id="loginSignInBox" style="display:none">
     <div class="login-title">Sign in to continue</div>
     <div class="login-subtitle">Only authorised SpotEasy team accounts can access this CRM.</div>
-    <div id="googleSignInBtn"></div>
+    <button class="login-btn" onclick="startOAuthFlow()" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1a2e3d;border:1px solid #cce0f0">
+      <img src="https://www.google.com/favicon.ico" width="18" height="18" style="border-radius:2px">
+      Sign in with Google
+    </button>
     <div id="loginError" class="login-error" style="display:none">⚠ This Google account is not authorised. Please use your SpotEasy account.</div>
     <span class="login-link" onclick="showClientIdSetup()">⚙ Change Client ID</span>
   </div>
@@ -362,7 +364,9 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 
     <div class="settings-section">
       <div class="settings-title">🔐 OAuth Client ID</div>
-      <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Required for Google Sign-In. Authorised JavaScript origin: <code style="color:var(--accent);font-family:'DM Mono',monospace">https://greglee722.github.io</code></p>
+      <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Required for Google Sign-In. In Google Cloud Console, set:<br>
+      • Authorised JavaScript origin: <code style="color:var(--accent);font-family:'DM Mono',monospace">https://greglee722.github.io</code><br>
+      • Authorised redirect URI: <code style="color:var(--accent);font-family:'DM Mono',monospace">https://greglee722.github.io/spoteasy-crm/</code></p>
       <div class="sheet-id-row">
         <input type="text" id="clientIdInput" placeholder="Client ID (.apps.googleusercontent.com)">
         <button class="btn btn-secondary" onclick="saveClientIdFromSettings()">Save & Reload</button>
@@ -445,11 +449,53 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 
 <script>
 // ============================================================
-// USER AUTH
+// USER AUTH — implicit OAuth redirect (works on GitHub Pages)
 // ============================================================
 const ALLOWED_EMAILS = ['greg@spoteasy.com','sanket@spoteasy.com'];
 const GOOGLE_CLIENT_ID = localStorage.getItem('spoteasy_client_id') || '';
-let currentUser = null, oauthToken = null, tokenClient = null;
+const REDIRECT_URI = location.origin + location.pathname;
+let currentUser = null, oauthToken = null;
+
+// On page load, check if we're returning from an OAuth redirect
+function checkOAuthRedirect() {
+  const hash = window.location.hash;
+  if (!hash) return false;
+  const params = new URLSearchParams(hash.replace('#','?'));
+  const token = params.get('access_token');
+  const state = params.get('state');
+  if (!token) return false;
+
+  // Clear the hash from the URL
+  history.replaceState(null, '', location.pathname);
+
+  // Restore user from state
+  try {
+    const savedUser = JSON.parse(decodeURIComponent(state || ''));
+    if (savedUser && ALLOWED_EMAILS.includes(savedUser.email)) {
+      currentUser = savedUser;
+      oauthToken = token;
+      sessionStorage.setItem('spoteasy_user', JSON.stringify(currentUser));
+      sessionStorage.setItem('spoteasy_token', token);
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+function startOAuthFlow() {
+  if (!GOOGLE_CLIENT_ID) { showClientIdSetup(); return; }
+  // Save any pending user info from the ID token step into state param
+  const state = encodeURIComponent(sessionStorage.getItem('spoteasy_pending_user') || '{}');
+  const params = new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    response_type: 'token',
+    scope: 'https://www.googleapis.com/auth/spreadsheets openid email profile',
+    state: state,
+    prompt: 'select_account'
+  });
+  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
+}
 
 function showClientIdSetup() {
   document.getElementById('loginSetupBox').style.display = 'flex';
@@ -473,53 +519,45 @@ function saveClientIdFromSettings() {
   setTimeout(() => location.reload(), 900);
 }
 
-function initGoogleAuth() {
-  if (!GOOGLE_CLIENT_ID) {
-    document.getElementById('loginSetupBox').style.display = 'flex';
-    document.getElementById('loginSignInBox').style.display = 'none';
-    return;
-  }
-  document.getElementById('loginSetupBox').style.display = 'none';
-  document.getElementById('loginSignInBox').style.display = 'flex';
-  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential, auto_select: false });
-  google.accounts.id.renderButton(document.getElementById('googleSignInBtn'),
-    { theme: 'outline', size: 'large', text: 'signin_with_google', shape: 'rectangular', width: 240 });
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: 'https://www.googleapis.com/auth/spreadsheets',
-    callback: (r) => {
-      if (r.error) return;
-      oauthToken = r.access_token;
-      setTimeout(() => { oauthToken = null; if (tokenClient) tokenClient.requestAccessToken({ prompt: '' }); }, 55*60*1000);
+// Called when returning from OAuth with a token — verify email via tokeninfo
+async function verifyAndLogin(token) {
+  try {
+    const res = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`);
+    const info = await res.json();
+    if (!info.email || !ALLOWED_EMAILS.includes(info.email)) {
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('loginSetupBox').style.display = 'none';
+      document.getElementById('loginSignInBox').style.display = 'flex';
+      oauthToken = null;
+      return;
     }
-  });
-}
-
-function handleGoogleCredential(response) {
-  const payload = JSON.parse(atob(response.credential.split('.')[1]));
-  if (!ALLOWED_EMAILS.includes(payload.email)) { document.getElementById('loginError').style.display = 'block'; return; }
-  document.getElementById('loginError').style.display = 'none';
-  currentUser = { name: payload.given_name || payload.name, email: payload.email, picture: payload.picture || '', initial: (payload.given_name || payload.name || '?')[0].toUpperCase() };
-  sessionStorage.setItem('spoteasy_user', JSON.stringify(currentUser));
-  document.getElementById('loginOverlay').style.display = 'none';
-  updateUserBadge();
-  if (tokenClient) tokenClient.requestAccessToken({ prompt: '' });
-  if (SHEET_ID) loadLeads(); else document.getElementById('missingBanner').style.display = 'flex';
+    currentUser = {
+      name: info.name || info.email.split('@')[0],
+      email: info.email,
+      picture: info.picture || '',
+      initial: (info.name || info.email)[0].toUpperCase()
+    };
+    oauthToken = token;
+    sessionStorage.setItem('spoteasy_user', JSON.stringify(currentUser));
+    sessionStorage.setItem('spoteasy_token', token);
+    document.getElementById('loginOverlay').style.display = 'none';
+    updateUserBadge();
+    if (SHEET_ID) loadLeads(); else document.getElementById('missingBanner').style.display = 'flex';
+  } catch(e) {
+    showToast('Auth failed — please try again', 'error');
+  }
 }
 
 function switchUser() {
   if (!confirm('Sign out?')) return;
   currentUser = null; oauthToken = null;
   sessionStorage.removeItem('spoteasy_user');
-  if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect();
+  sessionStorage.removeItem('spoteasy_token');
   document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('loginSetupBox').style.display = 'none';
+  document.getElementById('loginSignInBox').style.display = 'flex';
   document.getElementById('userBadge').style.display = 'none';
-  if (GOOGLE_CLIENT_ID) {
-    document.getElementById('loginSetupBox').style.display = 'none';
-    document.getElementById('loginSignInBox').style.display = 'flex';
-    if (typeof google !== 'undefined') google.accounts.id.renderButton(document.getElementById('googleSignInBtn'),
-      { theme: 'outline', size: 'large', text: 'signin_with_google', shape: 'rectangular', width: 240 });
-  }
 }
 
 function updateUserBadge() {
@@ -529,6 +567,15 @@ function updateUserBadge() {
   document.getElementById('userBadgeName').textContent = currentUser.name;
   document.getElementById('userBadge').style.display = 'flex';
 }
+
+function ensureToken() {
+  return new Promise((resolve, reject) => {
+    if (oauthToken) { resolve(oauthToken); return; }
+    reject(new Error('Not authenticated — please sign in again'));
+  });
+}
+
+window.onGoogleLibraryLoad = () => {}; // not needed for redirect flow
 
 function ensureToken() {
   return new Promise((resolve, reject) => {
@@ -566,28 +613,44 @@ function saveBusinessTypes(t) { localStorage.setItem('spoteasy_business_types', 
 // ============================================================
 // INIT
 // ============================================================
-window.onload = () => {
+window.onload = async () => {
   SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
   if (SHEET_ID) document.getElementById('sheetIdInput').value = SHEET_ID;
   const cid = localStorage.getItem('spoteasy_client_id') || '';
   if (cid) document.getElementById('clientIdInput').value = cid;
 
-  const saved = sessionStorage.getItem('spoteasy_user');
-  if (saved) { try { currentUser = JSON.parse(saved); } catch(e) { currentUser = null; } }
+  // Check if returning from OAuth redirect (token in URL hash)
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token')) {
+    const params = new URLSearchParams(hash.substring(1));
+    const token = params.get('access_token');
+    history.replaceState(null, '', location.pathname);
+    if (token) { await verifyAndLogin(token); return; }
+  }
 
-  if (currentUser) {
-    document.getElementById('loginOverlay').style.display = 'none';
-    updateUserBadge();
-    if (SHEET_ID) loadLeads(); else document.getElementById('missingBanner').style.display = 'flex';
+  // Restore session
+  const savedUser = sessionStorage.getItem('spoteasy_user');
+  const savedToken = sessionStorage.getItem('spoteasy_token');
+  if (savedUser && savedToken) {
+    try {
+      currentUser = JSON.parse(savedUser);
+      oauthToken = savedToken;
+      document.getElementById('loginOverlay').style.display = 'none';
+      updateUserBadge();
+      if (SHEET_ID) loadLeads(); else document.getElementById('missingBanner').style.display = 'flex';
+      renderTeamList(); renderTypeChips(); populateBusinessTypeDropdown();
+      return;
+    } catch(e) { currentUser = null; oauthToken = null; }
+  }
+
+  // Not logged in
+  document.getElementById('loginOverlay').style.display = 'flex';
+  if (GOOGLE_CLIENT_ID) {
+    document.getElementById('loginSetupBox').style.display = 'none';
+    document.getElementById('loginSignInBox').style.display = 'flex';
   } else {
-    document.getElementById('loginOverlay').style.display = 'flex';
-    if (GOOGLE_CLIENT_ID) {
-      document.getElementById('loginSetupBox').style.display = 'none';
-      document.getElementById('loginSignInBox').style.display = 'flex';
-    } else {
-      document.getElementById('loginSetupBox').style.display = 'flex';
-      document.getElementById('loginSignInBox').style.display = 'none';
-    }
+    document.getElementById('loginSetupBox').style.display = 'flex';
+    document.getElementById('loginSignInBox').style.display = 'none';
   }
   renderTeamList(); renderTypeChips(); populateBusinessTypeDropdown();
 };
