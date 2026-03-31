@@ -3,26 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SpotEasy — Local Spots CRM</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Spot Easy - Backlink Reach Out</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Mulish:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #061520;
-    --surface: #092540;
-    --surface2: #0c2e50;
-    --border: #124070;
-    --accent: #2596be;
-    --accent2: #3ab0dc;
-    --accent3: #1a7a9e;
-    --text: #ffffff;
-    --text2: #b8d4e8;
-    --text3: #6a96b8;
-    --yellow: #ffd166;
-    --pink: #ff5fa0;
-    --purple: #a78bfa;
-    --green: #00d4a0;
-    --red: #ff4d6d;
-    --orange: #ff6b35;
+    --bg: #f0f6fb;
+    --surface: #ffffff;
+    --surface2: #e8f2fa;
+    --border: #cce0f0;
+    --accent: #00acee;
+    --accent2: #0090cc;
+    --accent3: #33bdff;
+    --text: #1a2e3d;
+    --text2: #425466;
+    --text3: #7a9ab5;
+    --yellow: #f0a500;
+    --pink: #e8437a;
+    --purple: #7c5cbf;
+    --green: #00a878;
+    --red: #e03b5a;
+    --orange: #e8621a;
+    --navy: #0a2540;
     --radius: 10px;
   }
 
@@ -31,7 +32,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Mulish', sans-serif;
     font-size: 14px;
     min-height: 100vh;
     overflow-x: hidden;
@@ -44,19 +45,19 @@
     justify-content: space-between;
     padding: 0 24px;
     height: 56px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    background: var(--navy);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
     position: sticky;
     top: 0;
     z-index: 100;
   }
 
   .logo {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 900;
     font-size: 18px;
     letter-spacing: -0.5px;
-    color: var(--text);
+    color: #ffffff;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -76,8 +77,8 @@
     border: none;
     padding: 7px 14px;
     border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 700;
     font-size: 13px;
     cursor: pointer;
     transition: opacity 0.15s;
@@ -92,12 +93,12 @@
     padding: 5px 10px;
     border-radius: 20px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     font-family: 'DM Mono', monospace;
   }
 
-  .status-pill.connected { background: rgba(0,229,160,0.12); color: var(--accent); }
-  .status-pill.disconnected { background: rgba(255,77,109,0.12); color: var(--red); }
+  .status-pill.connected { background: rgba(0,172,238,0.18); color: #7de4ff; }
+  .status-pill.disconnected { background: rgba(255,77,109,0.18); color: #ff8fa3; }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
   /* NAV TABS */
@@ -113,7 +114,7 @@
   .nav-tab {
     padding: 10px 16px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 700;
     color: var(--text3);
     cursor: pointer;
     border-bottom: 2px solid transparent;
@@ -146,7 +147,7 @@
     color: var(--text);
     padding: 8px 12px 8px 36px;
     border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Mulish', sans-serif;
     font-size: 13px;
     width: 260px;
     outline: none;
@@ -174,7 +175,7 @@
     color: var(--text2);
     padding: 8px 12px;
     border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Mulish', sans-serif;
     font-size: 13px;
     outline: none;
     cursor: pointer;
@@ -188,9 +189,9 @@
     gap: 6px;
     padding: 8px 14px;
     border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Mulish', sans-serif;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 700;
     cursor: pointer;
     border: none;
     transition: all 0.15s;
@@ -219,6 +220,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
 
   table { width: 100%; border-collapse: collapse; }
@@ -232,7 +234,7 @@
     padding: 10px 14px;
     text-align: left;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 800;
     color: var(--text3);
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -253,7 +255,7 @@
 
   tr:last-child td { border-bottom: none; }
 
-  tr:hover td { background: rgba(255,255,255,0.02); }
+  tr:hover td { background: rgba(0,172,238,0.03); }
 
   .td-name {
     font-weight: 500;
@@ -391,18 +393,19 @@
     cursor: pointer;
     transition: all 0.15s;
     position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   }
 
   .kanban-card:hover {
     border-color: var(--accent);
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0,229,160,0.08);
+    box-shadow: 0 4px 16px rgba(0,172,238,0.12);
   }
 
   .kanban-card-name {
-    font-weight: 600;
+    font-weight: 800;
     font-size: 13px;
-    color: var(--text);
+    color: var(--navy);
     margin-bottom: 4px;
   }
 
@@ -456,15 +459,15 @@
     font-weight: 600;
   }
 
-  .days-badge.fresh { background: rgba(0,229,160,0.12); color: var(--accent); }
-  .days-badge.warn { background: rgba(255,209,102,0.12); color: var(--yellow); }
-  .days-badge.stale { background: rgba(255,77,109,0.12); color: var(--red); }
+  .days-badge.fresh { background: rgba(0,172,238,0.12); color: var(--accent); }
+  .days-badge.warn { background: rgba(240,165,0,0.12); color: var(--yellow); }
+  .days-badge.stale { background: rgba(224,59,90,0.12); color: var(--red); }
 
   /* MODAL */
   .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgba(10,37,64,0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -486,6 +489,7 @@
     overflow-y: auto;
     transform: translateY(10px);
     transition: transform 0.2s;
+    box-shadow: 0 8px 40px rgba(0,172,238,0.12);
   }
 
   .modal-overlay.open .modal { transform: translateY(0); }
@@ -503,9 +507,10 @@
   }
 
   .modal-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 900;
     font-size: 18px;
+    color: var(--navy);
   }
 
   .modal-close {
@@ -549,7 +554,7 @@
     color: var(--text);
     padding: 9px 12px;
     border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Mulish', sans-serif;
     font-size: 13px;
     outline: none;
     transition: border-color 0.15s;
@@ -629,14 +634,15 @@
     border-radius: 14px;
     padding: 24px;
     margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
 
   .config-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 900;
     font-size: 16px;
     margin-bottom: 16px;
-    color: var(--text);
+    color: var(--navy);
   }
 
   .config-steps { display: flex; flex-direction: column; gap: 12px; }
@@ -651,8 +657,8 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: rgba(0,229,160,0.12);
-    border: 1px solid rgba(0,229,160,0.3);
+    background: rgba(0,172,238,0.12);
+    border: 1px solid rgba(0,172,238,0.3);
     color: var(--accent);
     display: flex;
     align-items: center;
@@ -748,11 +754,11 @@
   .section-hidden { display: none; }
 
   .page-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 900;
     font-size: 22px;
     margin-bottom: 20px;
-    color: var(--text);
+    color: var(--navy);
   }
 
   .stats-row {
@@ -769,13 +775,14 @@
     padding: 14px 20px;
     flex: 1;
     min-width: 130px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
   }
 
   .stat-val {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 900;
     font-size: 28px;
-    color: var(--text);
+    color: var(--navy);
     line-height: 1;
     margin-bottom: 4px;
   }
@@ -799,7 +806,7 @@
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <div class="logo">SpotEasy<span class="logo-dot">.</span> CRM</div>
+  <div class="logo">Spot Easy<span class="logo-dot"> —</span> Backlink Reach Out</div>
   <div class="topbar-right">
     <div class="status-pill" id="connectionStatus">
       <div class="status-dot"></div>
@@ -829,7 +836,7 @@
         <div class="step-content">
           <div class="step-title">Create a Google Sheet</div>
           <div class="step-desc">Create a new Google Sheet with these exact column headers in row 1:<br>
-          <code style="font-size:11px;color:var(--accent)">Business Name, Business Type, URL, First Name, Location, Domain Rating, Instagram, IG Reach Out Date, IG Status, Pipeline Stage, Mock Up Sent Date, Follow Up Date 1, Follow Up Date 2, Last Follow Up Date, Notes</code></div>
+          <code style="font-size:11px;color:var(--accent)">Business Name, Business Type, URL, First Name, Location, Domain Rating, Instagram, IG Reach Out Date, IG Status, Pipeline Stage, Mock Up Sent Date, Last Email Sent, Last Updated, Notes</code></div>
         </div>
       </div>
       <div class="config-step">
@@ -918,6 +925,8 @@
             <th onclick="sortBy('igReachOutDate')">Reach Out Date ↕</th>
             <th>IG Status</th>
             <th>Pipeline</th>
+            <th>Last Email</th>
+            <th onclick="sortBy('lastUpdated')">Last Updated ↕</th>
             <th></th>
           </tr>
         </thead>
@@ -1078,13 +1087,13 @@
           <select id="f-pipelineStage">
             <option value=""></option>
             <option>Opportunity</option>
-            <option>Replied</option>
+            <option>1st Reach Out</option>
             <option>Mock Up Required</option>
             <option>Mock Up Sent</option>
-            <option>Follow Up</option>
-            <option>Confirming Backlink</option>
-            <option>Closed</option>
-            <option>Lost</option>
+            <option>Backlink Required</option>
+            <option>Backlink Acquired</option>
+            <option>No Response</option>
+            <option>Declined Offer</option>
           </select>
         </div>
         <div class="form-group">
@@ -1092,16 +1101,23 @@
           <input type="date" id="f-mockUpSentDate">
         </div>
         <div class="form-group">
-          <label>Follow Up Date 1</label>
-          <input type="date" id="f-followUpDate1">
+          <label>Last Email Sent</label>
+          <select id="f-lastEmailSent">
+            <option value=""></option>
+            <option>1st Template</option>
+            <option>Prompt 1A</option>
+            <option>Prompt 1B</option>
+            <option>Prompt 1C</option>
+            <option>2nd Template</option>
+            <option>Prompt 2A</option>
+            <option>Prompt 2B</option>
+            <option>Prompt 2C</option>
+            <option>3rd Template</option>
+          </select>
         </div>
         <div class="form-group">
-          <label>Follow Up Date 2</label>
-          <input type="date" id="f-followUpDate2">
-        </div>
-        <div class="form-group">
-          <label>Last Follow Up Date</label>
-          <input type="date" id="f-lastFollowUpDate">
+          <label>Last Updated</label>
+          <input type="text" id="f-lastUpdated" readonly placeholder="Auto-set on save" style="background:var(--surface2);opacity:0.7;cursor:not-allowed">
         </div>
         <div class="form-group span2">
           <label>Notes</label>
@@ -1140,13 +1156,13 @@ const SHEET_NAME = 'Sheet1';
 const COLUMNS = [
   'businessName','businessType','url','firstName','location',
   'domainRating','instagram','igReachOutDate','igStatus','pipelineStage',
-  'mockUpSentDate','followUpDate1','followUpDate2','lastFollowUpDate','notes'
+  'mockUpSentDate','lastEmailSent','lastUpdated','notes'
 ];
 
 const COL_HEADERS = [
   'Business Name','Business Type','URL','First Name','Location',
   'Domain Rating','Instagram','IG Reach Out Date','IG Status','Pipeline Stage',
-  'Mock Up Sent Date','Follow Up Date 1','Follow Up Date 2','Last Follow Up Date','Notes'
+  'Mock Up Sent Date','Last Email Sent','Last Updated','Notes'
 ];
 
 let leads = [];
@@ -1155,17 +1171,17 @@ let editingRow = null; // 1-based row number in sheet
 let sortCol = null;
 let sortDir = 1;
 
-const PIPELINE_STAGES = ['Opportunity','Replied','Mock Up Required','Mock Up Sent','Follow Up','Confirming Backlink','Closed','Lost'];
+const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Backlink Required','Backlink Acquired','No Response','Declined Offer'];
 
 const STAGE_COLORS = {
   'Opportunity': 'blue',
-  'Replied': 'purple',
+  '1st Reach Out': 'purple',
   'Mock Up Required': 'orange',
   'Mock Up Sent': 'yellow',
-  'Follow Up': 'pink',
-  'Confirming Backlink': 'green',
-  'Closed': 'green',
-  'Lost': 'red'
+  'Backlink Required': 'pink',
+  'Backlink Acquired': 'green',
+  'No Response': 'gray',
+  'Declined Offer': 'red'
 };
 
 const STATUS_COLORS = {
@@ -1174,6 +1190,11 @@ const STATUS_COLORS = {
   'Responded': 'green',
   'No Response': 'red'
 };
+
+const LAST_EMAIL_OPTIONS = [
+  '','1st Template','Prompt 1A','Prompt 1B','Prompt 1C',
+  '2nd Template','Prompt 2A','Prompt 2B','Prompt 2C','3rd Template'
+];
 
 // ============================================================
 // INIT
@@ -1249,7 +1270,7 @@ async function loadLeads() {
 }
 
 async function writeRow(rowNum, values) {
-  const range = `${SHEET_NAME}!A${rowNum}:O${rowNum}`;
+  const range = `${SHEET_NAME}!A${rowNum}:N${rowNum}`;
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED&key=${API_KEY}`;
   const res = await fetch(url, {
     method: 'PUT',
@@ -1260,7 +1281,7 @@ async function writeRow(rowNum, values) {
 }
 
 async function appendRow(values) {
-  const range = `${SHEET_NAME}!A:O`;
+  const range = `${SHEET_NAME}!A:N`;
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key=${API_KEY}`;
   const res = await fetch(url, {
     method: 'POST',
@@ -1431,6 +1452,8 @@ function renderAll() {
       <td>${formatDate(l.igReachOutDate)}</td>
       <td>${igStatusPill(l.igStatus)}</td>
       <td>${pipelinePill(l.pipelineStage)}</td>
+      <td style="font-size:12px;color:var(--text3)">${l.lastEmailSent || '—'}</td>
+      <td style="font-size:12px;color:var(--text3)">${l.lastUpdated || '—'}</td>
       <td>
         <div class="row-actions">
           <div class="action-btn edit" title="Edit" onclick="openEditModal(${l._row})">✏</div>
@@ -1537,8 +1560,8 @@ function renderPipeline() {
     const color = STAGE_COLORS[stage] || 'gray';
 
     const cardHTML = cards.map(l => {
-      const daysFU = daysSince(l.lastFollowUpDate);
       const daysMU = daysSince(l.mockUpSentDate);
+      const daysUpdated = daysSince(l.lastUpdated ? new Date(l.lastUpdated).toISOString().split('T')[0] : null);
       return `
         <div class="kanban-card" onclick="openEditModal(${l._row})">
           <div class="kanban-card-name">${l.businessName}</div>
@@ -1546,8 +1569,9 @@ function renderPipeline() {
           ${l.url ? `<div class="kanban-card-url">${l.url.replace('https://','')}</div>` : ''}
           <div class="kanban-card-meta">
             ${l.location ? `<div class="kanban-card-meta-row"><span>📍</span><span class="kanban-card-meta-val">${l.location}</span></div>` : ''}
+            ${l.lastEmailSent ? `<div class="kanban-card-meta-row"><span>📧</span><span class="kanban-card-meta-val">${l.lastEmailSent}</span></div>` : ''}
             ${daysMU !== null ? `<div class="kanban-card-meta-row"><span>🎨 Mock Up</span>${daysBadge(daysMU)}</div>` : ''}
-            ${daysFU !== null ? `<div class="kanban-card-meta-row"><span>📅 Follow Up</span>${daysBadge(daysFU)}</div>` : ''}
+            ${daysUpdated !== null ? `<div class="kanban-card-meta-row"><span>🕐 Updated</span>${daysBadge(daysUpdated)}</div>` : ''}
           </div>
         </div>
       `;
@@ -1585,8 +1609,9 @@ function openEditModal(row) {
   document.getElementById('deleteBtn').style.display = 'flex';
   fillForm(lead);
 
-  // Show email draft if Follow Up stage
-  if (lead.pipelineStage === 'Follow Up') {
+  // Show email draft for outreach stages
+  const followUpStages = ['1st Reach Out', 'Mock Up Sent', 'Backlink Required'];
+  if (followUpStages.includes(lead.pipelineStage)) {
     showEmailDraft(lead);
   } else {
     document.getElementById('emailDraftSection').style.display = 'none';
@@ -1665,6 +1690,16 @@ async function saveLead() {
   const values = getFormValues();
   if (!values[0]) { showToast('Business Name is required', 'error'); return; }
 
+  // Auto-set lastUpdated (index 12) if pipeline stage changed or is new
+  const prevLead = editingRow ? leads.find(l => l._row === editingRow) : null;
+  const newStage = values[9]; // pipelineStage index
+  const prevStage = prevLead ? prevLead.pipelineStage : null;
+  if (newStage !== prevStage || !editingRow) {
+    const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    values[12] = today;
+    document.getElementById('f-lastUpdated').value = today;
+  }
+
   try {
     if (editingRow) {
       await writeRow(editingRow, values);
@@ -1734,15 +1769,15 @@ document.getElementById('leadModal').addEventListener('click', function(e) {
 
 // Pipeline stage → show email draft toggle
 document.getElementById('f-pipelineStage').addEventListener('change', function() {
-  if (this.value === 'Follow Up' && editingRow) {
-    const lead = leads.find(l => l._row === editingRow);
-    if (lead) showEmailDraft({...lead, pipelineStage: 'Follow Up'});
-  } else if (this.value === 'Follow Up') {
-    // New lead, use form values
-    showEmailDraft({
+  const followUpStages = ['1st Reach Out', 'Mock Up Sent', 'Backlink Required'];
+  if (followUpStages.includes(this.value)) {
+    const lead = editingRow ? leads.find(l => l._row === editingRow) : null;
+    showEmailDraft(lead || {
       firstName: document.getElementById('f-firstName').value,
       businessName: document.getElementById('f-businessName').value
     });
+  } else {
+    document.getElementById('emailDraftSection').style.display = 'none';
   }
 });
 </script>
