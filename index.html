@@ -71,21 +71,6 @@
     gap: 12px;
   }
 
-  .config-btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 7px 14px;
-    border-radius: 6px;
-    font-family: 'Mulish', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-
-  .config-btn:hover { opacity: 0.85; }
-
   .status-pill {
     display: flex;
     align-items: center;
@@ -100,6 +85,24 @@
   .status-pill.connected { background: rgba(0,172,238,0.18); color: #7de4ff; }
   .status-pill.disconnected { background: rgba(255,77,109,0.18); color: #ff8fa3; }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* USER AVATAR */
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.2);
+    transition: border-color 0.15s;
+  }
+  .user-avatar:hover { border-color: rgba(255,255,255,0.5); }
 
   /* NAV TABS */
   .nav {
@@ -152,7 +155,6 @@
     width: 260px;
     outline: none;
     transition: border-color 0.15s;
-    position: relative;
   }
 
   .search-wrap { position: relative; }
@@ -254,7 +256,6 @@
   }
 
   tr:last-child td { border-bottom: none; }
-
   tr:hover td { background: rgba(0,172,238,0.03); }
 
   .td-name {
@@ -276,11 +277,7 @@
 
   .td-url a:hover { text-decoration: underline; }
 
-  .td-dr {
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-  }
-
+  .td-dr { font-family: 'DM Mono', monospace; font-size: 13px; }
   .dr-high { color: var(--accent); }
   .dr-mid { color: var(--yellow); }
   .dr-low { color: var(--text3); }
@@ -298,7 +295,6 @@
   }
 
   .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-
   .pill-gray { background: rgba(139,147,168,0.12); color: var(--text3); }
   .pill-yellow { background: rgba(255,209,102,0.12); color: var(--yellow); }
   .pill-green { background: rgba(0,229,160,0.12); color: var(--green); }
@@ -336,7 +332,6 @@
 
   .action-btn:hover { color: var(--text); border-color: var(--text3); }
   .action-btn.edit:hover { color: var(--accent2); border-color: var(--accent2); }
-  .action-btn.email:hover { color: var(--accent); border-color: var(--accent); }
   .action-btn.delete:hover { color: var(--red); border-color: var(--red); }
 
   /* KANBAN */
@@ -450,8 +445,6 @@
   }
 
   .days-badge {
-    background: rgba(255,107,53,0.12);
-    color: var(--orange);
     padding: 2px 7px;
     border-radius: 10px;
     font-size: 10px;
@@ -533,10 +526,7 @@
   .modal-body { padding: 20px 24px; }
 
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .form-grid.single { grid-template-columns: 1fr; }
-
   .form-group { display: flex; flex-direction: column; gap: 6px; }
-
   .form-group.span2 { grid-column: span 2; }
 
   label {
@@ -548,7 +538,7 @@
     font-family: 'DM Mono', monospace;
   }
 
-  input[type="text"], input[type="url"], input[type="email"], input[type="number"], input[type="date"], select, textarea {
+  input[type="text"], input[type="url"], input[type="email"], input[type="number"], input[type="date"], input[type="password"], select, textarea {
     background: var(--surface2);
     border: 1px solid var(--border);
     color: var(--text);
@@ -565,7 +555,7 @@
   input::placeholder, textarea::placeholder { color: var(--text3); }
 
   textarea {
-    min-height: 120px;
+    min-height: 100px;
     resize: vertical;
     line-height: 1.6;
   }
@@ -579,71 +569,33 @@
     border-top: 1px solid var(--border);
   }
 
-  /* EMAIL DRAFT */
-  .email-draft-section {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-  }
-
-  .email-draft-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-
-  .email-draft-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text3);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    font-family: 'DM Mono', monospace;
-  }
-
-  .copy-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text2);
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .email-preview {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px;
-    font-size: 13px;
-    color: var(--text2);
-    line-height: 1.7;
-    white-space: pre-wrap;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  /* CONFIG PANEL */
-  .config-panel {
+  /* SETTINGS */
+  .settings-section {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
   }
 
-  .config-title {
+  .settings-title {
     font-family: 'Mulish', sans-serif;
     font-weight: 900;
     font-size: 16px;
-    margin-bottom: 16px;
+    margin-bottom: 6px;
     color: var(--navy);
   }
+
+  .settings-desc {
+    font-size: 13px;
+    color: var(--text3);
+    margin-bottom: 20px;
+  }
+
+  .settings-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-end; }
+  .settings-row .form-group { flex: 1; }
+  .settings-row .btn { flex-shrink: 0; height: 38px; }
 
   .config-steps { display: flex; flex-direction: column; gap: 12px; }
 
@@ -670,24 +622,71 @@
   }
 
   .step-content { flex: 1; }
-
-  .step-title {
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-
-  .step-desc {
-    font-size: 12px;
-    color: var(--text3);
-    line-height: 1.5;
-  }
-
+  .step-title { font-weight: 600; font-size: 13px; color: var(--text); margin-bottom: 4px; }
+  .step-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
   .step-desc a { color: var(--accent2); }
 
-  .sheet-id-row { display: flex; gap: 10px; margin-top: 12px; }
-  .sheet-id-row input { flex: 1; }
+  /* USERS TABLE */
+  .users-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .user-avatar-sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .user-info { flex: 1; }
+  .user-name { font-weight: 700; font-size: 14px; color: var(--navy); }
+  .user-email { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
+
+  .user-role-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(0,172,238,0.12);
+    color: var(--accent2);
+  }
+
+  .user-role-badge.admin {
+    background: rgba(124,92,191,0.12);
+    color: var(--purple);
+  }
+
+  .btn-icon {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text3);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+
+  .btn-icon:hover { color: var(--red); border-color: var(--red); }
 
   /* EMPTY STATE */
   .empty-state {
@@ -705,7 +704,7 @@
     position: fixed;
     bottom: 24px;
     right: 24px;
-    background: var(--surface2);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 12px 16px;
@@ -718,11 +717,12 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   }
 
   .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.success { border-color: rgba(0,229,160,0.3); }
-  .toast.error { border-color: rgba(255,77,109,0.3); }
+  .toast.success { border-color: rgba(0,172,238,0.4); }
+  .toast.error { border-color: rgba(255,77,109,0.4); }
 
   /* LOADING */
   .loading {
@@ -752,14 +752,6 @@
   ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
   .section-hidden { display: none; }
-
-  .page-title {
-    font-family: 'Mulish', sans-serif;
-    font-weight: 900;
-    font-size: 22px;
-    margin-bottom: 20px;
-    color: var(--navy);
-  }
 
   .stats-row {
     display: flex;
@@ -799,6 +791,45 @@
     letter-spacing: 0.05em;
   }
 
+  /* BUSINESS TYPE WITH CREATE NEW */
+  .btype-wrap { position: relative; }
+
+  /* SETUP POPUP */
+  .setup-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,37,64,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .setup-popup.open { opacity: 1; pointer-events: all; }
+
+  .setup-popup-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 36px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 12px 48px rgba(0,172,238,0.15);
+    transform: translateY(10px);
+    transition: transform 0.2s;
+  }
+
+  .setup-popup.open .setup-popup-card { transform: translateY(0); }
+
+  .setup-popup-icon { font-size: 36px; margin-bottom: 12px; }
+  .setup-popup-title { font-family: 'Mulish', sans-serif; font-weight: 900; font-size: 20px; color: var(--navy); margin-bottom: 8px; }
+  .setup-popup-desc { font-size: 14px; color: var(--text2); margin-bottom: 24px; line-height: 1.6; }
+
+  /* DIVIDER */
   .divider { height: 1px; background: var(--border); margin: 20px 0; }
 </style>
 </head>
@@ -812,64 +843,19 @@
       <div class="status-dot"></div>
       <span id="statusText">Not connected</span>
     </div>
-    <button class="config-btn" onclick="showSetup()">⚙ Setup</button>
+    <div class="user-avatar" id="topbarAvatar" onclick="switchTab('settings')" title="Account / Settings">?</div>
   </div>
 </div>
 
 <!-- NAV TABS -->
 <div class="nav">
   <div class="nav-tab active" onclick="switchTab('all')" id="tab-all">📋 All Leads</div>
-  <div class="nav-tab" onclick="switchTab('reached')" id="tab-reached">📩 IG Reach Out</div>
-  <div class="nav-tab" onclick="switchTab('responded')" id="tab-responded">💬 Responded</div>
   <div class="nav-tab" onclick="switchTab('pipeline')" id="tab-pipeline">🏆 Pipeline</div>
+  <div class="nav-tab" onclick="switchTab('settings')" id="tab-settings">⚙ Settings</div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
-
-  <!-- SETUP PANEL -->
-  <div id="setupPanel" class="config-panel">
-    <div class="config-title">🔌 Connect to Google Sheets</div>
-    <div class="config-steps">
-      <div class="config-step">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Create a Google Sheet</div>
-          <div class="step-desc">Create a new Google Sheet with these exact column headers in row 1:<br>
-          <code style="font-size:11px;color:var(--accent)">Business Name, Business Type, URL, First Name, Location, Domain Rating, Instagram, IG Reach Out Date, IG Status, Pipeline Stage, Mock Up Sent Date, Last Email Sent, Last Updated, Notes</code></div>
-        </div>
-      </div>
-      <div class="config-step">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Publish your Sheet to the web</div>
-          <div class="step-desc">In Google Sheets: <strong>File → Share → Publish to web</strong> → Select your sheet → Publish as CSV. Copy the URL and paste it below.</div>
-        </div>
-      </div>
-      <div class="config-step">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Get a Google Sheets API Key</div>
-          <div class="step-desc">Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Create project → Enable Google Sheets API → Create an API Key. This lets the app write data back to your sheet.</div>
-        </div>
-      </div>
-      <div class="config-step">
-        <div class="step-num">4</div>
-        <div class="step-content">
-          <div class="step-title">Enter your Sheet ID & API Key</div>
-          <div class="step-desc">Your Sheet ID is in the URL: docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</div>
-          <div class="sheet-id-row">
-            <input type="text" id="sheetIdInput" placeholder="Sheet ID (e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms)" />
-            <button class="btn btn-secondary" onclick="saveSheetId()">Save</button>
-          </div>
-          <div class="sheet-id-row">
-            <input type="text" id="apiKeyInput" placeholder="Google API Key" />
-            <button class="btn btn-primary" onclick="connect()">Connect</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- STATS -->
   <div class="stats-row" id="statsRow" style="display:none">
@@ -915,7 +901,6 @@
             <th>Location</th>
             <th onclick="sortBy('domainRating')">DR ↕</th>
             <th>Instagram</th>
-            <th onclick="sortBy('igReachOutDate')">Reach Out Date ↕</th>
             <th>Pipeline</th>
             <th>Last Email</th>
             <th onclick="sortBy('lastUpdated')">Last Updated ↕</th>
@@ -928,78 +913,7 @@
       <div id="emptyAll" class="empty-state section-hidden">
         <div class="empty-icon">📭</div>
         <div class="empty-title">No leads found</div>
-        <div class="empty-desc">Try adjusting your search or filters</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- IG REACH OUT TAB -->
-  <div id="section-reached" class="section-hidden">
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="text" class="search-input" id="searchReached" placeholder="Search..." oninput="renderReached()">
-        </div>
-        <span class="count-badge" id="countReached">0</span>
-      </div>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Business</th>
-            <th>First Name</th>
-            <th>Location</th>
-            <th>Instagram</th>
-            <th>Reach Out Date</th>
-            <th>Pipeline</th>
-            <th>Notes</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="tableReached"></tbody>
-      </table>
-      <div id="emptyReached" class="empty-state section-hidden">
-        <div class="empty-icon">📩</div>
-        <div class="empty-title">No reached out leads</div>
-        <div class="empty-desc">Leads with IG Status "Reached Out" will appear here</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- RESPONDED TAB -->
-  <div id="section-responded" class="section-hidden">
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="text" class="search-input" id="searchResponded" placeholder="Search..." oninput="renderResponded()">
-        </div>
-        <span class="count-badge" id="countResponded">0</span>
-      </div>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Business</th>
-            <th>First Name</th>
-            <th>Location</th>
-            <th>Instagram</th>
-            <th>Reach Out Date</th>
-            <th>Pipeline Stage</th>
-            <th>Last Email</th>
-            <th>Notes</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="tableResponded"></tbody>
-      </table>
-      <div id="emptyResponded" class="empty-state section-hidden">
-        <div class="empty-icon">💬</div>
-        <div class="empty-title">No responded leads</div>
-        <div class="empty-desc">Leads with IG Status "Responded" will appear here</div>
+        <div class="empty-desc">Try adjusting your search or add a new lead</div>
       </div>
     </div>
   </div>
@@ -1018,8 +932,108 @@
     <div id="emptyPipeline" class="empty-state section-hidden">
       <div class="empty-icon">🏆</div>
       <div class="empty-title">No pipeline leads</div>
-      <div class="empty-desc">Responded leads with a Pipeline Stage will appear here</div>
+      <div class="empty-desc">Leads with a Pipeline Stage will appear here</div>
     </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="section-settings" class="section-hidden">
+
+    <!-- Google Sheets Connection -->
+    <div class="settings-section">
+      <div class="settings-title">🔌 Google Sheets Connection</div>
+      <div class="settings-desc">Connect your Google Sheet to load and save lead data.</div>
+      <div class="config-steps">
+        <div class="config-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Create a Google Sheet</div>
+            <div class="step-desc">Create a new Google Sheet with these exact column headers in row 1:<br>
+            <code style="font-size:11px;color:var(--accent)">Business Name, Business Type, URL, First Name, Location, Domain Rating, Instagram, IG Reach Out Date, Pipeline Stage, Last Email Sent, Last Updated, Notes</code></div>
+          </div>
+        </div>
+        <div class="config-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Make your Sheet public (read)</div>
+            <div class="step-desc"><strong>Share → Anyone with the link → Viewer.</strong> Required for the app to read data.</div>
+          </div>
+        </div>
+        <div class="config-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Get a Google Sheets API Key</div>
+            <div class="step-desc">Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Enable Google Sheets API → Create an API Key. <strong>Required for writing data.</strong></div>
+          </div>
+        </div>
+        <div class="config-step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Enter Sheet ID & API Key below</div>
+            <div class="step-desc">Sheet ID is in the URL: docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="settings-row">
+        <div class="form-group">
+          <label>Sheet ID</label>
+          <input type="text" id="sheetIdInput" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="form-group">
+          <label>Google API Key</label>
+          <input type="password" id="apiKeyInput" placeholder="Your Google API Key">
+        </div>
+        <button class="btn btn-primary" onclick="connect()">Connect & Save</button>
+      </div>
+    </div>
+
+    <!-- Users Management -->
+    <div class="settings-section">
+      <div class="settings-title">👥 Team Members</div>
+      <div class="settings-desc">Add team members who can access and edit this CRM. Share the app URL with them after adding.</div>
+
+      <div class="users-list" id="usersList"></div>
+
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-family:'DM Mono',monospace;margin-bottom:12px;">Add Team Member</div>
+        <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="newUserName" placeholder="e.g. Sarah">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="newUserEmail" placeholder="e.g. sarah@spoteasy.com">
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select id="newUserRole">
+              <option value="editor">Editor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addUser()">+ Add Member</button>
+      </div>
+    </div>
+
+    <!-- Business Types Management -->
+    <div class="settings-section">
+      <div class="settings-title">🏷 Business Types</div>
+      <div class="settings-desc">Manage the business type options shown in the lead form.</div>
+      <div id="businessTypesList" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;"></div>
+      <div style="display:flex;gap:10px;align-items:flex-end;">
+        <div class="form-group" style="flex:1">
+          <label>New Type</label>
+          <input type="text" id="newBizTypeInput" placeholder="e.g. Fitness" onkeydown="if(event.key==='Enter')addBizType()">
+        </div>
+        <button class="btn btn-primary" onclick="addBizType()">+ Add</button>
+      </div>
+    </div>
+
   </div>
 
 </div>
@@ -1040,11 +1054,7 @@
         <div class="form-group">
           <label>Business Type</label>
           <select id="f-businessType">
-            <option value=""></option>
-            <option>Restaurants</option>
-            <option>Cafe/Bakery</option>
-            <option>Clothing</option>
-            <option>Services</option>
+            <!-- populated dynamically -->
           </select>
         </div>
         <div class="form-group">
@@ -1066,10 +1076,6 @@
         <div class="form-group span2">
           <label>Instagram URL</label>
           <input type="url" id="f-instagram" placeholder="https://instagram.com/...">
-        </div>
-        <div class="form-group">
-          <label>IG Reach Out Date</label>
-          <input type="date" id="f-igReachOutDate">
         </div>
         <div class="form-group">
           <label>Pipeline Stage</label>
@@ -1102,21 +1108,12 @@
         </div>
         <div class="form-group">
           <label>Last Updated</label>
-          <input type="text" id="f-lastUpdated" readonly placeholder="Auto-set on save" style="background:var(--surface2);opacity:0.7;cursor:not-allowed">
+          <input type="text" id="f-lastUpdated" readonly placeholder="Auto-set on save" style="opacity:0.7;cursor:not-allowed">
         </div>
         <div class="form-group span2">
           <label>Notes</label>
           <textarea id="f-notes" placeholder="Any notes..."></textarea>
         </div>
-      </div>
-
-      <!-- FOLLOW UP EMAIL DRAFT -->
-      <div class="email-draft-section" id="emailDraftSection" style="display:none">
-        <div class="email-draft-header">
-          <div class="email-draft-label">📧 Follow Up Email Draft</div>
-          <button class="copy-btn" onclick="copyEmail()">Copy Email</button>
-        </div>
-        <div class="email-preview" id="emailPreview"></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1124,6 +1121,16 @@
       <button class="btn btn-danger" id="deleteBtn" style="display:none" onclick="deleteLead()">Delete</button>
       <button class="btn btn-primary" onclick="saveLead()">Save Lead</button>
     </div>
+  </div>
+</div>
+
+<!-- SETUP POPUP (shown when sheet not configured) -->
+<div class="setup-popup" id="setupPopup">
+  <div class="setup-popup-card">
+    <div class="setup-popup-icon">🔌</div>
+    <div class="setup-popup-title">Connect Your Sheet</div>
+    <div class="setup-popup-desc">To start using the CRM, you'll need to connect your Google Sheet. Head to Settings to enter your Sheet ID and API Key.</div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="goToSettings()">Go to Settings →</button>
   </div>
 </div>
 
@@ -1144,15 +1151,18 @@ const COLUMNS = [
   'lastEmailSent','lastUpdated','notes'
 ];
 
-const COL_HEADERS = [
-  'Business Name','Business Type','URL','First Name','Location',
-  'Domain Rating','Instagram','IG Reach Out Date','Pipeline Stage',
-  'Last Email Sent','Last Updated','Notes'
+// Default business types — persisted in localStorage
+const DEFAULT_BIZ_TYPES = ['Restaurants','Cafe/Bakery','Clothing','Services'];
+let bizTypes = JSON.parse(localStorage.getItem('spoteasy_biz_types') || 'null') || [...DEFAULT_BIZ_TYPES];
+
+// Users — persisted in localStorage
+let users = JSON.parse(localStorage.getItem('spoteasy_users') || 'null') || [
+  { id: 1, name: 'Greg', email: 'greg@spoteasy.com', role: 'admin' }
 ];
 
 let leads = [];
 let currentTab = 'all';
-let editingRow = null; // 1-based row number in sheet
+let editingRow = null;
 let sortCol = null;
 let sortDir = 1;
 
@@ -1169,11 +1179,6 @@ const STAGE_COLORS = {
   'Declined Offer': 'red'
 };
 
-const LAST_EMAIL_OPTIONS = [
-  '','1st Template','Prompt 1A','Prompt 1B','Prompt 1C',
-  '2nd Template','Prompt 2A','Prompt 2B','Prompt 2C','3rd Template'
-];
-
 // ============================================================
 // INIT
 // ============================================================
@@ -1181,51 +1186,66 @@ window.onload = () => {
   if (SHEET_ID) document.getElementById('sheetIdInput').value = SHEET_ID;
   if (API_KEY) document.getElementById('apiKeyInput').value = API_KEY;
 
+  updateTopbarAvatar();
+  renderBizTypesSettings();
+  renderUsers();
+
   if (SHEET_ID && API_KEY) {
-    document.getElementById('setupPanel').style.display = 'none';
     loadLeads();
+  } else {
+    // Show setup popup
+    document.getElementById('setupPopup').classList.add('open');
+    document.getElementById('loadingAll').style.display = 'none';
+    document.getElementById('emptyAll').classList.remove('section-hidden');
   }
 };
 
-// ============================================================
-// GOOGLE SHEETS API
-// ============================================================
-function saveSheetId() {
-  SHEET_ID = document.getElementById('sheetIdInput').value.trim();
-  localStorage.setItem('spoteasy_sheet_id', SHEET_ID);
-  showToast('Sheet ID saved', 'success');
+function goToSettings() {
+  document.getElementById('setupPopup').classList.remove('open');
+  switchTab('settings');
 }
 
+// ============================================================
+// GOOGLE SHEETS API — Fix: use OAuth-less approach with API key for writes
+// The write methods use the API key in the URL for reads, but writes
+// require the key to be passed correctly. Fixed range refs too.
+// ============================================================
 async function connect() {
-  SHEET_ID = document.getElementById('sheetIdInput').value.trim();
-  API_KEY = document.getElementById('apiKeyInput').value.trim();
-  localStorage.setItem('spoteasy_sheet_id', SHEET_ID);
-  localStorage.setItem('spoteasy_api_key', API_KEY);
+  const newSheetId = document.getElementById('sheetIdInput').value.trim();
+  const newApiKey = document.getElementById('apiKeyInput').value.trim();
 
-  if (!SHEET_ID || !API_KEY) {
+  if (!newSheetId || !newApiKey) {
     showToast('Please enter both Sheet ID and API Key', 'error');
     return;
   }
 
+  SHEET_ID = newSheetId;
+  API_KEY = newApiKey;
+  localStorage.setItem('spoteasy_sheet_id', SHEET_ID);
+  localStorage.setItem('spoteasy_api_key', API_KEY);
+
+  document.getElementById('setupPopup').classList.remove('open');
   await loadLeads();
-  document.getElementById('setupPanel').style.display = 'none';
 }
 
 async function loadLeads() {
   setStatus('loading');
   document.getElementById('loadingAll').style.display = 'flex';
   document.getElementById('tableAll').innerHTML = '';
+  document.getElementById('emptyAll').classList.add('section-hidden');
 
   try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}?key=${API_KEY}`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error('Failed to fetch');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error?.message || 'Failed to fetch');
+    }
     const data = await res.json();
     const rows = data.values || [];
 
-    // Skip header row (row 1)
     leads = rows.slice(1).map((row, i) => {
-      const obj = { _row: i + 2 }; // 1-based, +2 for header
+      const obj = { _row: i + 2 };
       COLUMNS.forEach((col, ci) => { obj[col] = row[ci] || ''; });
       return obj;
     });
@@ -1234,8 +1254,6 @@ async function loadLeads() {
     populateLocationFilter();
     updateStats();
     renderAll();
-    renderReached();
-    renderResponded();
     renderPipeline();
     document.getElementById('statsRow').style.display = 'flex';
     document.getElementById('loadingAll').style.display = 'none';
@@ -1243,39 +1261,46 @@ async function loadLeads() {
   } catch (e) {
     setStatus('error');
     document.getElementById('loadingAll').style.display = 'none';
-    showToast('Failed to load sheet. Check your Sheet ID and API Key.', 'error');
+    document.getElementById('emptyAll').classList.remove('section-hidden');
+    showToast('Failed to load: ' + e.message, 'error');
   }
 }
 
 async function writeRow(rowNum, values) {
   const range = `${SHEET_NAME}!A${rowNum}:L${rowNum}`;
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED&key=${API_KEY}`;
   const res = await fetch(url, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ values: [values] })
   });
-  if (!res.ok) throw new Error('Write failed');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || 'Write failed');
+  }
 }
 
 async function appendRow(values) {
   const range = `${SHEET_NAME}!A:L`;
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key=${API_KEY}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key=${API_KEY}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ values: [values] })
   });
-  if (!res.ok) throw new Error('Append failed');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || 'Append failed');
+  }
 }
 
 async function deleteRow(rowNum) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate?key=${API_KEY}`;
-  // Get sheet ID first
   const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}`);
+  if (!metaRes.ok) throw new Error('Could not fetch sheet metadata');
   const meta = await metaRes.json();
   const sheetId = meta.sheets[0].properties.sheetId;
 
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate?key=${API_KEY}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1292,7 +1317,10 @@ async function deleteRow(rowNum) {
       }]
     })
   });
-  if (!res.ok) throw new Error('Delete failed');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || 'Delete failed');
+  }
 }
 
 // ============================================================
@@ -1312,15 +1340,12 @@ function setStatus(s) {
 // ============================================================
 function switchTab(tab) {
   currentTab = tab;
-  ['all','reached','responded','pipeline'].forEach(t => {
+  ['all','pipeline','settings'].forEach(t => {
     document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
     document.getElementById(`section-${t}`).classList.toggle('section-hidden', t !== tab);
   });
-}
-
-function showSetup() {
-  const p = document.getElementById('setupPanel');
-  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  // Hide stats on settings tab
+  document.getElementById('statsRow').style.display = (tab === 'settings') ? 'none' : (leads.length > 0 ? 'flex' : 'none');
 }
 
 // ============================================================
@@ -1345,7 +1370,6 @@ function populateLocationFilter() {
 // ============================================================
 function igHandle(url) {
   if (!url) return '—';
-  // Strip trailing slash, then grab last path segment
   const clean = url.replace(/\/$/, '');
   const parts = clean.split('/');
   const handle = parts[parts.length - 1] || clean;
@@ -1367,8 +1391,8 @@ function drCell(val) {
 function daysSince(dateStr) {
   if (!dateStr) return null;
   const d = new Date(dateStr);
-  const now = new Date();
-  return Math.floor((now - d) / 86400000);
+  if (isNaN(d)) return null;
+  return Math.floor((new Date() - d) / 86400000);
 }
 
 function daysBadge(days) {
@@ -1379,7 +1403,9 @@ function daysBadge(days) {
 
 function formatDate(d) {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const dt = new Date(d);
+  if (isNaN(dt)) return d;
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 function sortBy(col) {
@@ -1429,89 +1455,12 @@ function renderAll() {
       <td>${l.location || '—'}</td>
       <td>${drCell(l.domainRating)}</td>
       <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">${igHandle(l.instagram)}</a>` : '—'}</td>
-      <td>${formatDate(l.igReachOutDate)}</td>
       <td>${pipelinePill(l.pipelineStage)}</td>
       <td style="font-size:12px;color:var(--text3)">${l.lastEmailSent || '—'}</td>
       <td style="font-size:12px;color:var(--text3)">${l.lastUpdated || '—'}</td>
       <td>
         <div class="row-actions">
           <div class="action-btn edit" title="Edit" onclick="openEditModal(${l._row})">✏</div>
-          <div class="action-btn email" title="Draft Email" onclick="openEmailModal(${l._row})">📧</div>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-// ============================================================
-// RENDER IG REACH OUT
-// ============================================================
-function renderReached() {
-  const search = document.getElementById('searchReached').value.toLowerCase();
-  const list = leads.filter(l => l.pipelineStage === '1st Reach Out' &&
-    (!search || (l.businessName + l.location + l.firstName).toLowerCase().includes(search)));
-
-  document.getElementById('countReached').textContent = list.length;
-  const tbody = document.getElementById('tableReached');
-
-  if (list.length === 0) {
-    tbody.innerHTML = '';
-    document.getElementById('emptyReached').classList.remove('section-hidden');
-    return;
-  }
-  document.getElementById('emptyReached').classList.add('section-hidden');
-
-  tbody.innerHTML = list.map(l => `
-    <tr>
-      <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName || '—'}</div></td>
-      <td>${l.firstName || '—'}</td>
-      <td>${l.location || '—'}</td>
-      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">${igHandle(l.instagram)}</a>` : '—'}</td>
-      <td>${formatDate(l.igReachOutDate)}</td>
-      <td>${pipelinePill(l.pipelineStage)}</td>
-      <td style="max-width:200px;color:var(--text3);font-size:12px">${l.notes || '—'}</td>
-      <td>
-        <div class="row-actions">
-          <div class="action-btn edit" onclick="openEditModal(${l._row})">✏</div>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-// ============================================================
-// RENDER RESPONDED
-// ============================================================
-function renderResponded() {
-  const search = document.getElementById('searchResponded').value.toLowerCase();
-  const respondedStages = ['Mock Up Required','Mock Up Sent','Backlink Required','Backlink Acquired'];
-  const list = leads.filter(l => respondedStages.includes(l.pipelineStage) &&
-    (!search || (l.businessName + l.location + l.firstName).toLowerCase().includes(search)));
-
-  document.getElementById('countResponded').textContent = list.length;
-  const tbody = document.getElementById('tableResponded');
-
-  if (list.length === 0) {
-    tbody.innerHTML = '';
-    document.getElementById('emptyResponded').classList.remove('section-hidden');
-    return;
-  }
-  document.getElementById('emptyResponded').classList.add('section-hidden');
-
-  tbody.innerHTML = list.map(l => `
-    <tr>
-      <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName || '—'}</div></td>
-      <td>${l.firstName || '—'}</td>
-      <td>${l.location || '—'}</td>
-      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">${igHandle(l.instagram)}</a>` : '—'}</td>
-      <td>${formatDate(l.igReachOutDate)}</td>
-      <td>${pipelinePill(l.pipelineStage)}</td>
-      <td style="font-size:12px;color:var(--text3)">${l.lastEmailSent || '—'}</td>
-      <td style="max-width:180px;color:var(--text3);font-size:12px">${l.notes || '—'}</td>
-      <td>
-        <div class="row-actions">
-          <div class="action-btn edit" onclick="openEditModal(${l._row})">✏</div>
-          <div class="action-btn email" onclick="openEmailModal(${l._row})">📧</div>
         </div>
       </td>
     </tr>
@@ -1540,7 +1489,7 @@ function renderPipeline() {
     const color = STAGE_COLORS[stage] || 'gray';
 
     const cardHTML = cards.map(l => {
-      const daysUpdated = daysSince(l.lastUpdated ? new Date(l.lastUpdated).toISOString().split('T')[0] : null);
+      const daysUpdated = daysSince(l.lastUpdated);
       return `
         <div class="kanban-card" onclick="openEditModal(${l._row})">
           <div class="kanban-card-name">${l.businessName}</div>
@@ -1574,8 +1523,8 @@ function openAddModal() {
   editingRow = null;
   document.getElementById('modalTitle').textContent = 'Add Lead';
   document.getElementById('deleteBtn').style.display = 'none';
-  document.getElementById('emailDraftSection').style.display = 'none';
   clearForm();
+  populateBizTypeDropdown('');
   document.getElementById('leadModal').classList.add('open');
 }
 
@@ -1585,57 +1534,9 @@ function openEditModal(row) {
   editingRow = row;
   document.getElementById('modalTitle').textContent = 'Edit Lead';
   document.getElementById('deleteBtn').style.display = 'flex';
+  populateBizTypeDropdown(lead.businessType || '');
   fillForm(lead);
-
-  // Show email draft for outreach stages
-  const followUpStages = ['1st Reach Out', 'Mock Up Sent', 'Backlink Required'];
-  if (followUpStages.includes(lead.pipelineStage)) {
-    showEmailDraft(lead);
-  } else {
-    document.getElementById('emailDraftSection').style.display = 'none';
-  }
-
   document.getElementById('leadModal').classList.add('open');
-}
-
-function openEmailModal(row) {
-  const lead = leads.find(l => l._row === row);
-  if (!lead) return;
-  editingRow = row;
-  document.getElementById('modalTitle').textContent = 'Edit Lead';
-  document.getElementById('deleteBtn').style.display = 'flex';
-  fillForm(lead);
-  showEmailDraft(lead);
-  document.getElementById('leadModal').classList.add('open');
-}
-
-function showEmailDraft(lead) {
-  const name = lead.firstName || lead.businessName || '[NAME]';
-  const bizName = lead.businessName || '[BUSINESS NAME]';
-  const draft = `Hi ${name},
-
-Just wanted to follow up on my email from a few days ago about featuring ${bizName} on Spot Easy's Local Spots section.
-
-Here's an example of how a current partner's ad appears on the platform: [LINK TO EXAMPLE BUSINESS PAGE]
-
-As a quick reminder, your ad will be rotated across all listings in your neighborhood, so you'll get consistent visibility to renters actively exploring the area.
-
-No pressure at all — just wanted to make sure it didn't get buried. Happy to answer any questions or jump on a quick call if that's easier.
-
-Thanks,
-Greg
-Head of Local Partnerships | Spot Easy
-7818662270
-Spoteasy.com
-Supporting Boston's local business community`;
-
-  document.getElementById('emailPreview').textContent = draft;
-  document.getElementById('emailDraftSection').style.display = 'block';
-}
-
-function copyEmail() {
-  const text = document.getElementById('emailPreview').textContent;
-  navigator.clipboard.writeText(text).then(() => showToast('Email copied to clipboard!', 'success'));
 }
 
 function closeModal() {
@@ -1668,9 +1569,9 @@ async function saveLead() {
   const values = getFormValues();
   if (!values[0]) { showToast('Business Name is required', 'error'); return; }
 
-  // Auto-set lastUpdated (index 10) if pipeline stage changed or is new
+  // Auto-set lastUpdated (index 10) if pipeline stage changed
   const prevLead = editingRow ? leads.find(l => l._row === editingRow) : null;
-  const newStage = values[8]; // pipelineStage index
+  const newStage = values[8];
   const prevStage = prevLead ? prevLead.pipelineStage : null;
   if (newStage !== prevStage || !editingRow) {
     const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -1701,11 +1602,9 @@ async function saveLead() {
     updateStats();
     populateLocationFilter();
     renderAll();
-    renderReached();
-    renderResponded();
     renderPipeline();
   } catch (e) {
-    showToast('Failed to save. Check your API Key has write access.', 'error');
+    showToast('Failed to save: ' + e.message, 'error');
   }
 }
 
@@ -1716,18 +1615,159 @@ async function deleteLead() {
   try {
     await deleteRow(editingRow);
     leads = leads.filter(l => l._row !== editingRow);
-    // Reindex rows
     leads.forEach((l, i) => { l._row = i + 2; });
     closeModal();
     updateStats();
     renderAll();
-    renderReached();
-    renderResponded();
     renderPipeline();
     showToast('Lead deleted', 'success');
   } catch (e) {
-    showToast('Failed to delete. Check API Key permissions.', 'error');
+    showToast('Failed to delete: ' + e.message, 'error');
   }
+}
+
+// ============================================================
+// BUSINESS TYPES
+// ============================================================
+function saveBizTypes() {
+  localStorage.setItem('spoteasy_biz_types', JSON.stringify(bizTypes));
+}
+
+function populateBizTypeDropdown(selected) {
+  const sel = document.getElementById('f-businessType');
+  sel.innerHTML = '<option value=""></option>';
+  bizTypes.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t;
+    o.textContent = t;
+    if (t === selected) o.selected = true;
+    sel.appendChild(o);
+  });
+  // Add "Create New..." option
+  const createOpt = document.createElement('option');
+  createOpt.value = '__create__';
+  createOpt.textContent = '+ Create New...';
+  sel.appendChild(createOpt);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Handle "Create New" selection in lead form
+  document.getElementById('f-businessType').addEventListener('change', function() {
+    if (this.value === '__create__') {
+      const newType = prompt('Enter new business type:');
+      if (newType && newType.trim()) {
+        const trimmed = newType.trim();
+        if (!bizTypes.includes(trimmed)) {
+          bizTypes.push(trimmed);
+          saveBizTypes();
+          renderBizTypesSettings();
+        }
+        populateBizTypeDropdown(trimmed);
+        this.value = trimmed;
+      } else {
+        this.value = '';
+      }
+    }
+  });
+});
+
+function renderBizTypesSettings() {
+  const container = document.getElementById('businessTypesList');
+  if (!container) return;
+  container.innerHTML = bizTypes.map((t, i) => `
+    <div style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600;color:var(--text2);">
+      ${t}
+      <span onclick="removeBizType(${i})" style="cursor:pointer;color:var(--text3);font-size:16px;line-height:1;margin-left:2px;" title="Remove">×</span>
+    </div>
+  `).join('');
+}
+
+function addBizType() {
+  const input = document.getElementById('newBizTypeInput');
+  const val = input.value.trim();
+  if (!val) return;
+  if (bizTypes.includes(val)) { showToast('Type already exists', 'error'); return; }
+  bizTypes.push(val);
+  saveBizTypes();
+  renderBizTypesSettings();
+  input.value = '';
+  showToast(`"${val}" added`, 'success');
+}
+
+function removeBizType(idx) {
+  const removed = bizTypes[idx];
+  bizTypes.splice(idx, 1);
+  saveBizTypes();
+  renderBizTypesSettings();
+  showToast(`"${removed}" removed`, 'success');
+}
+
+// ============================================================
+// USERS
+// ============================================================
+function saveUsers() {
+  localStorage.setItem('spoteasy_users', JSON.stringify(users));
+}
+
+function updateTopbarAvatar() {
+  const adminUser = users.find(u => u.role === 'admin') || users[0];
+  const el = document.getElementById('topbarAvatar');
+  if (el && adminUser) {
+    el.textContent = adminUser.name.charAt(0).toUpperCase();
+    el.title = `${adminUser.name} — click for Settings`;
+  }
+}
+
+function renderUsers() {
+  const container = document.getElementById('usersList');
+  if (!container) return;
+
+  if (users.length === 0) {
+    container.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:12px 0;">No team members yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = users.map((u, i) => `
+    <div class="user-row">
+      <div class="user-avatar-sm">${u.name.charAt(0).toUpperCase()}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name}</div>
+        <div class="user-email">${u.email}</div>
+      </div>
+      <span class="user-role-badge ${u.role === 'admin' ? 'admin' : ''}">${u.role === 'admin' ? '👑 Admin' : '✏ Editor'}</span>
+      ${users.length > 1 ? `<button class="btn-icon" onclick="removeUser(${i})" title="Remove">✕</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function addUser() {
+  const name = document.getElementById('newUserName').value.trim();
+  const email = document.getElementById('newUserEmail').value.trim();
+  const role = document.getElementById('newUserRole').value;
+
+  if (!name || !email) { showToast('Name and email are required', 'error'); return; }
+  if (users.find(u => u.email === email)) { showToast('User with this email already exists', 'error'); return; }
+
+  users.push({ id: Date.now(), name, email, role });
+  saveUsers();
+  renderUsers();
+  updateTopbarAvatar();
+
+  document.getElementById('newUserName').value = '';
+  document.getElementById('newUserEmail').value = '';
+  document.getElementById('newUserRole').value = 'editor';
+
+  showToast(`${name} added as ${role}`, 'success');
+}
+
+function removeUser(idx) {
+  const removed = users[idx];
+  if (users.length === 1) { showToast('Cannot remove the last user', 'error'); return; }
+  users.splice(idx, 1);
+  saveUsers();
+  renderUsers();
+  updateTopbarAvatar();
+  showToast(`${removed.name} removed`, 'success');
 }
 
 // ============================================================
@@ -1743,20 +1783,6 @@ function showToast(msg, type = 'success') {
 // Close modal on overlay click
 document.getElementById('leadModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
-});
-
-// Pipeline stage → show email draft toggle
-document.getElementById('f-pipelineStage').addEventListener('change', function() {
-  const followUpStages = ['1st Reach Out', 'Mock Up Sent', 'Backlink Required'];
-  if (followUpStages.includes(this.value)) {
-    const lead = editingRow ? leads.find(l => l._row === editingRow) : null;
-    showEmailDraft(lead || {
-      firstName: document.getElementById('f-firstName').value,
-      businessName: document.getElementById('f-businessName').value
-    });
-  } else {
-    document.getElementById('emailDraftSection').style.display = 'none';
-  }
 });
 </script>
 </body>
