@@ -3,273 +3,888 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spot Easy — Backlink Reach Out</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Mulish:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>SpotEasy — Local Spots CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #f0f6fb;
-  --surface: #ffffff;
-  --surface2: #e8f2fa;
-  --border: #cce0f0;
-  --navy: #0a2540;
-  --accent: #00acee;
-  --accent2: #0090cc;
-  --text: #1a2e3d;
-  --text2: #425466;
-  --text3: #7a9ab5;
-  --yellow: #f0a500;
-  --green: #00b87a;
-  --red: #e8437a;
-  --purple: #7c5cbf;
-  --orange: #f07a00;
-  --radius: 10px;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:var(--text); font-family:'Mulish',sans-serif; font-size:14px; min-height:100vh; }
+  :root {
+    --bg: #061520;
+    --surface: #092540;
+    --surface2: #0c2e50;
+    --border: #124070;
+    --accent: #2596be;
+    --accent2: #3ab0dc;
+    --accent3: #1a7a9e;
+    --text: #ffffff;
+    --text2: #b8d4e8;
+    --text3: #6a96b8;
+    --yellow: #ffd166;
+    --pink: #ff5fa0;
+    --purple: #a78bfa;
+    --green: #00d4a0;
+    --red: #ff4d6d;
+    --orange: #ff6b35;
+    --radius: 10px;
+  }
 
-/* LOGIN */
-.login-overlay { position:fixed; inset:0; background:var(--navy); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:28px; z-index:9999; }
-.login-logo { font-weight:900; font-size:30px; color:#fff; letter-spacing:-0.5px; }
-.login-logo span { color:var(--accent); }
-.login-box { background:#fff; border-radius:16px; padding:36px 40px; display:flex; flex-direction:column; align-items:center; gap:16px; min-width:340px; max-width:420px; width:90%; box-shadow:0 8px 40px rgba(0,0,0,0.25); }
-.login-title { font-size:17px; font-weight:800; color:var(--navy); }
-.login-subtitle { font-size:12px; color:var(--text3); font-family:'DM Mono',monospace; text-align:center; line-height:1.7; }
-.login-subtitle a { color:var(--accent); }
-.login-input { width:100%; background:#f0f6fb; border:1px solid var(--border); color:var(--text); padding:10px 12px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; outline:none; }
-.login-input:focus { border-color:var(--accent); }
-.login-btn { width:100%; background:var(--accent); color:#fff; border:none; padding:11px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
-.login-btn:hover { opacity:0.85; }
-.login-error { font-size:12px; color:var(--red); background:rgba(232,67,122,0.08); border:1px solid rgba(232,67,122,0.2); border-radius:8px; padding:10px 14px; text-align:center; width:100%; }
-.login-link { font-size:11px; color:var(--text3); font-family:'DM Mono',monospace; cursor:pointer; }
-.login-link:hover { color:var(--accent); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* TOPBAR */
-.topbar { display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:56px; background:var(--navy); border-bottom:2px solid rgba(0,172,238,0.3); position:sticky; top:0; z-index:100; }
-.logo { font-weight:900; font-size:18px; color:#fff; }
-.logo span { color:var(--accent); }
-.topbar-right { display:flex; align-items:center; gap:12px; }
-.status-pill { display:flex; align-items:center; gap:6px; padding:5px 10px; border-radius:20px; font-size:12px; font-weight:600; font-family:'DM Mono',monospace; }
-.status-dot { width:7px; height:7px; border-radius:50%; background:var(--text3); }
-.status-pill.connected { background:rgba(0,184,122,0.15); color:var(--green); }
-.status-pill.connected .status-dot { background:var(--green); }
-.status-pill.disconnected { background:rgba(232,67,122,0.15); color:var(--red); }
-.status-pill.disconnected .status-dot { background:var(--red); }
-.user-badge { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:20px; padding:4px 12px 4px 6px; cursor:pointer; }
-.user-badge:hover { background:rgba(255,255,255,0.18); }
-.user-badge-avatar { width:26px; height:26px; border-radius:50%; overflow:hidden; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; }
-.user-badge-avatar img { width:100%; height:100%; object-fit:cover; }
-.user-badge-name { font-size:12px; font-weight:600; color:#fff; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-/* NAV */
-.nav { display:flex; align-items:center; padding:0 24px; background:var(--surface); border-bottom:1px solid var(--border); overflow-x:auto; }
-.nav-tab { padding:14px 18px; font-size:13px; font-weight:700; color:var(--text3); cursor:pointer; border-bottom:3px solid transparent; transition:all 0.15s; white-space:nowrap; user-select:none; }
-.nav-tab:hover { color:var(--text2); }
-.nav-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
 
-/* MAIN */
-.main { padding:24px; max-width:1500px; margin:0 auto; }
-.section-hidden { display:none !important; }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-/* MISSING BANNER */
-.missing-banner { background:#fff3cd; border:1px solid #ffc107; border-radius:10px; padding:14px 20px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.missing-banner-text { font-size:13px; font-weight:600; color:#856404; }
-.missing-banner-btn { background:#ffc107; border:none; color:var(--navy); padding:7px 14px; border-radius:7px; font-family:'Mulish',sans-serif; font-size:12px; font-weight:700; cursor:pointer; }
+  .logo-dot { color: var(--accent); }
 
-/* STATS */
-.stats-row { display:flex; gap:14px; margin-bottom:20px; flex-wrap:wrap; }
-.stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 22px; flex:1; min-width:130px; }
-.stat-val { font-size:26px; font-weight:900; color:var(--text); margin-bottom:2px; }
-.stat-val.blue { color:var(--accent); }
-.stat-val.green { color:var(--green); }
-.stat-val.orange { color:var(--orange); }
-.stat-label { font-size:11px; color:var(--text3); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.05em; }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
-/* TOOLBAR */
-.toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:12px; flex-wrap:wrap; }
-.toolbar-left { display:flex; align-items:center; gap:10px; flex:1; flex-wrap:wrap; }
-.search-wrap { position:relative; }
-.search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:13px; pointer-events:none; }
-.search-input { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:8px 12px 8px 34px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; width:240px; outline:none; }
-.search-input:focus { border-color:var(--accent); }
-.filter-select { background:var(--surface); border:1px solid var(--border); color:var(--text2); padding:8px 12px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; outline:none; }
-.count-badge { background:var(--surface2); color:var(--text3); padding:3px 9px; border-radius:10px; font-size:12px; font-family:'DM Mono',monospace; border:1px solid var(--border); }
-.btn { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; font-weight:700; cursor:pointer; border:none; transition:all 0.15s; }
-.btn-primary { background:var(--accent); color:#fff; }
-.btn-primary:hover { background:var(--accent2); }
-.btn-secondary { background:var(--surface); color:var(--text2); border:1px solid var(--border); }
-.btn-secondary:hover { border-color:var(--text3); }
-.btn-danger { background:rgba(232,67,122,0.1); color:var(--red); border:1px solid rgba(232,67,122,0.2); }
-.btn-danger:hover { background:rgba(232,67,122,0.2); }
+  .config-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
 
-/* TABLE */
-.table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
-table { width:100%; border-collapse:collapse; }
-thead tr { background:var(--surface2); border-bottom:1px solid var(--border); }
-th { padding:10px 14px; text-align:left; font-size:11px; font-weight:800; color:var(--text3); letter-spacing:0.06em; text-transform:uppercase; white-space:nowrap; font-family:'DM Mono',monospace; cursor:pointer; user-select:none; }
-th:hover { color:var(--text2); }
-td { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text2); vertical-align:middle; }
-tr:last-child td { border-bottom:none; }
-tr:hover td { background:rgba(0,172,238,0.03); }
-.td-name { font-weight:700; color:var(--text); font-size:13px; cursor:pointer; }
-.td-name:hover { color:var(--accent); }
-.td-url a { color:var(--accent); text-decoration:none; font-size:12px; font-family:'DM Mono',monospace; }
-.td-url a:hover { text-decoration:underline; }
-.td-dr { font-family:'DM Mono',monospace; font-size:13px; font-weight:700; }
-.dr-high { color:var(--green); }
-.dr-mid { color:var(--yellow); }
-.dr-low { color:var(--text3); }
-.row-actions { display:flex; align-items:center; gap:6px; opacity:0; transition:opacity 0.15s; }
-tr:hover .row-actions { opacity:1; }
-.action-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text3); width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; transition:all 0.15s; }
-.action-btn:hover { color:var(--accent); border-color:var(--accent); }
-.action-btn.del:hover { color:var(--red); border-color:var(--red); }
+  .config-btn:hover { opacity: 0.85; }
 
-/* PILLS */
-.pill { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
-.pill-dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
-.pill-gray { background:rgba(122,154,181,0.12); color:var(--text3); }
-.pill-yellow { background:rgba(240,165,0,0.12); color:var(--yellow); }
-.pill-green { background:rgba(0,184,122,0.12); color:var(--green); }
-.pill-red { background:rgba(232,67,122,0.12); color:var(--red); }
-.pill-blue { background:rgba(0,172,238,0.12); color:var(--accent); }
-.pill-purple { background:rgba(124,92,191,0.12); color:var(--purple); }
-.pill-orange { background:rgba(240,122,0,0.12); color:var(--orange); }
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+  }
 
-/* KANBAN */
-.kanban { display:flex; gap:14px; overflow-x:auto; padding-bottom:16px; min-height:60vh; }
-.kanban-col { flex:0 0 230px; display:flex; flex-direction:column; gap:8px; }
-.kanban-header { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:var(--surface); border:1px solid var(--border); border-radius:8px; }
-.kanban-title { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; font-family:'DM Mono',monospace; }
-.kanban-count { background:var(--surface2); color:var(--text3); font-size:11px; font-family:'DM Mono',monospace; padding:2px 7px; border-radius:10px; border:1px solid var(--border); }
-.kanban-body { display:flex; flex-direction:column; gap:8px; }
-.kanban-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px; cursor:pointer; transition:all 0.15s; }
-.kanban-card:hover { border-color:var(--accent); box-shadow:0 4px 16px rgba(0,172,238,0.1); transform:translateY(-1px); }
-.kanban-card-name { font-weight:800; font-size:13px; color:var(--text); margin-bottom:3px; }
-.kanban-card-type { font-size:11px; color:var(--text3); margin-bottom:6px; font-family:'DM Mono',monospace; }
-.kanban-card-url { font-size:11px; color:var(--accent); font-family:'DM Mono',monospace; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.kanban-card-meta { display:flex; flex-direction:column; gap:4px; margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
-.kanban-card-meta-row { display:flex; align-items:center; justify-content:space-between; font-size:11px; color:var(--text3); }
-.days-badge { padding:2px 7px; border-radius:10px; font-size:10px; font-family:'DM Mono',monospace; font-weight:700; }
-.days-badge.fresh { background:rgba(0,184,122,0.12); color:var(--green); }
-.days-badge.warn { background:rgba(240,165,0,0.12); color:var(--yellow); }
-.days-badge.stale { background:rgba(232,67,122,0.12); color:var(--red); }
+  .status-pill.connected { background: rgba(0,229,160,0.12); color: var(--accent); }
+  .status-pill.disconnected { background: rgba(255,77,109,0.12); color: var(--red); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-/* ATTRIBUTION */
-.attr-tag { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-family:'DM Mono',monospace; color:var(--text3); background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:1px 6px; margin-top:3px; }
-.attr-tag.greg { border-color:rgba(0,172,238,0.3); color:var(--accent); background:rgba(0,172,238,0.06); }
-.attr-tag.sanket { border-color:rgba(124,92,191,0.3); color:var(--purple); background:rgba(124,92,191,0.06); }
+  /* NAV TABS */
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
 
-/* MODAL */
-.modal-overlay { position:fixed; inset:0; background:rgba(10,37,64,0.65); display:flex; align-items:center; justify-content:center; z-index:1000; opacity:0; pointer-events:none; transition:opacity 0.2s; }
-.modal-overlay.open { opacity:1; pointer-events:all; }
-.modal { background:var(--surface); border:1px solid var(--border); border-radius:14px; width:90%; max-width:660px; max-height:90vh; overflow-y:auto; transform:translateY(10px); transition:transform 0.2s; box-shadow:0 16px 60px rgba(0,0,0,0.12); }
-.modal-overlay.open .modal { transform:translateY(0); }
-.modal-header { display:flex; align-items:center; justify-content:space-between; padding:20px 24px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface); z-index:1; }
-.modal-title { font-weight:900; font-size:17px; color:var(--navy); }
-.modal-close { background:var(--surface2); border:1px solid var(--border); color:var(--text2); width:30px; height:30px; border-radius:7px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; }
-.modal-close:hover { border-color:var(--text3); }
-.modal-body { padding:20px 24px; }
-.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-.form-group { display:flex; flex-direction:column; gap:6px; }
-.form-group.span2 { grid-column:span 2; }
-label { font-size:11px; font-weight:800; color:var(--text3); letter-spacing:0.05em; text-transform:uppercase; font-family:'DM Mono',monospace; }
-input[type="text"], input[type="url"], input[type="number"], input[type="date"], select, textarea { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; outline:none; transition:border-color 0.15s; width:100%; }
-input:focus, select:focus, textarea:focus { border-color:var(--accent); }
-textarea { min-height:90px; resize:vertical; line-height:1.6; }
-.modal-footer { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:16px 24px; border-top:1px solid var(--border); }
+  .nav-tab {
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+    user-select: none;
+  }
 
-/* SETTINGS */
-.settings-section { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:20px; }
-.settings-title { font-weight:900; font-size:15px; color:var(--navy); margin-bottom:16px; }
-.team-list { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
-.team-member-row { display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; }
-.team-member-avatar { width:32px; height:32px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; }
-.team-member-info { flex:1; }
-.team-member-name { font-weight:700; font-size:13px; }
-.team-member-email { font-size:11px; color:var(--text3); font-family:'DM Mono',monospace; }
-.type-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
-.type-chip { display:flex; align-items:center; gap:6px; background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:4px 12px; font-size:12px; font-weight:700; color:var(--text2); }
-.type-chip-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:14px; padding:0; line-height:1; }
-.type-chip-del:hover { color:var(--red); }
-.sheet-id-row { display:flex; gap:10px; align-items:center; }
-.sheet-id-row input { flex:1; }
+  .nav-tab:hover { color: var(--text2); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-/* LOADING / EMPTY */
-.loading { display:flex; align-items:center; justify-content:center; gap:10px; padding:40px; color:var(--text3); font-family:'DM Mono',monospace; font-size:13px; }
-.spinner { width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.6s linear infinite; }
-@keyframes spin { to { transform:rotate(360deg); } }
-.empty-state { text-align:center; padding:60px 20px; }
-.empty-icon { font-size:36px; margin-bottom:12px; }
-.empty-title { font-weight:800; font-size:15px; color:var(--text2); margin-bottom:6px; }
-.empty-desc { font-size:13px; color:var(--text3); }
+  /* MAIN */
+  .main { padding: 24px; max-width: 1600px; margin: 0 auto; }
 
-/* TOAST */
-.toast { position:fixed; bottom:24px; right:24px; padding:12px 18px; border-radius:10px; font-size:13px; font-weight:700; z-index:9999; opacity:0; transform:translateY(8px); transition:all 0.25s; pointer-events:none; max-width:380px; }
-.toast.show { opacity:1; transform:translateY(0); }
-.toast.success { background:#1a2e3d; color:#fff; }
-.toast.error { background:var(--red); color:#fff; }
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+
+  .search-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px 8px 36px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.15s;
+    position: relative;
+  }
+
+  .search-wrap { position: relative; }
+  .search-icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text3); }
+
+  .filter-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .filter-select:focus { border-color: var(--accent); }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-secondary { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--text3); color: var(--text); }
+  .btn-danger { background: rgba(255,77,109,0.12); color: var(--red); border: 1px solid rgba(255,77,109,0.2); }
+  .btn-danger:hover { background: rgba(255,77,109,0.2); }
+
+  .count-badge {
+    background: var(--surface2);
+    color: var(--text3);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    border: 1px solid var(--border);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead tr {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-family: 'DM Mono', monospace;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  th:hover { color: var(--text2); }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .td-name {
+    font-weight: 500;
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    max-width: 200px;
+  }
+
+  .td-name:hover { color: var(--accent); }
+
+  .td-url a {
+    color: var(--accent2);
+    text-decoration: none;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .td-url a:hover { text-decoration: underline; }
+
+  .td-dr {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+
+  .dr-high { color: var(--accent); }
+  .dr-mid { color: var(--yellow); }
+  .dr-low { color: var(--text3); }
+
+  /* PILLS */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  .pill-gray { background: rgba(139,147,168,0.12); color: var(--text3); }
+  .pill-yellow { background: rgba(255,209,102,0.12); color: var(--yellow); }
+  .pill-green { background: rgba(0,229,160,0.12); color: var(--green); }
+  .pill-red { background: rgba(255,77,109,0.12); color: var(--red); }
+  .pill-blue { background: rgba(0,153,255,0.12); color: var(--accent2); }
+  .pill-purple { background: rgba(167,139,250,0.12); color: var(--purple); }
+  .pill-orange { background: rgba(255,107,53,0.12); color: var(--orange); }
+  .pill-pink { background: rgba(255,95,160,0.12); color: var(--pink); }
+
+  /* ROW ACTIONS */
+  .row-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  tr:hover .row-actions { opacity: 1; }
+
+  .action-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text3);
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+
+  .action-btn:hover { color: var(--text); border-color: var(--text3); }
+  .action-btn.edit:hover { color: var(--accent2); border-color: var(--accent2); }
+  .action-btn.email:hover { color: var(--accent); border-color: var(--accent); }
+  .action-btn.delete:hover { color: var(--red); border-color: var(--red); }
+
+  /* KANBAN */
+  .kanban {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    min-height: 60vh;
+  }
+
+  .kanban-col {
+    flex: 0 0 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .kanban-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .kanban-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .kanban-count {
+    background: var(--surface2);
+    color: var(--text3);
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .kanban-body { display: flex; flex-direction: column; gap: 8px; }
+
+  .kanban-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .kanban-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,229,160,0.08);
+  }
+
+  .kanban-card-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .kanban-card-type {
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .kanban-card-url {
+    font-size: 11px;
+    color: var(--accent2);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .kanban-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .kanban-card-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .kanban-card-meta-val {
+    font-family: 'DM Mono', monospace;
+    color: var(--text2);
+    font-size: 11px;
+  }
+
+  .days-badge {
+    background: rgba(255,107,53,0.12);
+    color: var(--orange);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+  }
+
+  .days-badge.fresh { background: rgba(0,229,160,0.12); color: var(--accent); }
+  .days-badge.warn { background: rgba(255,209,102,0.12); color: var(--yellow); }
+  .days-badge.stale { background: rgba(255,77,109,0.12); color: var(--red); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: 90%;
+    max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(10px);
+    transition: transform 0.2s;
+  }
+
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+
+  .modal-close:hover { color: var(--text); border-color: var(--text3); }
+
+  .modal-body { padding: 20px 24px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-grid.single { grid-template-columns: 1fr; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .form-group.span2 { grid-column: span 2; }
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  input[type="text"], input[type="url"], input[type="email"], input[type="number"], input[type="date"], select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  input::placeholder, textarea::placeholder { color: var(--text3); }
+
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* EMAIL DRAFT */
+  .email-draft-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .email-draft-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .email-draft-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .copy-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .email-preview {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* CONFIG PANEL */
+  .config-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .config-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .config-steps { display: flex; flex-direction: column; gap: 12px; }
+
+  .config-step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .step-content { flex: 1; }
+
+  .step-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 12px;
+    color: var(--text3);
+    line-height: 1.5;
+  }
+
+  .step-desc a { color: var(--accent2); }
+
+  .sheet-id-row { display: flex; gap: 10px; margin-top: 12px; }
+  .sheet-id-row input { flex: 1; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text3);
+  }
+
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-title { font-size: 16px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+  .empty-desc { font-size: 13px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 2000;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: rgba(0,229,160,0.3); }
+  .toast.error { border-color: rgba(255,77,109,0.3); }
+
+  /* LOADING */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    gap: 10px;
+    color: var(--text3);
+  }
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  .section-hidden { display: none; }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    flex: 1;
+    min-width: 130px;
+  }
+
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-val.accent { color: var(--accent); }
+  .stat-val.blue { color: var(--accent2); }
+  .stat-val.orange { color: var(--orange); }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-logo">Spot Easy<span>.</span></div>
-  <div class="login-box" id="loginSetupBox" style="display:none">
-    <div class="login-title">One-time setup</div>
-    <div class="login-subtitle">Paste your Google OAuth Client ID to enable sign-in.<br>Get it from <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Credentials.</div>
-    <input class="login-input" type="text" id="loginClientIdInput" placeholder="123456789-abc.apps.googleusercontent.com">
-    <button class="login-btn" onclick="saveClientIdFromLogin()">Save & Continue</button>
-  </div>
-  <div class="login-box" id="loginSignInBox" style="display:none">
-    <div class="login-title">Sign in to continue</div>
-    <div class="login-subtitle">Only authorised SpotEasy team accounts can access this CRM.</div>
-    <button class="login-btn" onclick="startOAuthFlow()" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1a2e3d;border:1px solid #cce0f0">
-      <img src="https://www.google.com/favicon.ico" width="18" height="18" style="border-radius:2px">
-      Sign in with Google
-    </button>
-    <div id="loginError" class="login-error" style="display:none">⚠ This Google account is not authorised. Please use your SpotEasy account.</div>
-    <span class="login-link" onclick="showClientIdSetup()">⚙ Change Client ID</span>
-  </div>
-</div>
-
-<!-- TOPBAR -->
+<!-- TOP BAR -->
 <div class="topbar">
-  <div class="logo">Spot Easy<span>.</span></div>
+  <div class="logo">SpotEasy<span class="logo-dot">.</span> CRM</div>
   <div class="topbar-right">
-    <div class="user-badge" id="userBadge" onclick="switchUser()" title="Sign out" style="display:none">
-      <div class="user-badge-avatar" id="userBadgeAvatar"></div>
-      <span class="user-badge-name" id="userBadgeName"></span>
-    </div>
     <div class="status-pill" id="connectionStatus">
       <div class="status-dot"></div>
       <span id="statusText">Not connected</span>
     </div>
+    <button class="config-btn" onclick="showSetup()">⚙ Setup</button>
   </div>
 </div>
 
-<!-- NAV -->
+<!-- NAV TABS -->
 <div class="nav">
   <div class="nav-tab active" onclick="switchTab('all')" id="tab-all">📋 All Leads</div>
+  <div class="nav-tab" onclick="switchTab('reached')" id="tab-reached">📩 IG Reach Out</div>
+  <div class="nav-tab" onclick="switchTab('responded')" id="tab-responded">💬 Responded</div>
   <div class="nav-tab" onclick="switchTab('pipeline')" id="tab-pipeline">🏆 Pipeline</div>
-  <div class="nav-tab" onclick="switchTab('settings')" id="tab-settings">⚙ Settings</div>
 </div>
 
+<!-- MAIN -->
 <div class="main">
 
-  <div id="missingBanner" class="missing-banner" style="display:none">
-    <span class="missing-banner-text">⚠ Google Sheet not connected — add your Sheet ID in Settings.</span>
-    <button class="missing-banner-btn" onclick="switchTab('settings')">Go to Settings</button>
+  <!-- SETUP PANEL -->
+  <div id="setupPanel" class="config-panel">
+    <div class="config-title">🔌 Connect to Google Sheets</div>
+    <div class="config-steps">
+      <div class="config-step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Create a Google Sheet</div>
+          <div class="step-desc">Create a new Google Sheet with these exact column headers in row 1:<br>
+          <code style="font-size:11px;color:var(--accent)">Business Name, Business Type, URL, First Name, Location, Domain Rating, Instagram, IG Reach Out Date, IG Status, Pipeline Stage, Mock Up Sent Date, Follow Up Date 1, Follow Up Date 2, Last Follow Up Date, Notes</code></div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Publish your Sheet to the web</div>
+          <div class="step-desc">In Google Sheets: <strong>File → Share → Publish to web</strong> → Select your sheet → Publish as CSV. Copy the URL and paste it below.</div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Get a Google Sheets API Key</div>
+          <div class="step-desc">Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Create project → Enable Google Sheets API → Create an API Key. This lets the app write data back to your sheet.</div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Enter your Sheet ID & API Key</div>
+          <div class="step-desc">Your Sheet ID is in the URL: docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</div>
+          <div class="sheet-id-row">
+            <input type="text" id="sheetIdInput" placeholder="Sheet ID (e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms)" />
+            <button class="btn btn-secondary" onclick="saveSheetId()">Save</button>
+          </div>
+          <div class="sheet-id-row">
+            <input type="text" id="apiKeyInput" placeholder="Google API Key" />
+            <button class="btn btn-primary" onclick="connect()">Connect</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- STATS -->
   <div class="stats-row" id="statsRow" style="display:none">
-    <div class="stat-card"><div class="stat-val" id="statTotal">—</div><div class="stat-label">Total Leads</div></div>
-    <div class="stat-card"><div class="stat-val blue" id="statOpportunity">—</div><div class="stat-label">Opportunities</div></div>
-    <div class="stat-card"><div class="stat-val orange" id="statActive">—</div><div class="stat-label">Active</div></div>
-    <div class="stat-card"><div class="stat-val green" id="statClosed">—</div><div class="stat-label">Backlinks Acquired</div></div>
+    <div class="stat-card">
+      <div class="stat-val" id="statTotal">—</div>
+      <div class="stat-label">Total Leads</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val accent" id="statReached">—</div>
+      <div class="stat-label">Reached Out</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val blue" id="statResponded">—</div>
+      <div class="stat-label">Responded</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val orange" id="statPipeline">—</div>
+      <div class="stat-label">In Pipeline</div>
+    </div>
   </div>
 
-  <!-- ALL LEADS -->
+  <!-- ALL LEADS TAB -->
   <div id="section-all">
     <div class="toolbar">
       <div class="toolbar-left">
@@ -277,11 +892,12 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
           <span class="search-icon">🔍</span>
           <input type="text" class="search-input" id="searchAll" placeholder="Search leads..." oninput="renderAll()">
         </div>
-        <select class="filter-select" id="filterStage" onchange="renderAll()">
-          <option value="">All Stages</option>
-          <option>Opportunity</option><option>1st Reach Out</option><option>Mock Up Required</option>
-          <option>Mock Up Sent</option><option>Backlink Required</option><option>Backlink Acquired</option>
-          <option>No Response</option><option>Declined Offer</option>
+        <select class="filter-select" id="filterStatus" onchange="renderAll()">
+          <option value="">All Statuses</option>
+          <option>Not Reached Out</option>
+          <option>Reached Out</option>
+          <option>Responded</option>
+          <option>No Response</option>
         </select>
         <select class="filter-select" id="filterLocation" onchange="renderAll()">
           <option value="">All Locations</option>
@@ -292,28 +908,102 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr>
-          <th onclick="sortBy('businessName')">Business ↕</th>
-          <th>Type</th>
-          <th onclick="sortBy('location')">Location ↕</th>
-          <th onclick="sortBy('domainRating')">DR ↕</th>
-          <th>Instagram</th>
-          <th>Pipeline Stage</th>
-          <th>Last Email Sent</th>
-          <th onclick="sortBy('lastUpdated')">Last Updated ↕</th>
-          <th></th>
-        </tr></thead>
+        <thead>
+          <tr>
+            <th onclick="sortBy('businessName')">Business ↕</th>
+            <th onclick="sortBy('businessType')">Type ↕</th>
+            <th>Location</th>
+            <th onclick="sortBy('domainRating')">DR ↕</th>
+            <th>Instagram</th>
+            <th onclick="sortBy('igReachOutDate')">Reach Out Date ↕</th>
+            <th>IG Status</th>
+            <th>Pipeline</th>
+            <th></th>
+          </tr>
+        </thead>
         <tbody id="tableAll"></tbody>
       </table>
-      <div id="loadingAll" class="loading" style="display:none"><div class="spinner"></div> Loading leads...</div>
+      <div id="loadingAll" class="loading"><div class="spinner"></div> Loading leads...</div>
       <div id="emptyAll" class="empty-state section-hidden">
-        <div class="empty-icon">📭</div><div class="empty-title">No leads found</div>
+        <div class="empty-icon">📭</div>
+        <div class="empty-title">No leads found</div>
         <div class="empty-desc">Try adjusting your search or filters</div>
       </div>
     </div>
   </div>
 
-  <!-- PIPELINE -->
+  <!-- IG REACH OUT TAB -->
+  <div id="section-reached" class="section-hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchReached" placeholder="Search..." oninput="renderReached()">
+        </div>
+        <span class="count-badge" id="countReached">0</span>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Business</th>
+            <th>First Name</th>
+            <th>Location</th>
+            <th>Instagram</th>
+            <th>Reach Out Date</th>
+            <th>IG Status</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableReached"></tbody>
+      </table>
+      <div id="emptyReached" class="empty-state section-hidden">
+        <div class="empty-icon">📩</div>
+        <div class="empty-title">No reached out leads</div>
+        <div class="empty-desc">Leads with IG Status "Reached Out" will appear here</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESPONDED TAB -->
+  <div id="section-responded" class="section-hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchResponded" placeholder="Search..." oninput="renderResponded()">
+        </div>
+        <span class="count-badge" id="countResponded">0</span>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Business</th>
+            <th>First Name</th>
+            <th>Location</th>
+            <th>Instagram</th>
+            <th>Reach Out Date</th>
+            <th>IG Status</th>
+            <th>Pipeline Stage</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableResponded"></tbody>
+      </table>
+      <div id="emptyResponded" class="empty-state section-hidden">
+        <div class="empty-icon">💬</div>
+        <div class="empty-title">No responded leads</div>
+        <div class="empty-desc">Leads with IG Status "Responded" will appear here</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIPELINE KANBAN TAB -->
   <div id="section-pipeline" class="section-hidden">
     <div class="toolbar">
       <div class="toolbar-left">
@@ -325,58 +1015,15 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
     </div>
     <div class="kanban" id="kanbanBoard"></div>
     <div id="emptyPipeline" class="empty-state section-hidden">
-      <div class="empty-icon">🏆</div><div class="empty-title">No pipeline leads</div>
-      <div class="empty-desc">Add leads and set a Pipeline Stage to see them here</div>
+      <div class="empty-icon">🏆</div>
+      <div class="empty-title">No pipeline leads</div>
+      <div class="empty-desc">Responded leads with a Pipeline Stage will appear here</div>
     </div>
   </div>
 
-  <!-- SETTINGS -->
-  <div id="section-settings" class="section-hidden">
-
-    <div class="settings-section">
-      <div class="settings-title">🔌 Google Sheets Connection</div>
-      <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Sheet must be shared with Editor access for both team members. Sheet ID is in the URL: docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</p>
-      <div class="sheet-id-row">
-        <input type="text" id="sheetIdInput" placeholder="Sheet ID">
-        <button class="btn btn-primary" onclick="connectSheet()">Connect & Save</button>
-      </div>
-      <p style="font-size:11px;color:var(--text3);margin-top:10px;font-family:'DM Mono',monospace">Columns (A→L): Business Name, Business Type, URL, First Name, Location, Domain Rating, Instagram, Pipeline Stage, Last Email Sent, Last Updated, Notes, Added By</p>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-title">👤 Team Members</div>
-      <div class="team-list" id="teamList"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input type="text" id="newMemberName" placeholder="Name" style="flex:1;min-width:120px">
-        <input type="text" id="newMemberEmail" placeholder="Email" style="flex:2;min-width:180px">
-        <button class="btn btn-secondary" onclick="addTeamMember()">+ Add</button>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-title">🏷 Business Types</div>
-      <div class="type-chips" id="typeChips"></div>
-      <div style="display:flex;gap:8px">
-        <input type="text" id="newTypeInput" placeholder="New business type..." style="flex:1">
-        <button class="btn btn-secondary" onclick="addBusinessType()">+ Add</button>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-title">🔐 OAuth Client ID</div>
-      <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Required for Google Sign-In. In Google Cloud Console, set:<br>
-      • Authorised JavaScript origin: <code style="color:var(--accent);font-family:'DM Mono',monospace">https://greglee722.github.io</code><br>
-      • Authorised redirect URI: <code style="color:var(--accent);font-family:'DM Mono',monospace">https://greglee722.github.io/spoteasy-crm/</code></p>
-      <div class="sheet-id-row">
-        <input type="text" id="clientIdInput" placeholder="Client ID (.apps.googleusercontent.com)">
-        <button class="btn btn-secondary" onclick="saveClientIdFromSettings()">Save & Reload</button>
-      </div>
-    </div>
-
-  </div>
 </div>
 
-<!-- MODAL -->
+<!-- ADD/EDIT MODAL -->
 <div class="modal-overlay" id="leadModal">
   <div class="modal">
     <div class="modal-header">
@@ -391,7 +1038,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
         </div>
         <div class="form-group">
           <label>Business Type</label>
-          <select id="f-businessType"></select>
+          <input type="text" id="f-businessType" placeholder="e.g. restaurants">
         </div>
         <div class="form-group">
           <label>Website URL</label>
@@ -414,27 +1061,61 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
           <input type="url" id="f-instagram" placeholder="https://instagram.com/...">
         </div>
         <div class="form-group">
-          <label>Pipeline Stage</label>
-          <select id="f-pipelineStage">
-            <option value=""></option>
-            <option>Opportunity</option><option>1st Reach Out</option><option>Mock Up Required</option>
-            <option>Mock Up Sent</option><option>Backlink Required</option><option>Backlink Acquired</option>
-            <option>No Response</option><option>Declined Offer</option>
+          <label>IG Reach Out Date</label>
+          <input type="date" id="f-igReachOutDate">
+        </div>
+        <div class="form-group">
+          <label>IG Status</label>
+          <select id="f-igStatus">
+            <option>Not Reached Out</option>
+            <option>Reached Out</option>
+            <option>Responded</option>
+            <option>No Response</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Last Email Sent</label>
-          <select id="f-lastEmailSent">
+          <label>Pipeline Stage</label>
+          <select id="f-pipelineStage">
             <option value=""></option>
-            <option>1st Template</option><option>Prompt 1A</option><option>Prompt 1B</option>
-            <option>Prompt 1C</option><option>2nd Template</option><option>Prompt 2A</option>
-            <option>Prompt 2B</option><option>Prompt 2C</option><option>3rd Template</option>
+            <option>Opportunity</option>
+            <option>Replied</option>
+            <option>Mock Up Required</option>
+            <option>Mock Up Sent</option>
+            <option>Follow Up</option>
+            <option>Confirming Backlink</option>
+            <option>Closed</option>
+            <option>Lost</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label>Mock Up Sent Date</label>
+          <input type="date" id="f-mockUpSentDate">
+        </div>
+        <div class="form-group">
+          <label>Follow Up Date 1</label>
+          <input type="date" id="f-followUpDate1">
+        </div>
+        <div class="form-group">
+          <label>Follow Up Date 2</label>
+          <input type="date" id="f-followUpDate2">
+        </div>
+        <div class="form-group">
+          <label>Last Follow Up Date</label>
+          <input type="date" id="f-lastFollowUpDate">
         </div>
         <div class="form-group span2">
           <label>Notes</label>
           <textarea id="f-notes" placeholder="Any notes..."></textarea>
         </div>
+      </div>
+
+      <!-- FOLLOW UP EMAIL DRAFT -->
+      <div class="email-draft-section" id="emailDraftSection" style="display:none">
+        <div class="email-draft-header">
+          <div class="email-draft-label">📧 Follow Up Email Draft</div>
+          <button class="copy-btn" onclick="copyEmail()">Copy Email</button>
+        </div>
+        <div class="email-preview" id="emailPreview"></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -445,572 +1126,625 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
   </div>
 </div>
 
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ============================================================
-// USER AUTH — implicit OAuth redirect (works on GitHub Pages)
-// ============================================================
-const ALLOWED_EMAILS = ['greg@spoteasy.com','sanket@spoteasy.com'];
-const GOOGLE_CLIENT_ID = localStorage.getItem('spoteasy_client_id') || '';
-const REDIRECT_URI = location.origin + location.pathname;
-let currentUser = null, oauthToken = null;
-
-// On page load, check if we're returning from an OAuth redirect
-function checkOAuthRedirect() {
-  const hash = window.location.hash;
-  if (!hash) return false;
-  const params = new URLSearchParams(hash.replace('#','?'));
-  const token = params.get('access_token');
-  const state = params.get('state');
-  if (!token) return false;
-
-  // Clear the hash from the URL
-  history.replaceState(null, '', location.pathname);
-
-  // Restore user from state
-  try {
-    const savedUser = JSON.parse(decodeURIComponent(state || ''));
-    if (savedUser && ALLOWED_EMAILS.includes(savedUser.email)) {
-      currentUser = savedUser;
-      oauthToken = token;
-      sessionStorage.setItem('spoteasy_user', JSON.stringify(currentUser));
-      sessionStorage.setItem('spoteasy_token', token);
-      return true;
-    }
-  } catch(e) {}
-  return false;
-}
-
-function startOAuthFlow() {
-  if (!GOOGLE_CLIENT_ID) { showClientIdSetup(); return; }
-  // Save any pending user info from the ID token step into state param
-  const state = encodeURIComponent(sessionStorage.getItem('spoteasy_pending_user') || '{}');
-  const params = new URLSearchParams({
-    client_id: GOOGLE_CLIENT_ID,
-    redirect_uri: REDIRECT_URI,
-    response_type: 'token',
-    scope: 'https://www.googleapis.com/auth/spreadsheets openid email profile',
-    state: state,
-    prompt: 'select_account'
-  });
-  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
-}
-
-function showClientIdSetup() {
-  document.getElementById('loginSetupBox').style.display = 'flex';
-  document.getElementById('loginSignInBox').style.display = 'none';
-  const saved = localStorage.getItem('spoteasy_client_id') || '';
-  if (saved) document.getElementById('loginClientIdInput').value = saved;
-}
-
-function saveClientIdFromLogin() {
-  const id = document.getElementById('loginClientIdInput').value.trim();
-  if (!id) { alert('Please paste your Client ID first.'); return; }
-  localStorage.setItem('spoteasy_client_id', id);
-  location.reload();
-}
-
-function saveClientIdFromSettings() {
-  const id = document.getElementById('clientIdInput').value.trim();
-  if (!id) return;
-  localStorage.setItem('spoteasy_client_id', id);
-  showToast('Saved — reloading...', 'success');
-  setTimeout(() => location.reload(), 900);
-}
-
-// Called when returning from OAuth with a token — verify email via tokeninfo
-async function verifyAndLogin(token) {
-  try {
-    const res = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`);
-    const info = await res.json();
-    if (!info.email || !ALLOWED_EMAILS.includes(info.email)) {
-      document.getElementById('loginError').style.display = 'block';
-      document.getElementById('loginOverlay').style.display = 'flex';
-      document.getElementById('loginSetupBox').style.display = 'none';
-      document.getElementById('loginSignInBox').style.display = 'flex';
-      oauthToken = null;
-      return;
-    }
-    currentUser = {
-      name: info.name || info.email.split('@')[0],
-      email: info.email,
-      picture: info.picture || '',
-      initial: (info.name || info.email)[0].toUpperCase()
-    };
-    oauthToken = token;
-    sessionStorage.setItem('spoteasy_user', JSON.stringify(currentUser));
-    sessionStorage.setItem('spoteasy_token', token);
-    document.getElementById('loginOverlay').style.display = 'none';
-    updateUserBadge();
-    if (SHEET_ID) loadLeads(); else document.getElementById('missingBanner').style.display = 'flex';
-  } catch(e) {
-    showToast('Auth failed — please try again', 'error');
-  }
-}
-
-function switchUser() {
-  if (!confirm('Sign out?')) return;
-  currentUser = null; oauthToken = null;
-  sessionStorage.removeItem('spoteasy_user');
-  sessionStorage.removeItem('spoteasy_token');
-  document.getElementById('loginOverlay').style.display = 'flex';
-  document.getElementById('loginSetupBox').style.display = 'none';
-  document.getElementById('loginSignInBox').style.display = 'flex';
-  document.getElementById('userBadge').style.display = 'none';
-}
-
-function updateUserBadge() {
-  if (!currentUser) return;
-  const avatar = document.getElementById('userBadgeAvatar');
-  avatar.innerHTML = currentUser.picture ? `<img src="${currentUser.picture}" alt="">` : currentUser.initial;
-  document.getElementById('userBadgeName').textContent = currentUser.name;
-  document.getElementById('userBadge').style.display = 'flex';
-}
-
-function ensureToken() {
-  return new Promise((resolve, reject) => {
-    if (oauthToken) { resolve(oauthToken); return; }
-    reject(new Error('Not authenticated — please sign in again'));
-  });
-}
-
-window.onGoogleLibraryLoad = () => {}; // not needed for redirect flow
-
-function ensureToken() {
-  return new Promise((resolve, reject) => {
-    if (oauthToken) { resolve(oauthToken); return; }
-    if (!tokenClient) { reject(new Error('Not signed in')); return; }
-    const orig = tokenClient.callback;
-    tokenClient.callback = (r) => {
-      tokenClient.callback = orig;
-      if (r.error) { reject(new Error(r.error)); return; }
-      oauthToken = r.access_token; orig(r); resolve(oauthToken);
-    };
-    tokenClient.requestAccessToken({ prompt: 'none' });
-  });
-}
-
-window.onGoogleLibraryLoad = () => initGoogleAuth();
-
-// ============================================================
 // CONFIG & STATE
 // ============================================================
 let SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
+let API_KEY = localStorage.getItem('spoteasy_api_key') || '';
 const SHEET_NAME = 'Sheet1';
-const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastEmailSent','lastUpdated','notes','addedBy'];
-const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Backlink Required','Backlink Acquired','No Response','Declined Offer'];
-const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Backlink Required':'green','Backlink Acquired':'green','No Response':'gray','Declined Offer':'red' };
 
-let leads = [], currentTab = 'all', editingRow = null, sortCol = null, sortDir = 1;
+const COLUMNS = [
+  'businessName','businessType','url','firstName','location',
+  'domainRating','instagram','igReachOutDate','igStatus','pipelineStage',
+  'mockUpSentDate','followUpDate1','followUpDate2','lastFollowUpDate','notes'
+];
 
-function getBusinessTypes() {
-  const s = localStorage.getItem('spoteasy_business_types');
-  return s ? JSON.parse(s) : ['Restaurants','Cafe/Bakery','Clothing','Services'];
-}
-function saveBusinessTypes(t) { localStorage.setItem('spoteasy_business_types', JSON.stringify(t)); }
+const COL_HEADERS = [
+  'Business Name','Business Type','URL','First Name','Location',
+  'Domain Rating','Instagram','IG Reach Out Date','IG Status','Pipeline Stage',
+  'Mock Up Sent Date','Follow Up Date 1','Follow Up Date 2','Last Follow Up Date','Notes'
+];
+
+let leads = [];
+let currentTab = 'all';
+let editingRow = null; // 1-based row number in sheet
+let sortCol = null;
+let sortDir = 1;
+
+const PIPELINE_STAGES = ['Opportunity','Replied','Mock Up Required','Mock Up Sent','Follow Up','Confirming Backlink','Closed','Lost'];
+
+const STAGE_COLORS = {
+  'Opportunity': 'blue',
+  'Replied': 'purple',
+  'Mock Up Required': 'orange',
+  'Mock Up Sent': 'yellow',
+  'Follow Up': 'pink',
+  'Confirming Backlink': 'red',
+  'Closed': 'green',
+  'Lost': 'red'
+};
+
+const STATUS_COLORS = {
+  'Not Reached Out': 'gray',
+  'Reached Out': 'yellow',
+  'Responded': 'green',
+  'No Response': 'red'
+};
 
 // ============================================================
 // INIT
 // ============================================================
-window.onload = async () => {
-  SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
+window.onload = () => {
   if (SHEET_ID) document.getElementById('sheetIdInput').value = SHEET_ID;
-  const cid = localStorage.getItem('spoteasy_client_id') || '';
-  if (cid) document.getElementById('clientIdInput').value = cid;
+  if (API_KEY) document.getElementById('apiKeyInput').value = API_KEY;
 
-  // Check if returning from OAuth redirect (token in URL hash)
-  const hash = window.location.hash;
-  if (hash && hash.includes('access_token')) {
-    const params = new URLSearchParams(hash.substring(1));
-    const token = params.get('access_token');
-    history.replaceState(null, '', location.pathname);
-    if (token) { await verifyAndLogin(token); return; }
+  if (SHEET_ID && API_KEY) {
+    document.getElementById('setupPanel').style.display = 'none';
+    loadLeads();
   }
-
-  // Restore session
-  const savedUser = sessionStorage.getItem('spoteasy_user');
-  const savedToken = sessionStorage.getItem('spoteasy_token');
-  if (savedUser && savedToken) {
-    try {
-      currentUser = JSON.parse(savedUser);
-      oauthToken = savedToken;
-      document.getElementById('loginOverlay').style.display = 'none';
-      updateUserBadge();
-      if (SHEET_ID) loadLeads(); else document.getElementById('missingBanner').style.display = 'flex';
-      renderTeamList(); renderTypeChips(); populateBusinessTypeDropdown();
-      return;
-    } catch(e) { currentUser = null; oauthToken = null; }
-  }
-
-  // Not logged in
-  document.getElementById('loginOverlay').style.display = 'flex';
-  if (GOOGLE_CLIENT_ID) {
-    document.getElementById('loginSetupBox').style.display = 'none';
-    document.getElementById('loginSignInBox').style.display = 'flex';
-  } else {
-    document.getElementById('loginSetupBox').style.display = 'flex';
-    document.getElementById('loginSignInBox').style.display = 'none';
-  }
-  renderTeamList(); renderTypeChips(); populateBusinessTypeDropdown();
 };
 
 // ============================================================
-// TABS
+// GOOGLE SHEETS API
 // ============================================================
-function switchTab(tab) {
-  currentTab = tab;
-  ['all','pipeline','settings'].forEach(t => {
-    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
-    document.getElementById(`section-${t}`).classList.toggle('section-hidden', t !== tab);
-  });
+function saveSheetId() {
+  SHEET_ID = document.getElementById('sheetIdInput').value.trim();
+  localStorage.setItem('spoteasy_sheet_id', SHEET_ID);
+  showToast('Sheet ID saved', 'success');
 }
 
-// ============================================================
-// SHEETS API
-// ============================================================
-function connectSheet() {
+async function connect() {
   SHEET_ID = document.getElementById('sheetIdInput').value.trim();
-  if (!SHEET_ID) { showToast('Please enter a Sheet ID', 'error'); return; }
+  API_KEY = document.getElementById('apiKeyInput').value.trim();
   localStorage.setItem('spoteasy_sheet_id', SHEET_ID);
-  document.getElementById('missingBanner').style.display = 'none';
-  loadLeads();
+  localStorage.setItem('spoteasy_api_key', API_KEY);
+
+  if (!SHEET_ID || !API_KEY) {
+    showToast('Please enter both Sheet ID and API Key', 'error');
+    return;
+  }
+
+  await loadLeads();
+  document.getElementById('setupPanel').style.display = 'none';
 }
 
 async function loadLeads() {
   setStatus('loading');
   document.getElementById('loadingAll').style.display = 'flex';
   document.getElementById('tableAll').innerHTML = '';
+
   try {
-    const token = await ensureToken();
-    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}`, { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) throw new Error('Fetch failed');
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch');
     const data = await res.json();
-    leads = (data.values || []).slice(1).map((row, i) => {
-      const obj = { _row: i + 2 };
+    const rows = data.values || [];
+
+    // Skip header row (row 1)
+    leads = rows.slice(1).map((row, i) => {
+      const obj = { _row: i + 2 }; // 1-based, +2 for header
       COLUMNS.forEach((col, ci) => { obj[col] = row[ci] || ''; });
       return obj;
     });
+
     setStatus('connected');
-    populateLocationFilter(); updateStats(); renderAll(); renderPipeline();
+    populateLocationFilter();
+    updateStats();
+    renderAll();
+    renderReached();
+    renderResponded();
+    renderPipeline();
     document.getElementById('statsRow').style.display = 'flex';
     document.getElementById('loadingAll').style.display = 'none';
     showToast(`Loaded ${leads.length} leads`, 'success');
-  } catch(e) {
+  } catch (e) {
     setStatus('error');
     document.getElementById('loadingAll').style.display = 'none';
-    showToast('Failed to load sheet. Check your Sheet ID.', 'error');
+    showToast('Failed to load sheet. Check your Sheet ID and API Key.', 'error');
   }
 }
 
 async function writeRow(rowNum, values) {
-  const token = await ensureToken();
-  const range = `${SHEET_NAME}!A${rowNum}:L${rowNum}`;
-  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  const range = `${SHEET_NAME}!A${rowNum}:O${rowNum}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ values: [values] })
   });
-  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Write failed'); }
+  if (!res.ok) throw new Error('Write failed');
 }
 
 async function appendRow(values) {
-  const token = await ensureToken();
-  const range = `${SHEET_NAME}!A:L`;
-  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  const range = `${SHEET_NAME}!A:O`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key=${API_KEY}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ values: [values] })
   });
-  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Append failed'); }
+  if (!res.ok) throw new Error('Append failed');
 }
 
 async function deleteRow(rowNum) {
-  const token = await ensureToken();
-  const meta = await (await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate?key=${API_KEY}`;
+  // Get sheet ID first
+  const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}`);
+  const meta = await metaRes.json();
   const sheetId = meta.sheets[0].properties.sheetId;
-  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ requests: [{ deleteDimension: { range: { sheetId, dimension: 'ROWS', startIndex: rowNum-1, endIndex: rowNum } } }] })
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId: sheetId,
+            dimension: 'ROWS',
+            startIndex: rowNum - 1,
+            endIndex: rowNum
+          }
+        }
+      }]
+    })
   });
   if (!res.ok) throw new Error('Delete failed');
 }
 
 // ============================================================
-// STATUS / STATS / HELPERS
+// STATUS
 // ============================================================
 function setStatus(s) {
-  const el = document.getElementById('connectionStatus'), txt = document.getElementById('statusText');
+  const el = document.getElementById('connectionStatus');
+  const txt = document.getElementById('statusText');
   el.className = 'status-pill';
   if (s === 'connected') { el.classList.add('connected'); txt.textContent = 'Connected'; }
   else if (s === 'error') { el.classList.add('disconnected'); txt.textContent = 'Error'; }
   else { txt.textContent = 'Connecting...'; }
 }
 
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(tab) {
+  currentTab = tab;
+  ['all','reached','responded','pipeline'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    document.getElementById(`section-${t}`).classList.toggle('section-hidden', t !== tab);
+  });
+}
+
+function showSetup() {
+  const p = document.getElementById('setupPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+// ============================================================
+// STATS
+// ============================================================
 function updateStats() {
   document.getElementById('statTotal').textContent = leads.length;
-  document.getElementById('statOpportunity').textContent = leads.filter(l => l.pipelineStage === 'Opportunity').length;
-  document.getElementById('statActive').textContent = leads.filter(l => ['1st Reach Out','Mock Up Required','Mock Up Sent','Backlink Required'].includes(l.pipelineStage)).length;
-  document.getElementById('statClosed').textContent = leads.filter(l => l.pipelineStage === 'Backlink Acquired').length;
+  document.getElementById('statReached').textContent = leads.filter(l => l.igStatus === 'Reached Out').length;
+  document.getElementById('statResponded').textContent = leads.filter(l => l.igStatus === 'Responded').length;
+  document.getElementById('statPipeline').textContent = leads.filter(l => l.igStatus === 'Responded' && l.pipelineStage).length;
 }
 
 function populateLocationFilter() {
   const locs = [...new Set(leads.map(l => l.location).filter(Boolean))].sort();
   const sel = document.getElementById('filterLocation');
   sel.innerHTML = '<option value="">All Locations</option>';
-  locs.forEach(l => { const o = document.createElement('option'); o.value = o.textContent = l; sel.appendChild(o); });
-}
-
-function stagePill(s) {
-  if (!s) return '—';
-  const c = STAGE_COLORS[s] || 'gray';
-  return `<span class="pill pill-${c}"><span class="pill-dot"></span>${s}</span>`;
-}
-
-function drCell(v) {
-  const n = parseFloat(v)||0;
-  return `<span class="td-dr ${n>=20?'dr-high':n>=10?'dr-mid':'dr-low'}">${n||'—'}</span>`;
-}
-
-function igHandle(url) {
-  if (!url) return '—';
-  const m = url.match(/instagram\.com\/([^/?#]+)/);
-  return `<a href="${url}" target="_blank">@${m ? m[1] : 'ig'}</a>`;
-}
-
-function daysSince(d) { if (!d) return null; return Math.floor((new Date() - new Date(d)) / 86400000); }
-function daysBadge(d) {
-  if (d === null) return '';
-  return `<span class="days-badge ${d<=3?'fresh':d<=7?'warn':'stale'}">${d}d ago</span>`;
-}
-function todayStr() { return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
-
-function sortBy(col) { if (sortCol===col) sortDir*=-1; else { sortCol=col; sortDir=1; } renderAll(); }
-
-function renderAttributionTag(addedBy) {
-  if (!addedBy) return '';
-  const c = addedBy.toLowerCase().includes('greg') ? 'greg' : addedBy.toLowerCase().includes('sanket') ? 'sanket' : '';
-  return `<div class="attr-tag ${c}">✏ ${addedBy}</div>`;
+  locs.forEach(l => { const o = document.createElement('option'); o.value = l; o.textContent = l; sel.appendChild(o); });
 }
 
 // ============================================================
-// RENDER
+// HELPERS
 // ============================================================
-function filteredLeads() {
-  const q = document.getElementById('searchAll').value.toLowerCase();
-  const stage = document.getElementById('filterStage').value;
-  const loc = document.getElementById('filterLocation').value;
+function igStatusPill(status) {
+  const c = STATUS_COLORS[status] || 'gray';
+  return `<span class="pill pill-${c}"><span class="pill-dot"></span>${status || 'Not Reached Out'}</span>`;
+}
+
+function pipelinePill(stage) {
+  if (!stage) return '—';
+  const c = STAGE_COLORS[stage] || 'gray';
+  return `<span class="pill pill-${c}">${stage}</span>`;
+}
+
+function drCell(val) {
+  const n = parseFloat(val) || 0;
+  const cls = n >= 20 ? 'dr-high' : n >= 10 ? 'dr-mid' : 'dr-low';
+  return `<span class="td-dr ${cls}">${n || '—'}</span>`;
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  const now = new Date();
+  return Math.floor((now - d) / 86400000);
+}
+
+function daysBadge(days) {
+  if (days === null) return '';
+  const cls = days <= 3 ? 'fresh' : days <= 7 ? 'warn' : 'stale';
+  return `<span class="days-badge ${cls}">${days}d ago</span>`;
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  renderAll();
+}
+
+function filteredLeads(search, status, location) {
   let list = [...leads];
-  if (q) list = list.filter(l => (l.businessName+l.location+l.businessType+l.firstName).toLowerCase().includes(q));
-  if (stage) list = list.filter(l => l.pipelineStage === stage);
-  if (loc) list = list.filter(l => l.location === loc);
-  if (sortCol) list.sort((a,b) => {
-    let av=a[sortCol]||'', bv=b[sortCol]||'';
-    if (sortCol==='domainRating') { av=parseFloat(av)||0; bv=parseFloat(bv)||0; }
-    return av>bv?sortDir:av<bv?-sortDir:0;
-  });
+  if (search) {
+    const q = search.toLowerCase();
+    list = list.filter(l => (l.businessName + l.location + l.businessType + l.firstName).toLowerCase().includes(q));
+  }
+  if (status) list = list.filter(l => (l.igStatus || 'Not Reached Out') === status);
+  if (location) list = list.filter(l => l.location === location);
+  if (sortCol) {
+    list.sort((a, b) => {
+      let av = a[sortCol] || '', bv = b[sortCol] || '';
+      if (sortCol === 'domainRating') { av = parseFloat(av) || 0; bv = parseFloat(bv) || 0; }
+      return av > bv ? sortDir : av < bv ? -sortDir : 0;
+    });
+  }
   return list;
 }
 
+// ============================================================
+// RENDER ALL LEADS
+// ============================================================
 function renderAll() {
-  const list = filteredLeads();
+  const search = document.getElementById('searchAll').value;
+  const status = document.getElementById('filterStatus').value;
+  const location = document.getElementById('filterLocation').value;
+  const list = filteredLeads(search, status, location);
   document.getElementById('countAll').textContent = list.length;
+
   const tbody = document.getElementById('tableAll');
-  if (!list.length) { tbody.innerHTML=''; document.getElementById('emptyAll').classList.remove('section-hidden'); return; }
+  if (list.length === 0) {
+    tbody.innerHTML = '';
+    document.getElementById('emptyAll').classList.remove('section-hidden');
+    return;
+  }
   document.getElementById('emptyAll').classList.add('section-hidden');
+
   tbody.innerHTML = list.map(l => `
     <tr>
-      <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName||'—'}</div>${renderAttributionTag(l.addedBy)}</td>
-      <td>${l.businessType||'—'}</td>
-      <td>${l.location||'—'}</td>
+      <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName || '—'}</div></td>
+      <td>${l.businessType || '—'}</td>
+      <td>${l.location || '—'}</td>
       <td>${drCell(l.domainRating)}</td>
-      <td class="td-url">${igHandle(l.instagram)}</td>
-      <td>${stagePill(l.pipelineStage)}</td>
-      <td style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace">${l.lastEmailSent||'—'}</td>
-      <td style="font-size:12px;font-family:'DM Mono',monospace">${l.lastUpdated||'—'}</td>
-      <td><div class="row-actions">
-        <div class="action-btn" onclick="openEditModal(${l._row})">✏</div>
-        <div class="action-btn del" onclick="quickDelete(${l._row})">🗑</div>
-      </div></td>
-    </tr>`).join('');
+      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">@ig</a>` : '—'}</td>
+      <td>${formatDate(l.igReachOutDate)}</td>
+      <td>${igStatusPill(l.igStatus)}</td>
+      <td>${pipelinePill(l.pipelineStage)}</td>
+      <td>
+        <div class="row-actions">
+          <div class="action-btn edit" title="Edit" onclick="openEditModal(${l._row})">✏</div>
+          <div class="action-btn email" title="Draft Email" onclick="openEmailModal(${l._row})">📧</div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
 }
 
+// ============================================================
+// RENDER IG REACH OUT
+// ============================================================
+function renderReached() {
+  const search = document.getElementById('searchReached').value.toLowerCase();
+  const list = leads.filter(l => l.igStatus === 'Reached Out' &&
+    (!search || (l.businessName + l.location + l.firstName).toLowerCase().includes(search)));
+
+  document.getElementById('countReached').textContent = list.length;
+  const tbody = document.getElementById('tableReached');
+
+  if (list.length === 0) {
+    tbody.innerHTML = '';
+    document.getElementById('emptyReached').classList.remove('section-hidden');
+    return;
+  }
+  document.getElementById('emptyReached').classList.add('section-hidden');
+
+  tbody.innerHTML = list.map(l => `
+    <tr>
+      <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName || '—'}</div></td>
+      <td>${l.firstName || '—'}</td>
+      <td>${l.location || '—'}</td>
+      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">@ig</a>` : '—'}</td>
+      <td>${formatDate(l.igReachOutDate)}</td>
+      <td>${igStatusPill(l.igStatus)}</td>
+      <td style="max-width:200px;color:var(--text3);font-size:12px">${l.notes || '—'}</td>
+      <td>
+        <div class="row-actions">
+          <div class="action-btn edit" onclick="openEditModal(${l._row})">✏</div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ============================================================
+// RENDER RESPONDED
+// ============================================================
+function renderResponded() {
+  const search = document.getElementById('searchResponded').value.toLowerCase();
+  const list = leads.filter(l => l.igStatus === 'Responded' &&
+    (!search || (l.businessName + l.location + l.firstName).toLowerCase().includes(search)));
+
+  document.getElementById('countResponded').textContent = list.length;
+  const tbody = document.getElementById('tableResponded');
+
+  if (list.length === 0) {
+    tbody.innerHTML = '';
+    document.getElementById('emptyResponded').classList.remove('section-hidden');
+    return;
+  }
+  document.getElementById('emptyResponded').classList.add('section-hidden');
+
+  tbody.innerHTML = list.map(l => `
+    <tr>
+      <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName || '—'}</div></td>
+      <td>${l.firstName || '—'}</td>
+      <td>${l.location || '—'}</td>
+      <td class="td-url">${l.instagram ? `<a href="${l.instagram}" target="_blank">@ig</a>` : '—'}</td>
+      <td>${formatDate(l.igReachOutDate)}</td>
+      <td>${igStatusPill(l.igStatus)}</td>
+      <td>${pipelinePill(l.pipelineStage)}</td>
+      <td style="max-width:180px;color:var(--text3);font-size:12px">${l.notes || '—'}</td>
+      <td>
+        <div class="row-actions">
+          <div class="action-btn edit" onclick="openEditModal(${l._row})">✏</div>
+          <div class="action-btn email" onclick="openEmailModal(${l._row})">📧</div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ============================================================
+// RENDER PIPELINE KANBAN
+// ============================================================
 function renderPipeline() {
-  const q = document.getElementById('searchPipeline').value.toLowerCase();
-  const list = leads.filter(l => l.pipelineStage && (!q || (l.businessName+l.location).toLowerCase().includes(q)));
+  const search = document.getElementById('searchPipeline').value.toLowerCase();
+  const list = leads.filter(l => l.igStatus === 'Responded' &&
+    (!search || (l.businessName + l.location).toLowerCase().includes(search)));
+
   const board = document.getElementById('kanbanBoard');
-  if (!list.length) { board.innerHTML=''; document.getElementById('emptyPipeline').classList.remove('section-hidden'); return; }
+
+  if (list.length === 0) {
+    board.innerHTML = '';
+    document.getElementById('emptyPipeline').classList.remove('section-hidden');
+    return;
+  }
   document.getElementById('emptyPipeline').classList.add('section-hidden');
+
   board.innerHTML = PIPELINE_STAGES.map(stage => {
     const cards = list.filter(l => l.pipelineStage === stage);
     const color = STAGE_COLORS[stage] || 'gray';
-    return `<div class="kanban-col">
-      <div class="kanban-header">
-        <span class="kanban-title" style="color:var(--${color==='gray'?'text3':color})">${stage}</span>
-        <span class="kanban-count">${cards.length}</span>
-      </div>
-      <div class="kanban-body">${cards.length ? cards.map(l => {
-        const days = daysSince(l.lastUpdated);
-        return `<div class="kanban-card" onclick="openEditModal(${l._row})">
+
+    const cardHTML = cards.map(l => {
+      const daysFU = daysSince(l.lastFollowUpDate);
+      const daysMU = daysSince(l.mockUpSentDate);
+      return `
+        <div class="kanban-card" onclick="openEditModal(${l._row})">
           <div class="kanban-card-name">${l.businessName}</div>
-          <div class="kanban-card-type">${l.businessType||''}</div>
-          ${l.url ? `<div class="kanban-card-url">${l.url.replace(/https?:\/\//,'')}</div>` : ''}
+          <div class="kanban-card-type">${l.businessType || ''}</div>
+          ${l.url ? `<div class="kanban-card-url">${l.url.replace('https://','')}</div>` : ''}
           <div class="kanban-card-meta">
-            ${l.location?`<div class="kanban-card-meta-row"><span>📍 ${l.location}</span></div>`:''}
-            ${l.lastEmailSent?`<div class="kanban-card-meta-row"><span>📧 ${l.lastEmailSent}</span></div>`:''}
-            ${days!==null?`<div class="kanban-card-meta-row"><span>Updated</span>${daysBadge(days)}</div>`:''}
+            ${l.location ? `<div class="kanban-card-meta-row"><span>📍</span><span class="kanban-card-meta-val">${l.location}</span></div>` : ''}
+            ${daysMU !== null ? `<div class="kanban-card-meta-row"><span>🎨 Mock Up</span>${daysBadge(daysMU)}</div>` : ''}
+            ${daysFU !== null ? `<div class="kanban-card-meta-row"><span>📅 Follow Up</span>${daysBadge(daysFU)}</div>` : ''}
           </div>
-          ${renderAttributionTag(l.addedBy)}
-        </div>`;
-      }).join('') : '<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">Empty</div>'}</div>
-    </div>`;
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="kanban-col">
+        <div class="kanban-header">
+          <span class="kanban-title" style="color:var(--${color === 'gray' ? 'text3' : color})">${stage}</span>
+          <span class="kanban-count">${cards.length}</span>
+        </div>
+        <div class="kanban-body">${cardHTML || `<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">Empty</div>`}</div>
+      </div>
+    `;
   }).join('');
-}
-
-// ============================================================
-// SETTINGS
-// ============================================================
-function getTeamMembers() { return JSON.parse(localStorage.getItem('spoteasy_team')||'[]'); }
-function saveTeamMembers(m) { localStorage.setItem('spoteasy_team', JSON.stringify(m)); }
-
-function renderTeamList() {
-  const m = getTeamMembers(), el = document.getElementById('teamList');
-  if (!m.length) { el.innerHTML='<p style="font-size:13px;color:var(--text3)">No team members added yet.</p>'; return; }
-  el.innerHTML = m.map((tm,i) => `<div class="team-member-row">
-    <div class="team-member-avatar">${tm.name[0].toUpperCase()}</div>
-    <div class="team-member-info"><div class="team-member-name">${tm.name}</div><div class="team-member-email">${tm.email}</div></div>
-    <button class="btn btn-danger" style="padding:4px 10px;font-size:11px" onclick="removeTeamMember(${i})">Remove</button>
-  </div>`).join('');
-}
-
-function addTeamMember() {
-  const name=document.getElementById('newMemberName').value.trim(), email=document.getElementById('newMemberEmail').value.trim();
-  if (!name||!email) { showToast('Name and email required','error'); return; }
-  const m=getTeamMembers(); m.push({name,email}); saveTeamMembers(m);
-  document.getElementById('newMemberName').value=''; document.getElementById('newMemberEmail').value='';
-  renderTeamList(); showToast(`${name} added`,'success');
-}
-
-function removeTeamMember(i) { const m=getTeamMembers(); m.splice(i,1); saveTeamMembers(m); renderTeamList(); }
-
-function renderTypeChips() {
-  document.getElementById('typeChips').innerHTML = getBusinessTypes().map((t,i) =>
-    `<div class="type-chip">${t}<button class="type-chip-del" onclick="removeBusinessType(${i})">×</button></div>`).join('');
-}
-
-function addBusinessType() {
-  const val=document.getElementById('newTypeInput').value.trim();
-  if (!val) return;
-  const types=getBusinessTypes();
-  if (types.includes(val)) { showToast('Already exists','error'); return; }
-  types.push(val); saveBusinessTypes(types);
-  document.getElementById('newTypeInput').value='';
-  renderTypeChips(); populateBusinessTypeDropdown(); showToast(`"${val}" added`,'success');
-}
-
-function removeBusinessType(i) { const t=getBusinessTypes(); t.splice(i,1); saveBusinessTypes(t); renderTypeChips(); populateBusinessTypeDropdown(); }
-
-function populateBusinessTypeDropdown() {
-  const types=getBusinessTypes(), sel=document.getElementById('f-businessType');
-  if (!sel) return;
-  const cur=sel.value;
-  sel.innerHTML='<option value=""></option>'+types.map(t=>`<option>${t}</option>`).join('')+'<option value="__new__">+ Create New...</option>';
-  if (cur) sel.value=cur;
-  sel.onchange=function(){
-    if (this.value==='__new__') {
-      const n=prompt('New business type:');
-      if (n&&n.trim()) { const t=getBusinessTypes(); if(!t.includes(n.trim())){ t.push(n.trim()); saveBusinessTypes(t); renderTypeChips(); } populateBusinessTypeDropdown(); sel.value=n.trim(); }
-      else sel.value='';
-    }
-  };
 }
 
 // ============================================================
 // MODAL
 // ============================================================
 function openAddModal() {
-  if (!SHEET_ID) { switchTab('settings'); showToast('Add your Sheet ID first','error'); return; }
-  editingRow=null;
-  document.getElementById('modalTitle').textContent='Add Lead';
-  document.getElementById('deleteBtn').style.display='none';
-  clearForm(); populateBusinessTypeDropdown();
+  editingRow = null;
+  document.getElementById('modalTitle').textContent = 'Add Lead';
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('emailDraftSection').style.display = 'none';
+  clearForm();
   document.getElementById('leadModal').classList.add('open');
 }
 
 function openEditModal(row) {
-  const lead=leads.find(l=>l._row===row); if (!lead) return;
-  editingRow=row;
-  document.getElementById('modalTitle').textContent='Edit Lead';
-  document.getElementById('deleteBtn').style.display='flex';
-  populateBusinessTypeDropdown(); fillForm(lead);
+  const lead = leads.find(l => l._row === row);
+  if (!lead) return;
+  editingRow = row;
+  document.getElementById('modalTitle').textContent = 'Edit Lead';
+  document.getElementById('deleteBtn').style.display = 'flex';
+  fillForm(lead);
+
+  // Show email draft if Follow Up stage
+  if (lead.pipelineStage === 'Follow Up') {
+    showEmailDraft(lead);
+  } else {
+    document.getElementById('emailDraftSection').style.display = 'none';
+  }
+
   document.getElementById('leadModal').classList.add('open');
 }
 
-function closeModal() { document.getElementById('leadModal').classList.remove('open'); editingRow=null; }
+function openEmailModal(row) {
+  const lead = leads.find(l => l._row === row);
+  if (!lead) return;
+  editingRow = row;
+  document.getElementById('modalTitle').textContent = 'Edit Lead';
+  document.getElementById('deleteBtn').style.display = 'flex';
+  fillForm(lead);
+  showEmailDraft(lead);
+  document.getElementById('leadModal').classList.add('open');
+}
 
-function clearForm() { COLUMNS.forEach(col => { const el=document.getElementById(`f-${col}`); if(el) el.value=''; }); }
+function showEmailDraft(lead) {
+  const name = lead.firstName || lead.businessName || '[NAME]';
+  const bizName = lead.businessName || '[BUSINESS NAME]';
+  const draft = `Hi ${name},
 
-function fillForm(lead) {
+Just wanted to follow up on my email from a few days ago about featuring ${bizName} on Spot Easy's Local Spots section.
+
+Here's an example of how a current partner's ad appears on the platform: [LINK TO EXAMPLE BUSINESS PAGE]
+
+As a quick reminder, your ad will be rotated across all listings in your neighborhood, so you'll get consistent visibility to renters actively exploring the area.
+
+No pressure at all — just wanted to make sure it didn't get buried. Happy to answer any questions or jump on a quick call if that's easier.
+
+Thanks,
+Greg
+Head of Local Partnerships | Spot Easy
+7818662270
+Spoteasy.com
+Supporting Boston's local business community`;
+
+  document.getElementById('emailPreview').textContent = draft;
+  document.getElementById('emailDraftSection').style.display = 'block';
+}
+
+function copyEmail() {
+  const text = document.getElementById('emailPreview').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Email copied to clipboard!', 'success'));
+}
+
+function closeModal() {
+  document.getElementById('leadModal').classList.remove('open');
+  editingRow = null;
+}
+
+function clearForm() {
   COLUMNS.forEach(col => {
-    const el=document.getElementById(`f-${col}`); if(!el) return;
-    el.value=lead[col]||'';
+    const el = document.getElementById(`f-${col}`);
+    if (el) el.value = '';
   });
 }
 
-function getFormValues() { return COLUMNS.map(col => { const el=document.getElementById(`f-${col}`); return el?el.value:''; }); }
+function fillForm(lead) {
+  COLUMNS.forEach(col => {
+    const el = document.getElementById(`f-${col}`);
+    if (el) el.value = lead[col] || '';
+  });
+}
+
+function getFormValues() {
+  return COLUMNS.map(col => {
+    const el = document.getElementById(`f-${col}`);
+    return el ? el.value : '';
+  });
+}
 
 async function saveLead() {
-  const values=getFormValues();
-  if (!values[0]) { showToast('Business Name is required','error'); return; }
-
-  // Auto-set Last Updated if pipeline stage changed
-  const piIdx=COLUMNS.indexOf('pipelineStage'), luIdx=COLUMNS.indexOf('lastUpdated');
-  if (editingRow) {
-    const old=leads.find(l=>l._row===editingRow);
-    if (old&&old.pipelineStage!==values[piIdx]) values[luIdx]=todayStr();
-  } else if (values[piIdx]) values[luIdx]=todayStr();
-
-  // Set addedBy for new leads
-  if (!editingRow) values[COLUMNS.indexOf('addedBy')] = currentUser ? currentUser.name : '';
+  const values = getFormValues();
+  if (!values[0]) { showToast('Business Name is required', 'error'); return; }
 
   try {
     if (editingRow) {
       await writeRow(editingRow, values);
-      const idx=leads.findIndex(l=>l._row===editingRow);
-      if (idx>=0) { const u={_row:editingRow}; COLUMNS.forEach((c,i)=>{u[c]=values[i];}); leads[idx]=u; }
-      showToast('Lead updated!','success');
+      const idx = leads.findIndex(l => l._row === editingRow);
+      if (idx >= 0) {
+        const updated = { _row: editingRow };
+        COLUMNS.forEach((col, i) => { updated[col] = values[i]; });
+        leads[idx] = updated;
+      }
+      showToast('Lead updated!', 'success');
     } else {
       await appendRow(values);
-      const nl={_row:leads.length+2}; COLUMNS.forEach((c,i)=>{nl[c]=values[i];}); leads.push(nl);
-      showToast('Lead added!','success');
+      const newRow = leads.length + 2;
+      const newLead = { _row: newRow };
+      COLUMNS.forEach((col, i) => { newLead[col] = values[i]; });
+      leads.push(newLead);
+      showToast('Lead added!', 'success');
     }
-    closeModal(); updateStats(); populateLocationFilter(); renderAll(); renderPipeline();
-  } catch(e) { showToast('Failed to save: '+e.message,'error'); }
+
+    closeModal();
+    updateStats();
+    populateLocationFilter();
+    renderAll();
+    renderReached();
+    renderResponded();
+    renderPipeline();
+  } catch (e) {
+    showToast('Failed to save. Check your API Key has write access.', 'error');
+  }
 }
 
 async function deleteLead() {
   if (!editingRow) return;
   if (!confirm('Delete this lead? This cannot be undone.')) return;
+
   try {
     await deleteRow(editingRow);
-    leads=leads.filter(l=>l._row!==editingRow);
-    leads.forEach((l,i)=>{l._row=i+2;});
-    closeModal(); updateStats(); renderAll(); renderPipeline();
-    showToast('Lead deleted','success');
-  } catch(e) { showToast('Failed to delete: '+e.message,'error'); }
+    leads = leads.filter(l => l._row !== editingRow);
+    // Reindex rows
+    leads.forEach((l, i) => { l._row = i + 2; });
+    closeModal();
+    updateStats();
+    renderAll();
+    renderReached();
+    renderResponded();
+    renderPipeline();
+    showToast('Lead deleted', 'success');
+  } catch (e) {
+    showToast('Failed to delete. Check API Key permissions.', 'error');
+  }
 }
 
-async function quickDelete(row) {
-  if (!confirm('Delete this lead?')) return;
-  editingRow=row; await deleteLead(); editingRow=null;
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => { t.classList.remove('show'); }, 3000);
 }
 
-function showToast(msg, type='success') {
-  const t=document.getElementById('toast');
-  t.textContent=(type==='success'?'✓ ':'✕ ')+msg;
-  t.className=`toast ${type} show`;
-  setTimeout(()=>t.classList.remove('show'),3000);
-}
+// Close modal on overlay click
+document.getElementById('leadModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
 
-document.getElementById('leadModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+// Pipeline stage → show email draft toggle
+document.getElementById('f-pipelineStage').addEventListener('change', function() {
+  if (this.value === 'Follow Up' && editingRow) {
+    const lead = leads.find(l => l._row === editingRow);
+    if (lead) showEmailDraft({...lead, pipelineStage: 'Follow Up'});
+  } else if (this.value === 'Follow Up') {
+    // New lead, use form values
+    showEmailDraft({
+      firstName: document.getElementById('f-firstName').value,
+      businessName: document.getElementById('f-businessName').value
+    });
+  }
+});
 </script>
 </body>
 </html>
