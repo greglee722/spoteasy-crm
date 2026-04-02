@@ -600,7 +600,7 @@ let SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
 const SHEET_NAME = 'Sheet1';
 const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastEmailSent','lastUpdated','notes','addedBy'];
 const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Backlink Required','Backlink Acquired','No Response','Declined Offer'];
-const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Backlink Required':'red','Backlink Acquired':'green','No Response':'gray','Declined Offer':'red' };
+const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Backlink Required':'green','Backlink Acquired':'green','No Response':'gray','Declined Offer':'red' };
 
 let leads = [], currentTab = 'all', editingRow = null, sortCol = null, sortDir = 1;
 
@@ -703,6 +703,18 @@ async function loadLeads() {
   }
 }
 
+function handleAuthError() {
+  oauthToken = null;
+  sessionStorage.removeItem('spoteasy_token');
+  showToast('Session expired — please sign in again', 'error');
+  setTimeout(() => {
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('loginSetupBox').style.display = 'none';
+    document.getElementById('loginSignInBox').style.display = 'flex';
+    document.getElementById('userBadge').style.display = 'none';
+  }, 1200);
+}
+
 async function writeRow(rowNum, values) {
   const token = await ensureToken();
   const range = `${SHEET_NAME}!A${rowNum}:L${rowNum}`;
@@ -710,7 +722,11 @@ async function writeRow(rowNum, values) {
     method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ values: [values] })
   });
-  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Write failed'); }
+  if (!res.ok) {
+    const e = await res.json();
+    if (res.status === 401) { handleAuthError(); throw new Error('SESSION_EXPIRED'); }
+    throw new Error(e.error?.message || 'Write failed');
+  }
 }
 
 async function appendRow(values) {
@@ -720,18 +736,30 @@ async function appendRow(values) {
     method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ values: [values] })
   });
-  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Append failed'); }
+  if (!res.ok) {
+    const e = await res.json();
+    if (res.status === 401) { handleAuthError(); throw new Error('SESSION_EXPIRED'); }
+    throw new Error(e.error?.message || 'Append failed');
+  }
 }
 
 async function deleteRow(rowNum) {
   const token = await ensureToken();
-  const meta = await (await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+  const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!metaRes.ok) {
+    if (metaRes.status === 401) { handleAuthError(); throw new Error('SESSION_EXPIRED'); }
+    throw new Error('Delete failed');
+  }
+  const meta = await metaRes.json();
   const sheetId = meta.sheets[0].properties.sheetId;
   const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`, {
     method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ requests: [{ deleteDimension: { range: { sheetId, dimension: 'ROWS', startIndex: rowNum-1, endIndex: rowNum } } }] })
   });
-  if (!res.ok) throw new Error('Delete failed');
+  if (!res.ok) {
+    if (res.status === 401) { handleAuthError(); throw new Error('SESSION_EXPIRED'); }
+    throw new Error('Delete failed');
+  }
 }
 
 // ============================================================
@@ -983,7 +1011,7 @@ async function saveLead() {
       showToast('Lead added!','success');
     }
     closeModal(); updateStats(); populateLocationFilter(); renderAll(); renderPipeline();
-  } catch(e) { showToast('Failed to save: '+e.message,'error'); }
+  } catch(e) { if (e.message !== 'SESSION_EXPIRED') showToast('Failed to save: '+e.message,'error'); }
 }
 
 async function deleteLead() {
@@ -995,7 +1023,7 @@ async function deleteLead() {
     leads.forEach((l,i)=>{l._row=i+2;});
     closeModal(); updateStats(); renderAll(); renderPipeline();
     showToast('Lead deleted','success');
-  } catch(e) { showToast('Failed to delete: '+e.message,'error'); }
+  } catch(e) { if (e.message !== 'SESSION_EXPIRED') showToast('Failed to delete: '+e.message,'error'); }
 }
 
 async function quickDelete(row) {
