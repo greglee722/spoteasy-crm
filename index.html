@@ -87,9 +87,10 @@ body { background:var(--bg); color:var(--text); font-family:'Mulish',sans-serif;
 /* TOOLBAR */
 .toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:12px; flex-wrap:wrap; }
 .toolbar-left { display:flex; align-items:center; gap:10px; flex:1; flex-wrap:wrap; }
-.search-wrap { position:relative; }
-.search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:13px; pointer-events:none; display:flex; align-items:center; z-index:1; }
-.search-input { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:8px 12px 8px 34px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; width:240px; outline:none; }
+.search-wrap { display:flex; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:0 12px 0 10px; gap:6px; transition:border-color 0.15s; }
+.search-wrap:focus-within { border-color:var(--accent); }
+.search-icon { color:var(--text3); font-size:13px; pointer-events:none; display:flex; align-items:center; flex-shrink:0; }
+.search-input { background:transparent; border:none; color:var(--text); padding:8px 0; font-family:'Mulish',sans-serif; font-size:13px; width:220px; outline:none; }
 .search-input:focus { border-color:var(--accent); }
 .filter-select { background:var(--surface); border:1px solid var(--border); color:var(--text2); padding:8px 12px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; outline:none; }
 .count-badge { background:var(--surface2); color:var(--text3); padding:3px 9px; border-radius:10px; font-size:12px; font-family:'DM Mono',monospace; border:1px solid var(--border); }
@@ -847,7 +848,8 @@ function igHandle(url) {
 function daysSince(d) { if (!d) return null; return Math.floor((new Date() - new Date(d)) / 86400000); }
 function daysBadge(d) {
   if (d === null) return '';
-  return `<span class="days-badge ${d<=3?'fresh':d<=7?'warn':'stale'}">${d}d ago</span>`;
+  const label = d === 0 ? 'Today' : `${d}d ago`;
+  return `<span class="days-badge ${d<=3?'fresh':d<=7?'warn':'stale'}">${label}</span>`;
 }
 function todayStr() { return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
 
