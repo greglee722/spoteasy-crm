@@ -88,8 +88,8 @@ body { background:var(--bg); color:var(--text); font-family:'Mulish',sans-serif;
 .toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:12px; flex-wrap:wrap; }
 .toolbar-left { display:flex; align-items:center; gap:10px; flex:1; flex-wrap:wrap; }
 .search-wrap { position:relative; }
-.search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:13px; pointer-events:none; }
-.search-input { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:8px 12px 8px 34px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; width:240px; outline:none; }
+.search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:13px; pointer-events:none; display:flex; align-items:center; }
+.search-input { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:8px 12px 8px 32px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; width:240px; outline:none; }
 .search-input:focus { border-color:var(--accent); }
 .filter-select { background:var(--surface); border:1px solid var(--border); color:var(--text2); padding:8px 12px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; outline:none; }
 .count-badge { background:var(--surface2); color:var(--text3); padding:3px 9px; border-radius:10px; font-size:12px; font-family:'DM Mono',monospace; border:1px solid var(--border); }
@@ -194,6 +194,13 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 .sheet-id-row { display:flex; gap:10px; align-items:center; }
 .sheet-id-row input { flex:1; }
 
+/* DRAG AND DROP */
+.kanban-col.drag-over .kanban-body { background:rgba(0,172,238,0.06); border-radius:8px; outline:2px dashed var(--accent); outline-offset:-2px; }
+.kanban-card.dragging { opacity:0.4; transform:rotate(1.5deg) scale(0.97); cursor:grabbing; }
+.kanban-card { cursor:grab; }
+.kanban-card:active { cursor:grabbing; }
+.kanban-card-ghost { background:rgba(0,172,238,0.08); border:2px dashed var(--accent); border-radius:8px; height:60px; }
+
 /* LOADING / EMPTY */
 .loading { display:flex; align-items:center; justify-content:center; gap:10px; padding:40px; color:var(--text3); font-family:'DM Mono',monospace; font-size:13px; }
 .spinner { width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.6s linear infinite; }
@@ -214,7 +221,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 
 <!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
-  <div class="login-logo">Spot Easy<span>.</span></div>
+  <img src="Spot_Easy_-_white.png" alt="Spot Easy" style="height:48px;display:block">
   <div class="login-box" id="loginSetupBox" style="display:none">
     <div class="login-title">One-time setup</div>
     <div class="login-subtitle">Paste your Google OAuth Client ID to enable sign-in.<br>Get it from <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Credentials.</div>
@@ -235,7 +242,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="logo">Spot Easy<span>.</span></div>
+  <img src="Spot_Easy_-_white.png" alt="Spot Easy" style="height:32px;display:block">
   <div class="topbar-right">
     <div class="user-badge" id="userBadge" onclick="switchUser()" title="Sign out" style="display:none">
       <div class="user-badge-avatar" id="userBadgeAvatar"></div>
@@ -274,7 +281,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
     <div class="toolbar">
       <div class="toolbar-left">
         <div class="search-wrap">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
           <input type="text" class="search-input" id="searchAll" placeholder="Search leads..." oninput="renderAll()">
         </div>
         <select class="filter-select" id="filterStage" onchange="renderAll()">
@@ -318,7 +325,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
     <div class="toolbar">
       <div class="toolbar-left">
         <div class="search-wrap">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
           <input type="text" class="search-input" id="searchPipeline" placeholder="Search pipeline..." oninput="renderPipeline()">
         </div>
       </div>
@@ -903,14 +910,19 @@ function renderPipeline() {
   board.innerHTML = PIPELINE_STAGES.map(stage => {
     const cards = list.filter(l => l.pipelineStage === stage);
     const color = STAGE_COLORS[stage] || 'gray';
-    return `<div class="kanban-col">
+    return `<div class="kanban-col" data-stage="${stage}"
+        ondragover="kanbanDragOver(event)" ondragleave="kanbanDragLeave(event)" ondrop="kanbanDrop(event,'${stage}')">
       <div class="kanban-header">
         <span class="kanban-title" style="color:var(--${color==='gray'?'text3':color})">${stage}</span>
         <span class="kanban-count">${cards.length}</span>
       </div>
       <div class="kanban-body">${cards.length ? cards.map(l => {
         const days = daysSince(l.lastUpdated);
-        return `<div class="kanban-card" onclick="openEditModal(${l._row})">
+        return `<div class="kanban-card" draggable="true"
+            data-row="${l._row}"
+            ondragstart="kanbanDragStart(event,${l._row})"
+            ondragend="kanbanDragEnd(event)"
+            onclick="openEditModal(${l._row})">
           <div class="kanban-card-name">${l.businessName}</div>
           <div class="kanban-card-type">${l.businessType||''}</div>
           ${l.url ? `<div class="kanban-card-url">${l.url.replace(/https?:\/\//,'')}</div>` : ''}
@@ -924,6 +936,69 @@ function renderPipeline() {
       }).join('') : '<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">Empty</div>'}</div>
     </div>`;
   }).join('');
+}
+
+// ============================================================
+// KANBAN DRAG AND DROP
+// ============================================================
+let dragRow = null;
+
+function kanbanDragStart(e, row) {
+  dragRow = row;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', row);
+  setTimeout(() => { if (e.target) e.target.classList.add('dragging'); }, 0);
+}
+
+function kanbanDragEnd(e) {
+  if (e.target) e.target.classList.remove('dragging');
+  document.querySelectorAll('.kanban-col').forEach(col => col.classList.remove('drag-over'));
+  dragRow = null;
+}
+
+function kanbanDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const col = e.currentTarget;
+  col.classList.add('drag-over');
+}
+
+function kanbanDragLeave(e) {
+  // Only remove if leaving the column entirely (not a child element)
+  const col = e.currentTarget;
+  if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+}
+
+async function kanbanDrop(e, newStage) {
+  e.preventDefault();
+  const col = e.currentTarget;
+  col.classList.remove('drag-over');
+  if (!dragRow) return;
+
+  const lead = leads.find(l => l._row === dragRow);
+  if (!lead) return;
+  if (lead.pipelineStage === newStage) return; // no change
+
+  const oldStage = lead.pipelineStage;
+  lead.pipelineStage = newStage;
+  lead.lastUpdated = todayStr();
+
+  // Optimistically re-render
+  renderAll(); renderPipeline(); updateStats();
+
+  // Save to Sheets
+  try {
+    const values = COLUMNS.map(col => lead[col] || '');
+    await writeRow(lead._row, values);
+    showToast(`Moved to "${newStage}"`, 'success');
+  } catch(err) {
+    // Roll back on failure
+    if (err.message !== 'SESSION_EXPIRED') {
+      lead.pipelineStage = oldStage;
+      renderAll(); renderPipeline(); updateStats();
+      showToast('Failed to update stage: ' + err.message, 'error');
+    }
+  }
 }
 
 // ============================================================
