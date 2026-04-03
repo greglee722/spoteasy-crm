@@ -299,7 +299,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
           <th onclick="sortBy('domainRating')">DR ↕</th>
           <th>Instagram</th>
           <th>Pipeline Stage</th>
-          <th>Last Message Sent</th>
+          <th>Last Email Sent</th>
           <th onclick="sortBy('lastUpdated')">Last Updated ↕</th>
           <th></th>
         </tr></thead>
@@ -423,8 +423,8 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
           </select>
         </div>
         <div class="form-group">
-          <label>Last Message Sent</label>
-          <select id="f-lastMessageSent">
+          <label>Last Email Sent</label>
+          <select id="f-lastEmailSent">
             <option value=""></option>
             <option>1st Template</option><option>Prompt 1A</option><option>Prompt 1B</option>
             <option>Prompt 1C</option><option>2nd Template</option><option>Prompt 2A</option>
@@ -454,9 +454,6 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
               </optgroup>
               <optgroup label="Third Outreach">
                 <option value="3rd-template">3rd Template</option>
-                <option value="prompt-3a">Prompt 3A</option>
-                <option value="prompt-3b">Prompt 3B</option>
-                <option value="prompt-3c">Prompt 3C</option>
               </optgroup>
             </select>
           </div>
@@ -630,7 +627,7 @@ window.onGoogleLibraryLoad = () => initGoogleAuth();
 // ============================================================
 let SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
 const SHEET_NAME = 'Sheet1';
-const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastMessageSent','lastUpdated','notes','addedBy'];
+const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastEmailSent','lastUpdated','notes','addedBy'];
 const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Backlink Required','Backlink Acquired','No Response','Declined Offer'];
 const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Backlink Required':'green','Backlink Acquired':'green','No Response':'gray','Declined Offer':'red' };
 
@@ -884,7 +881,7 @@ function renderAll() {
       <td>${drCell(l.domainRating)}</td>
       <td class="td-url">${igHandle(l.instagram)}</td>
       <td>${stagePill(l.pipelineStage)}</td>
-      <td style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace">${l.lastMessageSent||'—'}</td>
+      <td style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace">${l.lastEmailSent||'—'}</td>
       <td style="font-size:12px;font-family:'DM Mono',monospace">${l.lastUpdated||'—'}</td>
       <td><div class="row-actions">
         <div class="action-btn" onclick="openEditModal(${l._row})">✏</div>
@@ -915,7 +912,7 @@ function renderPipeline() {
           ${l.url ? `<div class="kanban-card-url">${l.url.replace(/https?:\/\//,'')}</div>` : ''}
           <div class="kanban-card-meta">
             ${l.location?`<div class="kanban-card-meta-row"><span>📍 ${l.location}</span></div>`:''}
-            ${l.lastMessageSent?`<div class="kanban-card-meta-row"><span>📧 ${l.lastMessageSent}</span></div>`:''}
+            ${l.lastEmailSent?`<div class="kanban-card-meta-row"><span>📧 ${l.lastEmailSent}</span></div>`:''}
             ${days!==null?`<div class="kanban-card-meta-row"><span>Updated</span>${daysBadge(days)}</div>`:''}
           </div>
           ${renderAttributionTag(l.addedBy)}
@@ -1075,109 +1072,161 @@ function showToast(msg, type='success') {
 // ============================================================
 const PROMPT_TEMPLATES = {
   '1st-template': (lead) => {
+    const name = lead.firstName || 'Owner';
     const biz = lead.businessName || 'your business';
-    return `=== INSTAGRAM ===
+    const domain = lead.domainRating ? ` (domain rating: ${lead.domainRating})` : '';
+    return `Subject: Featured Partnership Opportunity for ${biz}
 
-Hey ${biz} 👋 We're Spot Easy, a Boston apartment rental platform with 50K+ monthly visitors. We're building a "Local Spots" guide to help new renters discover the best places in their neighborhood and city - and we'd love to feature you on our website for free!
+Hi ${name},
 
-Your business meets our requirements. Would you be interested in being featured?
+We love what ${biz} is doing${domain}. We think your customers would be a great fit for our platform.
 
-=== EMAIL ===
+I wanted to reach out about a potential partnership opportunity. We feature local businesses on Spot Easy and drive real traffic and customers to partner locations.
 
-Hi,
+Would you be open to a quick 15-minute call to explore this?
 
-I'm Greg, and I handle local partnerships for Spot Easy, an apartment rental platform based in the Boston area, similar to Zillow but focused on Boston and surrounding cities. However, as a local apartment rental platform, we have proven more trustworthy than our national competitors, resulting in over 50,000 monthly visits from renters searching for apartments.
-
-Therefore we are now building a "Local Spots" section to help renters discover great neighborhood businesses while driving more customers to them.
-
-This is completely free, as our goal is to support local businesses and provide a trusted, community-focused alternative to national corporations.
-
-Your business meets our requirements. Would you be interested in being featured?`;
+Best regards,
+Greg
+Spot Easy — Backlink Reach Out`;
   },
 
   'prompt-1a': (lead) => {
-    return `Hello, just following up on my previous message. As an apartment rental platform focused on the Boston area and surrounding cities, we have the ability to promote cool local businesses for free, so our renters can discover them which is great for those businesses as well.
+    const name = lead.firstName || 'Owner';
+    const biz = lead.businessName || 'your business';
+    return `Subject: Partnership with Spot Easy 🎯
 
-We would love to feature your business for free, so please let us know. Thanks!`;
+Hi ${name},
+
+Quick thought — we just launched a new feature on Spot Easy specifically for businesses like ${biz}.
+
+It drives real foot traffic and customers to your location. Would you be interested in learning more?
+
+Let me know!
+
+Greg
+Spot Easy`;
   },
 
   'prompt-1b': (lead) => {
-    return `Featuring your business on our platform will provide great visibility and exposure to renters who are moving to the area and looking for a cool neighborhood or local spot. This is offered at no cost!`;
+    const name = lead.firstName || 'Owner';
+    const biz = lead.businessName || 'your business';
+    return `Subject: Spot Easy + ${biz}
+
+Hi ${name},
+
+I've been following ${biz} and think you'd be perfect for what we're building at Spot Easy.
+
+We partner with local businesses to drive traffic and revenue. No cost to you — just mutual benefit.
+
+Interested in a chat?
+
+Greg
+Spot Easy`;
   },
 
   'prompt-1c': (lead) => {
-    return `Just circling back, this would be a win-win for your business and a great way to promote cool local businesses to people moving to the area. We'd love to feature you for free!`;
+    const name = lead.firstName || 'Owner';
+    const location = lead.location ? ` in ${lead.location}` : '';
+    return `Subject: Hey ${name} — Partnership idea
+
+Hi ${name},
+
+I noticed your business${location} and thought you might want to know about Spot Easy.
+
+We help local businesses get featured and drive new customers. Would be great to chat briefly about how this could work for you.
+
+Free to talk this week?
+
+Greg
+Spot Easy`;
   },
 
   '2nd-template': (lead) => {
-    return `Great! As we mentioned we feature cool local businesses on our platform to help renters discover them - bringing you more visibility and customers.
+    const name = lead.firstName || 'Owner';
+    const biz = lead.businessName || 'your business';
+    return `Subject: Quick follow-up: ${biz} + Spot Easy
 
-1) How it works:
-We promote your business as a featured local spot on our platform.
+Hi ${name},
 
-2) Cost:
-It's completely FREE, it's our way of supporting local businesses.
+Following up on my earlier message. I genuinely think this partnership could benefit ${biz}.
 
-3) What we ask:
-A simple mention of us on your site (anywhere, even in the footer - it doesn't need to be prominent).
+No pressure — just wanted to make sure you saw my message. Would love to connect if you're open to it.
 
-I've included a mockup of how your business will be promoted. We can have you live in as little as two days and circle back regarding how you can easily mention us somewhere on your site after your business is live.
+Let me know if you'd like to chat!
 
-Would that work for you?
-
-[attach mock up]`;
+Greg
+Spot Easy`;
   },
 
   'prompt-2a': (lead) => {
-    return `Hello, just following up - we're ready to feature your business on our platform at no cost and wanted to check if you're still interested, as we haven't heard back. It's a great way to introduce your business to people moving to the area, and it's completely free. Are you ready to get featured?`;
+    const name = lead.firstName || 'Owner';
+    const biz = lead.businessName || 'your business';
+    return `Subject: One more thing...
+
+Hi ${name},
+
+I wanted to reach out once more about our partnership program.
+
+${biz} would be a fantastic addition to Spot Easy. I've put together a custom proposal that I think could be really valuable for you.
+
+Would you have 15 minutes this week to take a look?
+
+Greg
+Spot Easy`;
   },
 
   'prompt-2b': (lead) => {
-    return `As we mentioned, your business could be featured as a "local spot" in as little as two days, and people moving into the area will start getting introduced to your business at no cost to you. Are you ready to get featured?`;
+    const name = lead.firstName || 'Owner';
+    const biz = lead.businessName || 'your business';
+    return `Subject: Last chance to collaborate
+
+Hi ${name},
+
+This is my final follow-up about the Spot Easy partnership.
+
+I genuinely believe this is a win-win for ${biz}, but I'll respect your time if you're not interested.
+
+If you'd like to explore it, just let me know. Otherwise, no hard feelings!
+
+All the best,
+Greg
+Spot Easy`;
   },
 
   'prompt-2c': (lead) => {
-    return `I understand you've been busy, so I wanted to make sure you have the chance to have your business featured on our platform for free while we still have slots available.
+    const name = lead.firstName || 'Owner';
+    const location = lead.location ? ` in ${lead.location}` : '';
+    return `Subject: Checking in one more time
 
-It's very easy to set up, and you could be live in just a few days, starting to get promoted to renters on our platform. Are you ready to get featured?`;
+Hi ${name},
+
+I've reached out a couple times about partnering with Spot Easy. I'm still convinced this could drive real value for your business${location}.
+
+If you've been interested but just haven't had time, I'm happy to schedule something at your convenience.
+
+Otherwise, I'll check back in a few months.
+
+Thanks,
+Greg
+Spot Easy`;
   },
 
   '3rd-template': (lead) => {
-    return `Awesome! We're excited to get you featured. Your business is now live on our platform and renters can start discovering you right away for listings in [neighborhood link].
+    const name = lead.firstName || 'Owner';
+    const biz = lead.businessName || 'your business';
+    return `Subject: Re-engaging: Spot Easy Partnership
 
-Here's what's next:
+Hi ${name},
 
-Add this simple link anywhere on your site: "Featured Local Spot on Spot Easy" (link to spoteasy.com)
+It's been a while since I last reached out about Spot Easy. A lot has changed on our platform since then.
 
-That's it! It doesn't need to be prominent, just a quick reference helps us out.
+If ${biz} is still interested in driving more customers and visibility, I'd love to reconnect and show you what's new.
 
-If you need anything or have questions about your listing, just let me know. I'm here to help make sure everything looks great.`;
-  },
+Fair chance to chat?
 
-  'prompt-3a': (lead) => {
-    return `Hey! Just following up — your ad is now live on listings in [neighborhood link].
-
-Have you had a chance to add that link to your site yet? No pressure if not — I know things get busy!
-
-If you're running into any issues or need help with the technical side, I'm happy to jump in directly or connect with your IT person. Since we handle this stuff all day, we can usually get it set up in minutes.
-
-Let me know if you have any questions!`;
-  },
-
-  'prompt-3b': (lead) => {
-    return `Hey! Just checking in—did you get my last message about your business live on Spot Easy?
-
-No pressure at all, but wanted to make sure it didn't get lost. The next step is super simple: just add a quick mention of us on your site (literally one line anywhere works).
-
-Let me know if you have any questions or if there's anything I can help with!`;
-  },
-
-  'prompt-3c': (lead) => {
-    return `Hi! One final check-in—your business is live on Spot Easy and getting exposure to renters, we just need that quick mention on your site to wrap things up.
-
-If you're not interested or if something came up, totally understand! Just let me know either way so I can follow up with next steps.
-
-Thanks!`;
+Best,
+Greg
+Spot Easy`;
   }
 };
 
