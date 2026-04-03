@@ -1099,11 +1099,11 @@ async function saveLead() {
   const values=getFormValues();
   if (!values[0]) { showToast('Business Name is required','error'); return; }
 
-  // Auto-set Last Updated if pipeline stage changed
-  const piIdx=COLUMNS.indexOf('pipelineStage'), luIdx=COLUMNS.indexOf('lastUpdated');
+  // Auto-set Last Updated if pipeline stage OR last message sent changed
+  const piIdx=COLUMNS.indexOf('pipelineStage'), luIdx=COLUMNS.indexOf('lastUpdated'), lmIdx=COLUMNS.indexOf('lastMessageSent');
   if (editingRow) {
     const old=leads.find(l=>l._row===editingRow);
-    if (old&&old.pipelineStage!==values[piIdx]) values[luIdx]=todayStr();
+    if (old&&(old.pipelineStage!==values[piIdx]||old.lastMessageSent!==values[lmIdx])) values[luIdx]=todayStr();
   } else if (values[piIdx]) values[luIdx]=todayStr();
 
   // Set addedBy for new leads
