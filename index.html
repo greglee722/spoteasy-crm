@@ -88,8 +88,8 @@ body { background:var(--bg); color:var(--text); font-family:'Mulish',sans-serif;
 .toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:12px; flex-wrap:wrap; }
 .toolbar-left { display:flex; align-items:center; gap:10px; flex:1; flex-wrap:wrap; }
 .search-wrap { position:relative; }
-.search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:13px; pointer-events:none; display:flex; align-items:center; }
-.search-input { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:8px 12px 8px 32px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; width:240px; outline:none; }
+.search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:13px; pointer-events:none; display:flex; align-items:center; z-index:1; }
+.search-input { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:8px 12px 8px 34px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; width:240px; outline:none; }
 .search-input:focus { border-color:var(--accent); }
 .filter-select { background:var(--surface); border:1px solid var(--border); color:var(--text2); padding:8px 12px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; outline:none; }
 .count-badge { background:var(--surface2); color:var(--text3); padding:3px 9px; border-radius:10px; font-size:12px; font-family:'DM Mono',monospace; border:1px solid var(--border); }
@@ -640,7 +640,7 @@ let SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
 const SHEET_NAME = 'Sheet1';
 const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastMessageSent','lastUpdated','notes','addedBy'];
 const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Backlink Required','Backlink Acquired','No Response','Declined Offer'];
-const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Backlink Required':'green','Backlink Acquired':'green','No Response':'gray','Declined Offer':'red' };
+const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Backlink Required':'red','Backlink Acquired':'green','No Response':'gray','Declined Offer':'red' };
 
 let leads = [], currentTab = 'all', editingRow = null, sortCol = null, sortDir = 1;
 
