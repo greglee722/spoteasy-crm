@@ -59,6 +59,9 @@ body { background:var(--bg); color:var(--text); font-family:'Mulish',sans-serif;
 .user-badge-avatar { width:26px; height:26px; border-radius:50%; overflow:hidden; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; }
 .user-badge-avatar img { width:100%; height:100%; object-fit:cover; }
 .user-badge-name { font-size:12px; font-weight:600; color:#fff; }
+.presence-pill { display:flex; align-items:center; gap:6px; padding:5px 10px; border-radius:20px; font-size:12px; font-weight:600; font-family:'DM Mono',monospace; background:rgba(0,184,122,0.15); color:var(--green); }
+.presence-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
 /* NAV */
 .nav { display:flex; align-items:center; padding:0 24px; background:var(--surface); border-bottom:1px solid var(--border); overflow-x:auto; }
@@ -245,6 +248,10 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 <div class="topbar">
   <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
   <div class="topbar-right">
+    <div class="presence-pill" id="presencePill" style="display:none">
+      <div class="presence-dot"></div>
+      <span id="presenceName"></span>
+    </div>
     <div class="user-badge" id="userBadge" onclick="switchUser()" title="Sign out" style="display:none">
       <div class="user-badge-avatar" id="userBadgeAvatar"></div>
       <span class="user-badge-name" id="userBadgeName"></span>
@@ -680,6 +687,7 @@ window.onload = async () => {
       updateUserBadge();
       if (SHEET_ID) loadLeads(); else document.getElementById('missingBanner').style.display = 'flex';
       renderTeamList(); renderTypeChips(); populateBusinessTypeDropdown();
+      startPresence();
       return;
     } catch(e) { currentUser = null; oauthToken = null; }
   }
@@ -1290,6 +1298,166 @@ function copyPrompt() {
 }
 
 document.getElementById('leadModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+// ============================================================
+// PRESENCE — write/read _presence tab in Google Sheets
+// ============================================================
+const PRESENCE_SHEET = '_presence';
+const PRESENCE_INTERVAL = 90000; // 90 seconds
+const PRESENCE_TTL = 5 * 60 * 1000; // 5 minutes
+let presenceTimer = null;
+
+async function writePresence() {
+  if (!oauthToken || !SHEET_ID || !currentUser) return;
+  try {
+    const token = await ensureToken();
+    // Each user writes to their own fixed row: greg=row1, sanket=row2, others=row3
+    const rowMap = { 'greg@spoteasy.com': 1, 'sanket@spoteasy.com': 2 };
+    const row = rowMap[currentUser.email] || 3;
+    const payload = JSON.stringify({ name: currentUser.name, email: currentUser.email, ts: Date.now() });
+    const range = `${PRESENCE_SHEET}!A${row}`;
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ values: [[payload]] })
+    });
+  } catch(e) { /* silent — presence is non-critical */ }
+}
+
+async function clearPresence() {
+  if (!oauthToken || !SHEET_ID || !currentUser) return;
+  try {
+    const token = await ensureToken();
+    const rowMap = { 'greg@spoteasy.com': 1, 'sanket@spoteasy.com': 2 };
+    const row = rowMap[currentUser.email] || 3;
+    const range = `${PRESENCE_SHEET}!A${row}`;
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ values: [['']] })
+    });
+  } catch(e) { /* silent */ }
+}
+
+async function pollPresence() {
+  if (!oauthToken || !SHEET_ID || !currentUser) return;
+  try {
+    const token = await ensureToken();
+    const range = `${PRESENCE_SHEET}!A1:A3`;
+    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const rows = data.values || [];
+    const now = Date.now();
+    const others = rows
+      .map(r => { try { return JSON.parse(r[0]); } catch(e) { return null; } })
+      .filter(p => p && p.email && p.email !== currentUser.email && (now - p.ts) < PRESENCE_TTL);
+
+    const pill = document.getElementById('presencePill');
+    const nameEl = document.getElementById('presenceName');
+    if (others.length > 0) {
+      const names = others.map(p => p.name.split(' ')[0]).join(' & ');
+      nameEl.textContent = `${names} is online`;
+      pill.style.display = 'flex';
+    } else {
+      pill.style.display = 'none';
+    }
+  } catch(e) { /* silent */ }
+}
+
+function startPresence() {
+  writePresence();
+  pollPresence();
+  presenceTimer = setInterval(() => {
+    writePresence();
+    pollPresence();
+    silentRefreshLeads();
+  }, PRESENCE_INTERVAL);
+}
+
+function stopPresence() {
+  if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
+  document.getElementById('presencePill').style.display = 'none';
+}
+
+// ============================================================
+// AUTO-REFRESH — silent background reload every 90s
+// ============================================================
+async function silentRefreshLeads() {
+  if (!oauthToken || !SHEET_ID) return;
+  // Don't refresh if a modal is open
+  if (document.getElementById('leadModal').classList.contains('open')) return;
+  try {
+    const token = await ensureToken();
+    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const fresh = (data.values || []).slice(1).map((row, i) => {
+      const obj = { _row: i + 2 };
+      COLUMNS.forEach((col, ci) => { obj[col] = row[ci] || ''; });
+      return obj;
+    });
+    leads = fresh;
+    populateLocationFilter(); updateStats(); renderAll(); renderPipeline();
+  } catch(e) { /* silent */ }
+}
+
+// ============================================================
+// CONFLICT DETECTION — snapshot row data when modal opens
+// ============================================================
+let _modalSnapshot = null;
+
+async function fetchRowSnapshot(rowNum) {
+  if (!oauthToken || !SHEET_ID) return null;
+  try {
+    const token = await ensureToken();
+    const range = `${SHEET_NAME}!A${rowNum}:L${rowNum}`;
+    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return (data.values || [[]])[0] || [];
+  } catch(e) { return null; }
+}
+
+// Patch openEditModal to take a snapshot
+const _origOpenEditModal = openEditModal;
+async function openEditModal(row) {
+  _origOpenEditModal(row);
+  _modalSnapshot = null;
+  _modalSnapshot = await fetchRowSnapshot(row);
+}
+
+// Patch saveLead to check for conflicts before writing
+const _origSaveLead = saveLead;
+async function saveLead() {
+  if (editingRow && _modalSnapshot) {
+    const current = await fetchRowSnapshot(editingRow);
+    if (current && JSON.stringify(current) !== JSON.stringify(_modalSnapshot)) {
+      const go = confirm('⚠️ This lead was updated by someone else since you opened it.\n\nSave anyway and overwrite their changes?');
+      if (!go) return;
+    }
+  }
+  _modalSnapshot = null;
+  await _origSaveLead();
+}
+
+// Hook presence into login/logout
+const _origVerifyAndLogin = verifyAndLogin;
+async function verifyAndLogin(token) {
+  await _origVerifyAndLogin(token);
+  if (currentUser) startPresence();
+}
+
+const _origSwitchUser = switchUser;
+function switchUser() {
+  clearPresence();
+  stopPresence();
+  _origSwitchUser();
+}
 </script>
 </body>
 </html>
