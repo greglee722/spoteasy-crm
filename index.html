@@ -592,6 +592,7 @@ async function verifyAndLogin(token) {
     document.getElementById('loginOverlay').style.display = 'none';
     updateUserBadge();
     if (SHEET_ID) loadLeads(); else document.getElementById('missingBanner').style.display = 'flex';
+    startPresence();
   } catch(e) {
     showToast('Auth failed — please try again', 'error');
   }
@@ -599,6 +600,8 @@ async function verifyAndLogin(token) {
 
 function switchUser() {
   if (!confirm('Sign out?')) return;
+  clearPresence();
+  stopPresence();
   currentUser = null; oauthToken = null;
   sessionStorage.removeItem('spoteasy_user');
   sessionStorage.removeItem('spoteasy_token');
@@ -650,7 +653,7 @@ const COLUMNS = ['businessName','businessType','url','firstName','location','dom
 const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Backlink Required','Backlink Acquired','No Response','Declined Offer'];
 const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Backlink Required':'red','Backlink Acquired':'green','No Response':'gray','Declined Offer':'red' };
 
-let leads = [], currentTab = 'all', editingRow = null, sortCol = null, sortDir = 1;
+let leads = [], currentTab = 'all', editingRow = null, sortCol = null, sortDir = 1, _modalSnapshot = null;
 
 function getBusinessTypes() {
   const s = localStorage.getItem('spoteasy_business_types');
@@ -1081,13 +1084,15 @@ function openAddModal() {
   document.getElementById('leadModal').classList.add('open');
 }
 
-function openEditModal(row) {
+async function openEditModal(row) {
   const lead=leads.find(l=>l._row===row); if (!lead) return;
   editingRow=row;
   document.getElementById('modalTitle').textContent='Edit Lead';
   document.getElementById('deleteBtn').style.display='flex';
   populateBusinessTypeDropdown(); fillForm(lead);
   document.getElementById('leadModal').classList.add('open');
+  _modalSnapshot = null;
+  _modalSnapshot = await fetchRowSnapshot(row);
 }
 
 function closeModal() { document.getElementById('leadModal').classList.remove('open'); editingRow=null; }
@@ -1104,6 +1109,16 @@ function fillForm(lead) {
 function getFormValues() { return COLUMNS.map(col => { const el=document.getElementById(`f-${col}`); return el?el.value:''; }); }
 
 async function saveLead() {
+  // Conflict detection
+  if (editingRow && _modalSnapshot) {
+    const current = await fetchRowSnapshot(editingRow);
+    if (current && JSON.stringify(current) !== JSON.stringify(_modalSnapshot)) {
+      const go = confirm('⚠️ This lead was updated by someone else since you opened it.\n\nSave anyway and overwrite their changes?');
+      if (!go) return;
+    }
+  }
+  _modalSnapshot = null;
+
   const values=getFormValues();
   if (!values[0]) { showToast('Business Name is required','error'); return; }
 
@@ -1407,8 +1422,6 @@ async function silentRefreshLeads() {
 // ============================================================
 // CONFLICT DETECTION — snapshot row data when modal opens
 // ============================================================
-let _modalSnapshot = null;
-
 async function fetchRowSnapshot(rowNum) {
   if (!oauthToken || !SHEET_ID) return null;
   try {
@@ -1423,41 +1436,7 @@ async function fetchRowSnapshot(rowNum) {
   } catch(e) { return null; }
 }
 
-// Patch openEditModal to take a snapshot
-const _origOpenEditModal = openEditModal;
-async function openEditModal(row) {
-  _origOpenEditModal(row);
-  _modalSnapshot = null;
-  _modalSnapshot = await fetchRowSnapshot(row);
-}
 
-// Patch saveLead to check for conflicts before writing
-const _origSaveLead = saveLead;
-async function saveLead() {
-  if (editingRow && _modalSnapshot) {
-    const current = await fetchRowSnapshot(editingRow);
-    if (current && JSON.stringify(current) !== JSON.stringify(_modalSnapshot)) {
-      const go = confirm('⚠️ This lead was updated by someone else since you opened it.\n\nSave anyway and overwrite their changes?');
-      if (!go) return;
-    }
-  }
-  _modalSnapshot = null;
-  await _origSaveLead();
-}
-
-// Hook presence into login/logout
-const _origVerifyAndLogin = verifyAndLogin;
-async function verifyAndLogin(token) {
-  await _origVerifyAndLogin(token);
-  if (currentUser) startPresence();
-}
-
-const _origSwitchUser = switchUser;
-function switchUser() {
-  clearPresence();
-  stopPresence();
-  _origSwitchUser();
-}
 </script>
 </body>
 </html>
