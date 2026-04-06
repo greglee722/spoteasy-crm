@@ -626,24 +626,6 @@ function ensureToken() {
   });
 }
 
-window.onGoogleLibraryLoad = () => {}; // not needed for redirect flow
-
-function ensureToken() {
-  return new Promise((resolve, reject) => {
-    if (oauthToken) { resolve(oauthToken); return; }
-    if (!tokenClient) { reject(new Error('Not signed in')); return; }
-    const orig = tokenClient.callback;
-    tokenClient.callback = (r) => {
-      tokenClient.callback = orig;
-      if (r.error) { reject(new Error(r.error)); return; }
-      oauthToken = r.access_token; orig(r); resolve(oauthToken);
-    };
-    tokenClient.requestAccessToken({ prompt: 'none' });
-  });
-}
-
-window.onGoogleLibraryLoad = () => initGoogleAuth();
-
 // ============================================================
 // CONFIG & STATE
 // ============================================================
