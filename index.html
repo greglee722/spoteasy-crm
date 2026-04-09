@@ -221,6 +221,36 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 .toast.show { opacity:1; transform:translateY(0); }
 .toast.success { background:#1a2e3d; color:#fff; }
 .toast.error { background:var(--red); color:#fff; }
+
+/* DAILY BRIEFING MODAL */
+.briefing-overlay { position:fixed; inset:0; background:rgba(10,37,64,0.7); display:flex; align-items:center; justify-content:center; z-index:2000; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+.briefing-overlay.open { opacity:1; pointer-events:all; }
+.briefing-modal { background:var(--surface); border:1px solid var(--border); border-radius:16px; width:90%; max-width:520px; max-height:88vh; overflow-y:auto; transform:translateY(12px); transition:transform 0.2s; box-shadow:0 20px 60px rgba(0,0,0,0.18); }
+.briefing-overlay.open .briefing-modal { transform:translateY(0); }
+.briefing-header { display:flex; align-items:center; justify-content:space-between; padding:20px 24px 16px; background:var(--navy); border-radius:16px 16px 0 0; }
+.briefing-header-left { display:flex; flex-direction:column; gap:4px; }
+.briefing-header-title { font-size:16px; font-weight:900; color:#fff; letter-spacing:-0.3px; }
+.briefing-header-title span { color:var(--accent); }
+.briefing-header-date { font-size:11px; font-family:'DM Mono',monospace; color:rgba(255,255,255,0.55); }
+.briefing-close { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; width:30px; height:30px; border-radius:7px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; }
+.briefing-close:hover { background:rgba(255,255,255,0.2); }
+.briefing-body { padding:20px 24px; display:flex; flex-direction:column; gap:20px; }
+.briefing-section-title { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.07em; color:var(--text3); font-family:'DM Mono',monospace; margin-bottom:10px; }
+.briefing-stats { display:flex; flex-direction:column; gap:6px; }
+.briefing-stat-row { display:flex; align-items:center; justify-content:space-between; padding:7px 12px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; }
+.briefing-stat-label { font-size:13px; font-weight:600; color:var(--text2); }
+.briefing-stat-val { font-size:14px; font-weight:900; font-family:'DM Mono',monospace; color:var(--text); }
+.briefing-stat-val.zero { color:var(--text3); }
+.briefing-stat-val.positive { color:var(--accent); }
+.briefing-stat-val.green { color:var(--green); }
+.briefing-divider { border:none; border-top:1px solid var(--border); margin:0; }
+.briefing-action-group { display:flex; flex-direction:column; gap:4px; }
+.briefing-action-stage { font-size:12px; font-weight:800; color:var(--text); margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+.briefing-action-list { display:flex; flex-direction:column; gap:3px; padding-left:14px; }
+.briefing-action-item { font-size:13px; color:var(--text2); display:flex; align-items:center; gap:6px; }
+.briefing-action-item::before { content:'—'; color:var(--text3); font-size:11px; flex-shrink:0; }
+.briefing-empty-action { font-size:13px; color:var(--text3); font-style:italic; padding-left:14px; }
+.briefing-footer { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:16px 24px; border-top:1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -380,6 +410,21 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
     </div>
 
     <div class="settings-section">
+      <div class="settings-title">📤 Slack Daily Briefing</div>
+      <p style="font-size:13px;color:var(--text3);margin-bottom:14px">
+        Paste an Incoming Webhook URL to enable Slack reporting. Create one at <a href="https://api.slack.com/apps" target="_blank" style="color:var(--accent)">api.slack.com/apps</a> → Your App → Incoming Webhooks.<br>
+        The daily briefing popup will have a "Send to Slack" button once configured.
+      </p>
+      <div class="sheet-id-row">
+        <input type="text" id="slackWebhookInput" placeholder="https://hooks.slack.com/services/...">
+        <button class="btn btn-secondary" onclick="saveSlackWebhook()">Save</button>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="btn btn-secondary" onclick="openBriefingManual()" style="font-size:12px;">📊 Preview Today's Briefing</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
       <div class="settings-title">🔐 OAuth Client ID</div>
       <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Required for Google Sign-In. In Google Cloud Console, set:<br>
       • Authorised JavaScript origin: <code style="color:var(--accent);font-family:'DM Mono',monospace">https://greglee722.github.io</code><br>
@@ -390,6 +435,34 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- DAILY BRIEFING MODAL -->
+<div class="briefing-overlay" id="briefingModal">
+  <div class="briefing-modal">
+    <div class="briefing-header">
+      <div class="briefing-header-left">
+        <div class="briefing-header-title">Spot <span>Easy</span> — Daily Briefing</div>
+        <div class="briefing-header-date" id="briefingDate"></div>
+      </div>
+      <button class="briefing-close" onclick="closeBriefing()">✕</button>
+    </div>
+    <div class="briefing-body">
+      <div>
+        <div class="briefing-section-title">📅 Yesterday's Activity</div>
+        <div class="briefing-stats" id="briefingStats"></div>
+      </div>
+      <hr class="briefing-divider">
+      <div>
+        <div class="briefing-section-title">⚡ Today's Action Items</div>
+        <div id="briefingActions" style="display:flex;flex-direction:column;gap:14px;"></div>
+      </div>
+    </div>
+    <div class="briefing-footer">
+      <button class="btn btn-secondary" onclick="closeBriefing()">Dismiss</button>
+      <button class="btn btn-primary" id="briefingSlackBtn" onclick="sendBriefingToSlack()" style="display:none">📤 Send to Slack</button>
+    </div>
   </div>
 </div>
 
@@ -593,7 +666,7 @@ async function verifyAndLogin(token) {
     sessionStorage.setItem('spoteasy_token', token);
     document.getElementById('loginOverlay').style.display = 'none';
     updateUserBadge();
-    if (SHEET_ID) loadLeads(); else document.getElementById('missingBanner').style.display = 'flex';
+    if (SHEET_ID) { await loadLeads(); maybeTriggerBriefing(); } else document.getElementById('missingBanner').style.display = 'flex';
     startPresence();
   } catch(e) {
     showToast('Auth failed — please try again', 'error');
@@ -653,6 +726,8 @@ window.onload = async () => {
   if (SHEET_ID) document.getElementById('sheetIdInput').value = SHEET_ID;
   const cid = localStorage.getItem('spoteasy_client_id') || '';
   if (cid) document.getElementById('clientIdInput').value = cid;
+  const wh = localStorage.getItem('spoteasy_slack_webhook') || '';
+  if (wh) document.getElementById('slackWebhookInput').value = wh;
 
   // Check if returning from OAuth redirect (token in URL hash)
   const hash = window.location.hash;
@@ -672,7 +747,7 @@ window.onload = async () => {
       oauthToken = savedToken;
       document.getElementById('loginOverlay').style.display = 'none';
       updateUserBadge();
-      if (SHEET_ID) loadLeads(); else document.getElementById('missingBanner').style.display = 'flex';
+      if (SHEET_ID) { await loadLeads(); maybeTriggerBriefing(); } else document.getElementById('missingBanner').style.display = 'flex';
       renderTeamList(); renderTypeChips(); populateBusinessTypeDropdown();
       startPresence();
       return;
@@ -1433,6 +1508,195 @@ async function fetchRowSnapshot(rowNum) {
   } catch(e) { return null; }
 }
 
+// ============================================================
+// SLACK WEBHOOK — settings helpers
+// ============================================================
+function saveSlackWebhook() {
+  const val = document.getElementById('slackWebhookInput').value.trim();
+  if (!val) { showToast('Please paste a Slack webhook URL', 'error'); return; }
+  localStorage.setItem('spoteasy_slack_webhook', val);
+  showToast('Slack webhook saved!', 'success');
+}
+
+function getSlackWebhook() {
+  return localStorage.getItem('spoteasy_slack_webhook') || '';
+}
+
+// ============================================================
+// DAILY BRIEFING — data helpers
+// ============================================================
+function yesterdayStr() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+function briefingDateLabel() {
+  return new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+}
+
+function buildBriefingData() {
+  const yesterday = yesterdayStr();
+
+  // Yesterday's activity — leads where lastUpdated === yesterday
+  const updatedYesterday = leads.filter(l => l.lastUpdated === yesterday);
+
+  const yesterdayStats = {
+    opportunities:    updatedYesterday.filter(l => l.pipelineStage === 'Opportunity').length,
+    firstReachOuts:   updatedYesterday.filter(l => l.pipelineStage === '1st Reach Out').length,
+    mockUpsSent:      updatedYesterday.filter(l => l.pipelineStage === 'Mock Up Sent').length,
+    pushAdLive:       updatedYesterday.filter(l => l.pipelineStage === 'Push Ad Live').length,
+    backlinksAcquired:updatedYesterday.filter(l => l.pipelineStage === 'Backlink Acquired').length,
+  };
+
+  // Today's action items
+  const backlinksRequired = leads.filter(l => l.pipelineStage === 'Backlink Required' && l.lastUpdated === yesterday);
+  const pushAdLiveAll     = leads.filter(l => l.pipelineStage === 'Push Ad Live');
+  const mockUpRequired    = leads.filter(l => l.pipelineStage === 'Mock Up Required');
+
+  return { yesterdayStats, backlinksRequired, pushAdLiveAll, mockUpRequired, yesterday };
+}
+
+// ============================================================
+// DAILY BRIEFING — render popup
+// ============================================================
+function renderBriefingModal() {
+  const { yesterdayStats, backlinksRequired, pushAdLiveAll, mockUpRequired, yesterday } = buildBriefingData();
+
+  // Date header
+  document.getElementById('briefingDate').textContent = briefingDateLabel();
+
+  // Yesterday's stats
+  const statsEl = document.getElementById('briefingStats');
+  const statRows = [
+    { label: 'New Opportunities',    val: yesterdayStats.opportunities,     cls: yesterdayStats.opportunities > 0 ? 'positive' : 'zero' },
+    { label: '1st Reach Outs Sent',  val: yesterdayStats.firstReachOuts,    cls: yesterdayStats.firstReachOuts > 0 ? 'positive' : 'zero' },
+    { label: 'Mock Ups Sent',        val: yesterdayStats.mockUpsSent,       cls: yesterdayStats.mockUpsSent > 0 ? 'positive' : 'zero' },
+    { label: 'Pushed Ad Live',       val: yesterdayStats.pushAdLive,        cls: yesterdayStats.pushAdLive > 0 ? 'positive' : 'zero' },
+    { label: 'Backlinks Acquired',   val: yesterdayStats.backlinksAcquired, cls: yesterdayStats.backlinksAcquired > 0 ? 'green' : 'zero' },
+  ];
+  statsEl.innerHTML = statRows.map(r => `
+    <div class="briefing-stat-row">
+      <span class="briefing-stat-label">${r.label}</span>
+      <span class="briefing-stat-val ${r.cls}">${r.val}</span>
+    </div>`).join('');
+
+  // Action items
+  const actionsEl = document.getElementById('briefingActions');
+
+  function actionGroup(emoji, stage, items, emptyMsg) {
+    const listHtml = items.length
+      ? `<div class="briefing-action-list">${items.map(l => `<div class="briefing-action-item">${l.businessName || '—'}</div>`).join('')}</div>`
+      : `<div class="briefing-empty-action">${emptyMsg}</div>`;
+    return `<div class="briefing-action-group">
+      <div class="briefing-action-stage">${emoji} ${stage}</div>
+      ${listHtml}
+    </div>`;
+  }
+
+  actionsEl.innerHTML = [
+    actionGroup('🔴', 'Backlink Required — follow up today', backlinksRequired, 'No follow-ups needed'),
+    actionGroup('🟠', 'Push Ad Live', pushAdLiveAll, 'None in this stage'),
+    actionGroup('🟡', 'Mock Up Required', mockUpRequired, 'None in this stage'),
+  ].join('');
+
+  // Slack button visibility
+  document.getElementById('briefingSlackBtn').style.display = getSlackWebhook() ? 'flex' : 'none';
+}
+
+function openBriefing() {
+  renderBriefingModal();
+  document.getElementById('briefingModal').classList.add('open');
+}
+
+function openBriefingManual() {
+  // Load slack webhook input value from storage first
+  const wh = getSlackWebhook();
+  if (wh) document.getElementById('slackWebhookInput').value = wh;
+  openBriefing();
+}
+
+function closeBriefing() {
+  document.getElementById('briefingModal').classList.remove('open');
+}
+
+// ============================================================
+// DAILY BRIEFING — per-user per-day trigger
+// ============================================================
+function shouldShowBriefing() {
+  if (!currentUser) return false;
+  const key = `spoteasy_briefing_${currentUser.email}`;
+  const last = localStorage.getItem(key);
+  const today = new Date().toDateString();
+  return last !== today;
+}
+
+function markBriefingShown() {
+  if (!currentUser) return;
+  const key = `spoteasy_briefing_${currentUser.email}`;
+  localStorage.setItem(key, new Date().toDateString());
+}
+
+function maybeTriggerBriefing() {
+  if (!shouldShowBriefing()) return;
+  markBriefingShown();
+  // Small delay so the CRM finishes rendering first
+  setTimeout(() => openBriefing(), 800);
+}
+
+// ============================================================
+// DAILY BRIEFING — send to Slack
+// ============================================================
+async function sendBriefingToSlack() {
+  const webhook = getSlackWebhook();
+  if (!webhook) { showToast('No Slack webhook configured', 'error'); return; }
+
+  const { yesterdayStats, backlinksRequired, pushAdLiveAll, mockUpRequired, yesterday } = buildBriefingData();
+
+  const fmt = (label, val) => `• ${label}: *${val}*`;
+  const listItems = arr => arr.length ? arr.map(l => `    — ${l.businessName || '—'}`).join('\n') : '    — None';
+
+  const text = [
+    `📊 *SpotEasy Daily Briefing — ${briefingDateLabel()}*`,
+    '',
+    `*Yesterday's Activity* (updated ${yesterday}):`,
+    fmt('New Opportunities', yesterdayStats.opportunities),
+    fmt('1st Reach Outs Sent', yesterdayStats.firstReachOuts),
+    fmt('Mock Ups Sent', yesterdayStats.mockUpsSent),
+    fmt('Pushed Ad Live', yesterdayStats.pushAdLive),
+    fmt('Backlinks Acquired', yesterdayStats.backlinksAcquired),
+    '',
+    `*Today's Action Items:*`,
+    `🔴 *Backlink Required — follow up today:*`,
+    listItems(backlinksRequired),
+    `🟠 *Push Ad Live:*`,
+    listItems(pushAdLiveAll),
+    `🟡 *Mock Up Required:*`,
+    listItems(mockUpRequired),
+  ].join('\n');
+
+  const btn = document.getElementById('briefingSlackBtn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  try {
+    await fetch(webhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    showToast('Sent to Slack!', 'success');
+    closeBriefing();
+  } catch(e) {
+    showToast('Failed to send to Slack', 'error');
+  } finally {
+    btn.textContent = '📤 Send to Slack';
+    btn.disabled = false;
+  }
+}
+
+// Close briefing on backdrop click
+document.getElementById('briefingModal').addEventListener('click', function(e){ if(e.target===this) closeBriefing(); });
 
 </script>
 </body>
