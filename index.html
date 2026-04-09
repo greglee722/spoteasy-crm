@@ -129,7 +129,7 @@ tr:hover .row-actions { opacity:1; }
 .action-btn.del:hover { color:var(--red); border-color:var(--red); }
 
 /* PILLS */
-.pill { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
+.pill { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; position:relative; }
 .pill-dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
 .pill-gray { background:rgba(122,154,181,0.12); color:var(--text3); }
 .pill-yellow { background:rgba(240,165,0,0.12); color:var(--yellow); }
@@ -138,6 +138,8 @@ tr:hover .row-actions { opacity:1; }
 .pill-blue { background:rgba(0,172,238,0.12); color:var(--accent); }
 .pill-purple { background:rgba(124,92,191,0.12); color:var(--purple); }
 .pill-orange { background:rgba(240,122,0,0.12); color:var(--orange); }
+.pill[data-tip]:hover::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:var(--navy); color:#fff; font-size:11px; font-weight:600; font-family:'Mulish',sans-serif; white-space:nowrap; padding:5px 10px; border-radius:6px; pointer-events:none; z-index:200; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+.pill[data-tip]:hover::before { content:''; position:absolute; bottom:calc(100% + 1px); left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:var(--navy); pointer-events:none; z-index:200; }
 
 /* KANBAN */
 .kanban { display:flex; gap:14px; overflow-x:auto; padding-bottom:16px; min-height:60vh; }
@@ -295,7 +297,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
         <select class="filter-select" id="filterStage" onchange="renderAll()">
           <option value="">All Stages</option>
           <option>Opportunity</option><option>1st Reach Out</option><option>Mock Up Required</option>
-          <option>Mock Up Sent</option><option>Backlink Required</option><option>Backlink Acquired</option>
+          <option>Mock Up Sent</option><option>Push Ad Live</option><option>Backlink Required</option><option>Backlink Acquired</option>
           <option>No Response</option><option>Declined Offer</option>
         </select>
         <select class="filter-select" id="filterLocation" onchange="renderAll()">
@@ -433,7 +435,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
           <select id="f-pipelineStage">
             <option value=""></option>
             <option>Opportunity</option><option>1st Reach Out</option><option>Mock Up Required</option>
-            <option>Mock Up Sent</option><option>Backlink Required</option><option>Backlink Acquired</option>
+            <option>Mock Up Sent</option><option>Push Ad Live</option><option>Backlink Required</option><option>Backlink Acquired</option>
             <option>No Response</option><option>Declined Offer</option>
           </select>
         </div>
@@ -632,8 +634,8 @@ function ensureToken() {
 let SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
 const SHEET_NAME = 'Sheet1';
 const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastMessageSent','lastUpdated','notes','addedBy'];
-const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Backlink Required','Backlink Acquired','No Response','Declined Offer'];
-const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Backlink Required':'red','Backlink Acquired':'green','No Response':'gray','Declined Offer':'red' };
+const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Push Ad Live','Backlink Required','Backlink Acquired','No Response','Declined Offer'];
+const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Push Ad Live':'orange','Backlink Required':'red','Backlink Acquired':'green','No Response':'gray','Declined Offer':'red' };
 
 let leads = [], currentTab = 'all', editingRow = null, sortCol = null, sortDir = 1, _modalSnapshot = null;
 
@@ -810,7 +812,7 @@ function setStatus(s) {
 function updateStats() {
   document.getElementById('statTotal').textContent = leads.length;
   document.getElementById('statOpportunity').textContent = leads.filter(l => l.pipelineStage === 'Opportunity').length;
-  document.getElementById('statActive').textContent = leads.filter(l => ['1st Reach Out','Mock Up Required','Mock Up Sent','Backlink Required'].includes(l.pipelineStage)).length;
+  document.getElementById('statActive').textContent = leads.filter(l => ['1st Reach Out','Mock Up Required','Mock Up Sent','Push Ad Live','Backlink Required'].includes(l.pipelineStage)).length;
   document.getElementById('statClosed').textContent = leads.filter(l => l.pipelineStage === 'Backlink Acquired').length;
 }
 
@@ -821,10 +823,23 @@ function populateLocationFilter() {
   locs.forEach(l => { const o = document.createElement('option'); o.value = o.textContent = l; sel.appendChild(o); });
 }
 
+const STAGE_TIPS = {
+  'Opportunity': 'New lead identified, not yet contacted',
+  '1st Reach Out': 'Initial message sent, awaiting response',
+  'Mock Up Required': 'Lead interested, mock up needs to be created',
+  'Mock Up Sent': 'Mock up delivered, awaiting agreement',
+  'Push Ad Live': 'Agreement confirmed, push the ad live on Spot Easy',
+  'Backlink Required': 'Ad is live, waiting on backlink from their site',
+  'Backlink Acquired': 'Backlink received ✅ Deal closed',
+  'No Response': 'No reply after all outreach attempts',
+  'Declined Offer': 'Lead said no'
+};
+
 function stagePill(s) {
   if (!s) return '—';
   const c = STAGE_COLORS[s] || 'gray';
-  return `<span class="pill pill-${c}"><span class="pill-dot"></span>${s}</span>`;
+  const tip = STAGE_TIPS[s] || '';
+  return `<span class="pill pill-${c}" ${tip ? `data-tip="${tip}"` : ''}><span class="pill-dot"></span>${s}</span>`;
 }
 
 function drCell(v) {
