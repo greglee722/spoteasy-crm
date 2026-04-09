@@ -1682,6 +1682,7 @@ async function sendBriefingToSlack() {
   try {
     await fetch(webhook, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text })
     });
