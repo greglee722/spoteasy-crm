@@ -293,7 +293,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v1.8</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v1.9</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -1217,16 +1217,19 @@ function renderNotesJournal(raw) {
   const { entries, legacy } = parseNotes(raw);
   const el = document.getElementById('notesJournal');
   let html = '';
+  const myInitials = currentUser ? currentUser.name.split(' ').map(p=>p[0].toUpperCase()).join('') : null;
   entries.forEach((entry, idx) => {
     const firstNewline = entry.indexOf('\n');
     const header = firstNewline !== -1 ? entry.substring(0, firstNewline).trim() : entry;
     const body = firstNewline !== -1 ? entry.substring(firstNewline + 1).trim() : '';
+    const noteInitials = header.split('|')[0].trim();
+    const isOwner = myInitials && noteInitials === myInitials;
     html += `<div class="note-card" id="note-card-${idx}">
       <div class="note-card-header" style="justify-content:space-between">
         <span class="note-card-meta">${header}</span>
         <div style="display:flex;gap:4px;flex-shrink:0">
-          <button class="action-btn" onclick="editNoteInline(${idx})" title="Edit">✏</button>
-          <button class="action-btn del" onclick="deleteNote(${idx})" title="Delete">🗑</button>
+          ${isOwner ? `<button class="action-btn" onclick="editNoteInline(${idx})" title="Edit">✏</button>
+          <button class="action-btn del" onclick="deleteNote(${idx})" title="Delete">🗑</button>` : ''}
         </div>
       </div>
       <div class="note-card-text" id="note-body-${idx}">${body ? body : ''}</div>
