@@ -293,7 +293,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v1.7</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v1.8</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -1217,13 +1217,19 @@ function renderNotesJournal(raw) {
   const { entries, legacy } = parseNotes(raw);
   const el = document.getElementById('notesJournal');
   let html = '';
-  entries.forEach(entry => {
+  entries.forEach((entry, idx) => {
     const firstNewline = entry.indexOf('\n');
     const header = firstNewline !== -1 ? entry.substring(0, firstNewline).trim() : entry;
     const body = firstNewline !== -1 ? entry.substring(firstNewline + 1).trim() : '';
-    html += `<div class="note-card">
-      <div class="note-card-header"><span class="note-card-meta">${header}</span></div>
-      ${body ? `<div class="note-card-text">${body}</div>` : ''}
+    html += `<div class="note-card" id="note-card-${idx}">
+      <div class="note-card-header" style="justify-content:space-between">
+        <span class="note-card-meta">${header}</span>
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          <button class="action-btn" onclick="editNoteInline(${idx})" title="Edit">✏</button>
+          <button class="action-btn del" onclick="deleteNote(${idx})" title="Delete">🗑</button>
+        </div>
+      </div>
+      <div class="note-card-text" id="note-body-${idx}">${body ? body : ''}</div>
     </div>`;
   });
   if (legacy) {
@@ -1236,6 +1242,45 @@ function renderNotesJournal(raw) {
     html = '<div style="color:var(--text3);font-size:13px;font-style:italic;text-align:center;padding:24px">No notes yet — add one above.</div>';
   }
   el.innerHTML = html;
+}
+
+function deleteNote(idx) {
+  if (!confirm('Delete this note?')) return;
+  const current = document.getElementById('f-notes').value;
+  const { entries, legacy } = parseNotes(current);
+  entries.splice(idx, 1);
+  document.getElementById('f-notes').value = serializeNotes(entries, legacy);
+  renderNotesJournal(document.getElementById('f-notes').value);
+}
+
+function editNoteInline(idx) {
+  const current = document.getElementById('f-notes').value;
+  const { entries, legacy } = parseNotes(current);
+  const entry = entries[idx];
+  const firstNewline = entry.indexOf('\n');
+  const header = firstNewline !== -1 ? entry.substring(0, firstNewline).trim() : entry;
+  const body = firstNewline !== -1 ? entry.substring(firstNewline + 1).trim() : '';
+
+  const card = document.getElementById(`note-card-${idx}`);
+  card.innerHTML = `
+    <div class="note-card-header" style="justify-content:space-between">
+      <span class="note-card-meta">${header}</span>
+    </div>
+    <textarea id="note-edit-${idx}" style="width:100%;min-height:70px;resize:vertical;margin-top:8px;font-family:'Mulish',sans-serif;font-size:13px;background:var(--surface);border:1px solid var(--accent);border-radius:6px;padding:8px;color:var(--text)">${body}</textarea>
+    <div style="display:flex;gap:6px;margin-top:8px;justify-content:flex-end">
+      <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px" onclick="renderNotesJournal(document.getElementById('f-notes').value)">Cancel</button>
+      <button class="btn btn-primary" style="padding:4px 10px;font-size:12px" onclick="saveNoteEdit(${idx},'${header.replace(/'/g,"\\'")}')">Save</button>
+    </div>`;
+}
+
+function saveNoteEdit(idx, header) {
+  const newBody = document.getElementById(`note-edit-${idx}`).value.trim();
+  if (!newBody) { showToast('Note cannot be empty', 'error'); return; }
+  const current = document.getElementById('f-notes').value;
+  const { entries, legacy } = parseNotes(current);
+  entries[idx] = `${header}\n${newBody}`;
+  document.getElementById('f-notes').value = serializeNotes(entries, legacy);
+  renderNotesJournal(document.getElementById('f-notes').value);
 }
 
 function addNote() {
