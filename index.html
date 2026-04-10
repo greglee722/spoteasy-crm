@@ -207,7 +207,20 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 .kanban-card:active { cursor:grabbing; }
 .kanban-card-ghost { background:rgba(0,172,238,0.08); border:2px dashed var(--accent); border-radius:8px; height:60px; }
 
-/* LOADING / EMPTY */
+/* MODAL TABS */
+.modal-tab { padding:12px 18px; font-size:13px; font-weight:700; color:var(--text3); cursor:pointer; border-bottom:3px solid transparent; transition:all 0.15s; user-select:none; }
+.modal-tab:hover { color:var(--text2); }
+.modal-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+/* NOTE CARDS */
+.note-card { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+.note-card-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.note-card-meta { font-size:11px; font-weight:700; color:var(--accent); font-family:'DM Mono',monospace; }
+.note-card-text { font-size:13px; color:var(--text2); line-height:1.6; white-space:pre-wrap; word-break:break-word; }
+.note-card-legacy { background:var(--surface2); border:1px dashed var(--border); border-radius:8px; padding:12px 14px; }
+.note-card-legacy-label { font-size:10px; font-weight:700; color:var(--text3); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; }
+.note-card-legacy-text { font-size:12px; color:var(--text3); line-height:1.6; white-space:pre-wrap; font-family:'DM Mono',monospace; word-break:break-word; }
+
 .loading { display:flex; align-items:center; justify-content:center; gap:10px; padding:40px; color:var(--text3); font-family:'DM Mono',monospace; font-size:13px; }
 .spinner { width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.6s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
@@ -280,7 +293,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v1.6</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v1.7</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -476,91 +489,109 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
       <div class="modal-title" id="modalTitle">Add Lead</div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Business Name *</label>
-          <input type="text" id="f-businessName" placeholder="e.g. Aceituna Grill">
-        </div>
-        <div class="form-group">
-          <label>Business Type</label>
-          <select id="f-businessType"></select>
-        </div>
-        <div class="form-group">
-          <label>Website URL</label>
-          <input type="url" id="f-url" placeholder="https://...">
-        </div>
-        <div class="form-group">
-          <label>First Name</label>
-          <input type="text" id="f-firstName" placeholder="Contact first name">
-        </div>
-        <div class="form-group">
-          <label>Location</label>
-          <input type="text" id="f-location" placeholder="e.g. Boston">
-        </div>
-        <div class="form-group">
-          <label>Domain Rating</label>
-          <input type="number" id="f-domainRating" placeholder="0–100" min="0" max="100">
-        </div>
-        <div class="form-group span2">
-          <label>Instagram URL</label>
-          <input type="url" id="f-instagram" placeholder="https://instagram.com/...">
-        </div>
-        <div class="form-group">
-          <label>Pipeline Stage</label>
-          <select id="f-pipelineStage">
-            <option value=""></option>
-            <option>Opportunity</option><option>1st Reach Out</option><option>Mock Up Required</option>
-            <option>Mock Up Sent</option><option>Push Ad Live</option><option>Backlink Required</option><option>Backlink Acquired</option>
-            <option>No Response</option><option>Declined Offer</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Last Message Sent</label>
-          <select id="f-lastMessageSent">
-            <option value=""></option>
-            <option>1st Template</option><option>Prompt 1A</option><option>Prompt 1B</option>
-            <option>Prompt 1C</option><option>2nd Template</option><option>Prompt 2A</option>
-            <option>Prompt 2B</option><option>Prompt 2C</option><option>3rd Template</option>
-            <option>Prompt 3A</option><option>Prompt 3B</option><option>Prompt 3C</option>
-          </select>
-        </div>
-        <div class="form-group span2">
-          <label>Notes</label>
-          <textarea id="f-notes" placeholder="Any notes..."></textarea>
-        </div>
-        <div class="form-group span2">
-          <label>📧 Prompt & Template Generator</label>
-          <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px">
-            <select id="promptSelect" onchange="generatePrompt()" style="flex:1">
-              <option value="">Select a template or prompt...</option>
-              <optgroup label="First Outreach">
-                <option value="1st-template">1st Template</option>
-                <option value="prompt-1a">Prompt 1A</option>
-                <option value="prompt-1b">Prompt 1B</option>
-                <option value="prompt-1c">Prompt 1C</option>
-              </optgroup>
-              <optgroup label="Second Outreach">
-                <option value="2nd-template">2nd Template</option>
-                <option value="prompt-2a">Prompt 2A</option>
-                <option value="prompt-2b">Prompt 2B</option>
-                <option value="prompt-2c">Prompt 2C</option>
-              </optgroup>
-              <optgroup label="Third Outreach">
-                <option value="3rd-template">3rd Template</option>
-                <option value="prompt-3a">Prompt 3A</option>
-                <option value="prompt-3b">Prompt 3B</option>
-                <option value="prompt-3c">Prompt 3C</option>
-              </optgroup>
+    <div class="modal-body" style="padding:0">
+      <!-- Modal Tabs -->
+      <div style="display:flex;border-bottom:1px solid var(--border);padding:0 24px;background:var(--surface)">
+        <div id="modalTab-details" class="modal-tab active" onclick="switchModalTab('details')">Details</div>
+        <div id="modalTab-notes" class="modal-tab" onclick="switchModalTab('notes')">Notes</div>
+      </div>
+
+      <!-- Details Tab -->
+      <div id="modalPane-details" style="padding:20px 24px">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Business Name *</label>
+            <input type="text" id="f-businessName" placeholder="e.g. Aceituna Grill">
+          </div>
+          <div class="form-group">
+            <label>Business Type</label>
+            <select id="f-businessType"></select>
+          </div>
+          <div class="form-group">
+            <label>Website URL</label>
+            <input type="url" id="f-url" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="f-firstName" placeholder="Contact first name">
+          </div>
+          <div class="form-group">
+            <label>Location</label>
+            <input type="text" id="f-location" placeholder="e.g. Boston">
+          </div>
+          <div class="form-group">
+            <label>Domain Rating</label>
+            <input type="number" id="f-domainRating" placeholder="0–100" min="0" max="100">
+          </div>
+          <div class="form-group span2">
+            <label>Instagram URL</label>
+            <input type="url" id="f-instagram" placeholder="https://instagram.com/...">
+          </div>
+          <div class="form-group">
+            <label>Pipeline Stage</label>
+            <select id="f-pipelineStage">
+              <option value=""></option>
+              <option>Opportunity</option><option>1st Reach Out</option><option>Mock Up Required</option>
+              <option>Mock Up Sent</option><option>Push Ad Live</option><option>Backlink Required</option><option>Backlink Acquired</option>
+              <option>No Response</option><option>Declined Offer</option>
             </select>
           </div>
-          <div id="promptOutput" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
-              <textarea id="promptText" readonly style="flex:1;background:var(--surface);border:1px solid var(--border);padding:10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:12px;min-height:120px;resize:vertical;color:var(--text)"></textarea>
-              <button class="btn btn-secondary" onclick="copyPrompt()" style="margin-top:0;padding:8px 12px;flex-shrink:0;white-space:nowrap">📋 Copy</button>
+          <div class="form-group">
+            <label>Last Message Sent</label>
+            <select id="f-lastMessageSent">
+              <option value=""></option>
+              <option>1st Template</option><option>Prompt 1A</option><option>Prompt 1B</option>
+              <option>Prompt 1C</option><option>2nd Template</option><option>Prompt 2A</option>
+              <option>Prompt 2B</option><option>Prompt 2C</option><option>3rd Template</option>
+              <option>Prompt 3A</option><option>Prompt 3B</option><option>Prompt 3C</option>
+            </select>
+          </div>
+          <div class="form-group span2">
+            <label>📧 Prompt & Template Generator</label>
+            <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px">
+              <select id="promptSelect" onchange="generatePrompt()" style="flex:1">
+                <option value="">Select a template or prompt...</option>
+                <optgroup label="First Outreach">
+                  <option value="1st-template">1st Template</option>
+                  <option value="prompt-1a">Prompt 1A</option>
+                  <option value="prompt-1b">Prompt 1B</option>
+                  <option value="prompt-1c">Prompt 1C</option>
+                </optgroup>
+                <optgroup label="Second Outreach">
+                  <option value="2nd-template">2nd Template</option>
+                  <option value="prompt-2a">Prompt 2A</option>
+                  <option value="prompt-2b">Prompt 2B</option>
+                  <option value="prompt-2c">Prompt 2C</option>
+                </optgroup>
+                <optgroup label="Third Outreach">
+                  <option value="3rd-template">3rd Template</option>
+                  <option value="prompt-3a">Prompt 3A</option>
+                  <option value="prompt-3b">Prompt 3B</option>
+                  <option value="prompt-3c">Prompt 3C</option>
+                </optgroup>
+              </select>
+            </div>
+            <div id="promptOutput" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                <textarea id="promptText" readonly style="flex:1;background:var(--surface);border:1px solid var(--border);padding:10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:12px;min-height:120px;resize:vertical;color:var(--text)"></textarea>
+                <button class="btn btn-secondary" onclick="copyPrompt()" style="margin-top:0;padding:8px 12px;flex-shrink:0;white-space:nowrap">📋 Copy</button>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Notes Tab -->
+      <div id="modalPane-notes" style="display:none;padding:20px 24px">
+        <!-- Add note input -->
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <textarea id="newNoteInput" placeholder="Add a note..." style="flex:1;min-height:70px;resize:vertical"></textarea>
+          <button class="btn btn-primary" onclick="addNote()" style="align-self:flex-start;white-space:nowrap">+ Add Note</button>
+        </div>
+        <!-- Journal entries -->
+        <div id="notesJournal" style="display:flex;flex-direction:column;gap:10px"></div>
+        <!-- Hidden field to hold serialised notes for saving -->
+        <input type="hidden" id="f-notes">
       </div>
     </div>
     <div class="modal-footer">
@@ -1148,6 +1179,83 @@ function populateBusinessTypeDropdown() {
 }
 
 // ============================================================
+// MODAL TABS
+// ============================================================
+function switchModalTab(tab) {
+  ['details','notes'].forEach(t => {
+    document.getElementById(`modalTab-${t}`).classList.toggle('active', t === tab);
+    document.getElementById(`modalPane-${t}`).style.display = t === tab ? 'block' : 'none';
+  });
+}
+
+// ============================================================
+// NOTES JOURNAL HELPERS
+// NOTE STORAGE FORMAT in f-notes (hidden field):
+//   Structured entries are separated by "||NOTE||"
+//   Each entry: "GL | Apr 10\n<text>"
+//   Legacy (unparseable) raw text stored at the very end after "||LEGACY||"
+// ============================================================
+const NOTE_SEP = '||NOTE||';
+const LEGACY_SEP = '||LEGACY||';
+
+function parseNotes(raw) {
+  if (!raw) return { entries: [], legacy: '' };
+  const legacyIdx = raw.indexOf(LEGACY_SEP);
+  let structured = raw, legacy = '';
+  if (legacyIdx !== -1) { structured = raw.substring(0, legacyIdx); legacy = raw.substring(legacyIdx + LEGACY_SEP.length).trim(); }
+  const entries = structured.split(NOTE_SEP).map(s => s.trim()).filter(Boolean);
+  return { entries, legacy };
+}
+
+function serializeNotes(entries, legacy) {
+  let out = entries.join(NOTE_SEP);
+  if (legacy) out += LEGACY_SEP + legacy;
+  return out;
+}
+
+function renderNotesJournal(raw) {
+  const { entries, legacy } = parseNotes(raw);
+  const el = document.getElementById('notesJournal');
+  let html = '';
+  entries.forEach(entry => {
+    const firstNewline = entry.indexOf('\n');
+    const header = firstNewline !== -1 ? entry.substring(0, firstNewline).trim() : entry;
+    const body = firstNewline !== -1 ? entry.substring(firstNewline + 1).trim() : '';
+    html += `<div class="note-card">
+      <div class="note-card-header"><span class="note-card-meta">${header}</span></div>
+      ${body ? `<div class="note-card-text">${body}</div>` : ''}
+    </div>`;
+  });
+  if (legacy) {
+    html += `<div class="note-card-legacy">
+      <div class="note-card-legacy-label">Previous notes</div>
+      <div class="note-card-legacy-text">${legacy}</div>
+    </div>`;
+  }
+  if (!entries.length && !legacy) {
+    html = '<div style="color:var(--text3);font-size:13px;font-style:italic;text-align:center;padding:24px">No notes yet — add one above.</div>';
+  }
+  el.innerHTML = html;
+}
+
+function addNote() {
+  const input = document.getElementById('newNoteInput');
+  const text = input.value.trim();
+  if (!text) { showToast('Type a note first', 'error'); return; }
+  const now = new Date();
+  const initials = currentUser ? currentUser.name.split(' ').map(p=>p[0].toUpperCase()).join('') : '??';
+  const dateLabel = now.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  const header = `${initials} | ${dateLabel}`;
+  const newEntry = `${header}\n${text}`;
+  const current = document.getElementById('f-notes').value;
+  const { entries, legacy } = parseNotes(current);
+  entries.unshift(newEntry); // prepend — newest first
+  document.getElementById('f-notes').value = serializeNotes(entries, legacy);
+  input.value = '';
+  renderNotesJournal(document.getElementById('f-notes').value);
+}
+
+// ============================================================
 // MODAL
 // ============================================================
 function openAddModal() {
@@ -1156,6 +1264,7 @@ function openAddModal() {
   document.getElementById('modalTitle').textContent='Add Lead';
   document.getElementById('deleteBtn').style.display='none';
   clearForm(); populateBusinessTypeDropdown();
+  switchModalTab('details');
   document.getElementById('leadModal').classList.add('open');
 }
 
@@ -1165,6 +1274,7 @@ async function openEditModal(row) {
   document.getElementById('modalTitle').textContent='Edit Lead';
   document.getElementById('deleteBtn').style.display='flex';
   populateBusinessTypeDropdown(); fillForm(lead);
+  switchModalTab('details');
   document.getElementById('leadModal').classList.add('open');
   _modalSnapshot = null;
   _modalSnapshot = await fetchRowSnapshot(row);
@@ -1172,13 +1282,31 @@ async function openEditModal(row) {
 
 function closeModal() { document.getElementById('leadModal').classList.remove('open'); editingRow=null; }
 
-function clearForm() { COLUMNS.forEach(col => { const el=document.getElementById(`f-${col}`); if(el) el.value=''; }); document.getElementById('promptSelect').value=''; document.getElementById('promptOutput').style.display='none'; }
+function clearForm() {
+  COLUMNS.forEach(col => { const el=document.getElementById(`f-${col}`); if(el) el.value=''; });
+  document.getElementById('promptSelect').value='';
+  document.getElementById('promptOutput').style.display='none';
+  document.getElementById('newNoteInput').value='';
+  renderNotesJournal('');
+}
 
 function fillForm(lead) {
   COLUMNS.forEach(col => {
+    if (col === 'notes') return; // handled separately
     const el=document.getElementById(`f-${col}`); if(!el) return;
     el.value=lead[col]||'';
   });
+  // Notes: detect whether it's structured or legacy raw text
+  const raw = lead.notes || '';
+  const isStructured = raw.includes(NOTE_SEP) || raw.includes(LEGACY_SEP);
+  if (isStructured) {
+    document.getElementById('f-notes').value = raw;
+  } else {
+    // Treat existing text as legacy
+    document.getElementById('f-notes').value = raw ? (LEGACY_SEP + raw) : '';
+  }
+  document.getElementById('newNoteInput').value = '';
+  renderNotesJournal(document.getElementById('f-notes').value);
 }
 
 function getFormValues() { return COLUMNS.map(col => { const el=document.getElementById(`f-${col}`); return el?el.value:''; }); }
