@@ -221,6 +221,20 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 .note-card-legacy-label { font-size:10px; font-weight:700; color:var(--text3); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; }
 .note-card-legacy-text { font-size:12px; color:var(--text3); line-height:1.6; white-space:pre-wrap; font-family:'DM Mono',monospace; word-break:break-word; }
 
+/* MOCKUP GENERATOR */
+.mockup-layout { display:grid; grid-template-columns:300px 1fr; gap:24px; align-items:start; }
+.mockup-panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; }
+.mockup-panel-title { font-size:11px; font-weight:800; color:var(--text3); text-transform:uppercase; letter-spacing:0.06em; font-family:'DM Mono',monospace; margin-bottom:16px; }
+.mockup-field-group { margin-bottom:12px; }
+.mockup-label { display:block; font-size:11px; font-weight:800; color:var(--text3); letter-spacing:0.05em; text-transform:uppercase; font-family:'DM Mono',monospace; margin-bottom:5px; }
+.mockup-input { width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:8px 11px; border-radius:8px; font-family:'Mulish',sans-serif; font-size:13px; outline:none; transition:border-color 0.15s; }
+.mockup-input:focus { border-color:var(--accent); }
+textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
+.mockup-divider { font-size:11px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:0.06em; font-family:'DM Mono',monospace; margin:16px 0 12px; padding-top:14px; border-top:1px solid var(--border); }
+.mockup-btn-row { display:flex; gap:8px; margin-top:16px; }
+.mockup-btn-row .btn { flex:1; justify-content:center; }
+.mockup-preview-wrap { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:24px; overflow-x:auto; }
+
 .loading { display:flex; align-items:center; justify-content:center; gap:10px; padding:40px; color:var(--text3); font-family:'DM Mono',monospace; font-size:13px; }
 .spinner { width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.6s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
@@ -293,7 +307,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v1.9</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v2.0</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -315,6 +329,7 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
 <div class="nav">
   <div class="nav-tab active" onclick="switchTab('all')" id="tab-all">📋 All Leads</div>
   <div class="nav-tab" onclick="switchTab('pipeline')" id="tab-pipeline">🏆 Pipeline</div>
+  <div class="nav-tab" onclick="switchTab('mockup')" id="tab-mockup">🎨 Mock Up</div>
   <div class="nav-tab" onclick="switchTab('settings')" id="tab-settings">⚙ Settings</div>
 </div>
 
@@ -391,6 +406,126 @@ textarea { min-height:90px; resize:vertical; line-height:1.6; }
       <div class="empty-icon">🏆</div><div class="empty-title">No pipeline leads</div>
       <div class="empty-desc">Add leads and set a Pipeline Stage to see them here</div>
     </div>
+  </div>
+
+  <!-- MOCKUP GENERATOR -->
+  <div id="section-mockup" class="section-hidden">
+    <div class="mockup-layout">
+
+      <!-- Form panel -->
+      <div class="mockup-panel">
+        <div class="mockup-panel-title">Business Info</div>
+
+        <div class="mockup-field-group">
+          <label class="mockup-label">Logo URL</label>
+          <input type="text" class="mockup-input" id="mu-logo-url" placeholder="https://res.cloudinary.com/...">
+        </div>
+        <div class="mockup-field-group">
+          <label class="mockup-label">Business Name</label>
+          <input type="text" class="mockup-input" id="mu-biz-name" placeholder="e.g. Aceituna Grill">
+        </div>
+        <div class="mockup-field-group">
+          <label class="mockup-label">Business Address</label>
+          <input type="text" class="mockup-input" id="mu-biz-addr" placeholder="150 Huntington Ave, Boston, MA 02115">
+        </div>
+        <div class="mockup-field-group">
+          <label class="mockup-label">Business Description</label>
+          <textarea class="mockup-input" id="mu-biz-desc" placeholder="Award-winning restaurant serving..."></textarea>
+        </div>
+
+        <div class="mockup-divider">Listing Info</div>
+
+        <div class="mockup-field-group">
+          <label class="mockup-label">Street Address</label>
+          <input type="text" class="mockup-input" id="mu-street" placeholder="123 Main St">
+        </div>
+        <div class="mockup-field-group">
+          <label class="mockup-label">Neighborhood / Location</label>
+          <input type="text" class="mockup-input" id="mu-neighborhood" placeholder="Back Bay">
+        </div>
+        <div class="mockup-field-group">
+          <label class="mockup-label">City</label>
+          <input type="text" class="mockup-input" id="mu-city" placeholder="Boston">
+        </div>
+        <div class="mockup-field-group">
+          <label class="mockup-label">Zip Code</label>
+          <input type="text" class="mockup-input" id="mu-zip" placeholder="02116">
+        </div>
+
+        <div class="mockup-btn-row">
+          <button class="btn btn-secondary" onclick="mockupUpdatePreview()">Update Preview</button>
+          <button class="btn btn-primary" onclick="mockupExportJpg()">⬇ Download JPG</button>
+        </div>
+        <p id="mockup-status" style="font-size:12px;color:var(--text3);margin-top:10px;text-align:center;font-family:'DM Mono',monospace;min-height:18px"></p>
+
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+          <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-family:'DM Mono',monospace;margin-bottom:8px;">Pre-fill from Lead</div>
+          <select id="mu-lead-select" class="filter-select" style="width:100%" onchange="mockupFillFromLead()">
+            <option value="">Select a lead...</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Preview panel -->
+      <div class="mockup-preview-wrap">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;font-family:'DM Mono',monospace;">Preview</div>
+        <div id="mu-card" style="display:grid;grid-template-columns:1fr 300px;gap:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:transparent;">
+
+          <!-- Business ad tile -->
+          <div style="background:#fff;border:1px solid #e0e2e6;border-radius:12px;padding:28px 24px;display:flex;flex-direction:column;align-items:center;">
+            <p style="color:#06aed5;font-size:13px;font-weight:600;text-align:center;margin-bottom:16px;letter-spacing:0.02em;">Featured Local Spot</p>
+            <div id="mu-logo-wrap" style="margin:0 auto 16px;width:fit-content;max-width:220px;min-width:80px;min-height:60px;display:flex;align-items:center;justify-content:center;">
+              <p style="color:#d1d5db;font-size:13px;text-align:center;padding:16px 20px;">Logo will appear here</p>
+            </div>
+            <p id="mu-card-name" style="font-size:20px;font-weight:700;color:#111827;text-align:center;margin-bottom:4px;">Business Name</p>
+            <p id="mu-card-addr" style="font-size:13px;color:#6b7280;text-align:center;margin-bottom:14px;">Business Address</p>
+            <p id="mu-card-desc" style="font-size:13px;color:#374151;text-align:center;line-height:1.7;margin-bottom:20px;">Business description will appear here.</p>
+            <button style="background:#06aed5;color:#fff;border:none;border-radius:8px;padding:10px 32px;font-size:14px;font-weight:600;cursor:default;font-family:inherit;">Explore Now</button>
+          </div>
+
+          <!-- Right column -->
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <!-- Listing tile -->
+            <div style="background:#fff;border:1px solid #e0e2e6;border-radius:12px;padding:20px 20px 16px;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+                <p id="mu-card-street" style="font-size:22px;font-weight:700;color:#111827;line-height:1.2;">123 Main St</p>
+              </div>
+              <p id="mu-card-location" style="font-size:13px;color:#06aed5;margin-bottom:12px;">Neighborhood, City, Zipcode</p>
+              <p style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#111827;margin-bottom:16px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;display:inline-block;"></span> Apartment for rent
+              </p>
+              <div style="border-top:1px solid #f0f0f0;padding-top:12px;margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;">
+                  <span style="color:#6b7280;">Availability</span><span style="font-weight:700;color:#111827;">Sep 1st, 2026</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;">
+                  <span style="color:#6b7280;">Beds</span><span style="font-weight:700;color:#111827;">1</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;">
+                  <span style="color:#6b7280;">Baths</span><span style="font-weight:700;color:#111827;">1</span>
+                </div>
+              </div>
+              <p style="font-size:26px;font-weight:700;color:#06aed5;margin-bottom:12px;">$3,000 <span style="font-size:15px;font-weight:400;color:#6b7280;">/ month</span></p>
+              <button style="display:block;width:100%;background:#06aed5;color:#fff;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;text-align:center;cursor:default;font-family:inherit;">Request a Tour</button>
+            </div>
+            <!-- Agent tile -->
+            <div style="background:#fff;border:1px solid #e0e2e6;border-radius:12px;padding:16px 20px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:56px;height:56px;border-radius:50%;flex-shrink:0;overflow:hidden;border:2px solid #e5e7eb;background:#e8f2fa;display:flex;align-items:center;justify-content:center;">
+                  <span style="font-size:22px;">👤</span>
+                </div>
+                <div>
+                  <p style="font-size:15px;font-weight:600;color:#111827;margin-bottom:2px;">Jane Doe</p>
+                  <p style="font-size:13px;color:#6b7280;margin-bottom:3px;">Jane Doe Realty</p>
+                  <p style="font-size:13px;color:#06aed5;font-weight:500;">About Jane Doe</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end mu-card -->
+      </div><!-- end preview-wrap -->
+    </div><!-- end mockup-layout -->
   </div>
 
   <!-- SETTINGS -->
@@ -805,10 +940,11 @@ window.onload = async () => {
 // ============================================================
 function switchTab(tab) {
   currentTab = tab;
-  ['all','pipeline','settings'].forEach(t => {
+  ['all','pipeline','mockup','settings'].forEach(t => {
     document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
     document.getElementById(`section-${t}`).classList.toggle('section-hidden', t !== tab);
   });
+  if (tab === 'mockup') mockupPopulateLeadSelect();
 }
 
 // ============================================================
@@ -1562,6 +1698,103 @@ function copyPrompt() {
   document.execCommand('copy');
   showToast('Prompt copied to clipboard!', 'success');
 }
+
+// ============================================================
+// MOCKUP GENERATOR
+// ============================================================
+function mockupPopulateLeadSelect() {
+  const sel = document.getElementById('mu-lead-select');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Select a lead...</option>';
+  [...leads].sort((a,b) => (a.businessName||'').localeCompare(b.businessName||'')).forEach(l => {
+    if (!l.businessName) return;
+    const o = document.createElement('option');
+    o.value = l._row;
+    o.textContent = l.businessName + (l.location ? ` — ${l.location}` : '');
+    sel.appendChild(o);
+  });
+  if (cur) sel.value = cur;
+}
+
+function mockupFillFromLead() {
+  const row = parseInt(document.getElementById('mu-lead-select').value);
+  if (!row) return;
+  const lead = leads.find(l => l._row === row);
+  if (!lead) return;
+  document.getElementById('mu-biz-name').value = lead.businessName || '';
+  document.getElementById('mu-biz-addr').value = lead.url || '';
+  document.getElementById('mu-neighborhood').value = lead.location || '';
+  document.getElementById('mu-city').value = 'Boston';
+  document.getElementById('mu-logo-url').value = '';
+  mockupUpdatePreview();
+}
+
+function mockupUpdatePreview() {
+  const logoUrl = document.getElementById('mu-logo-url').value.trim();
+  const name = document.getElementById('mu-biz-name').value.trim();
+  const addr = document.getElementById('mu-biz-addr').value.trim();
+  const desc = document.getElementById('mu-biz-desc').value.trim();
+  const street = document.getElementById('mu-street').value.trim();
+  const neighborhood = document.getElementById('mu-neighborhood').value.trim();
+  const city = document.getElementById('mu-city').value.trim();
+  const zip = document.getElementById('mu-zip').value.trim();
+
+  const logoWrap = document.getElementById('mu-logo-wrap');
+  if (logoUrl) {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      logoWrap.innerHTML = '';
+      img.style.cssText = 'max-width:200px;max-height:90px;object-fit:contain;display:block;';
+      logoWrap.appendChild(img);
+    };
+    img.onerror = () => { logoWrap.innerHTML = "<p style='color:#d1d5db;font-size:13px;text-align:center;padding:16px 20px;'>Could not load logo</p>"; };
+    img.src = logoUrl;
+  } else {
+    logoWrap.innerHTML = "<p style='color:#d1d5db;font-size:13px;text-align:center;padding:16px 20px;'>Logo will appear here</p>";
+  }
+
+  document.getElementById('mu-card-name').textContent = name || 'Business Name';
+  document.getElementById('mu-card-addr').textContent = addr || 'Business Address';
+  document.getElementById('mu-card-desc').textContent = desc || 'Business description will appear here.';
+  document.getElementById('mu-card-street').textContent = street || '123 Main St';
+  const parts = [neighborhood, city, zip].filter(Boolean);
+  document.getElementById('mu-card-location').textContent = parts.length ? parts.join(', ') : 'Neighborhood, City, Zipcode';
+}
+
+function mockupExportJpg() {
+  const card = document.getElementById('mu-card');
+  const status = document.getElementById('mockup-status');
+  function doExport() {
+    status.textContent = 'Generating JPG...';
+    html2canvas(card, { scale:2, backgroundColor:'#f1f3f5', useCORS:true, allowTaint:false, logging:false }).then(canvas => {
+      const link = document.createElement('a');
+      const name = (document.getElementById('mu-biz-name').value.trim().replace(/\s+/g,'_') || 'local_spot_ad');
+      link.download = name + '_spoteasy_ad.jpg';
+      link.href = canvas.toDataURL('image/jpeg', 0.95);
+      link.click();
+      status.textContent = 'Downloaded!';
+      setTimeout(() => status.textContent = '', 2500);
+    }).catch(err => {
+      status.textContent = 'Export failed — check logo URL for CORS issues.';
+      console.error(err);
+    });
+  }
+  if (typeof html2canvas !== 'undefined') { doExport(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+  s.onload = doExport;
+  s.onerror = () => { status.textContent = 'Failed to load export library. Check internet connection.'; };
+  document.head.appendChild(s);
+}
+
+// Live update mockup as user types
+document.addEventListener('DOMContentLoaded', () => {
+  ['mu-logo-url','mu-biz-name','mu-biz-addr','mu-biz-desc','mu-street','mu-neighborhood','mu-city','mu-zip'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', mockupUpdatePreview);
+  });
+});
 
 document.getElementById('leadModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 
