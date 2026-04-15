@@ -307,7 +307,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v2.0</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v2.1</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -664,7 +664,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
           </div>
           <div class="form-group">
             <label>Pipeline Stage</label>
-            <select id="f-pipelineStage">
+            <select id="f-pipelineStage" onchange="filterMessagesByStage(this.value)">
               <option value=""></option>
               <option>Opportunity</option><option>1st Reach Out</option><option>Mock Up Required</option>
               <option>Mock Up Sent</option><option>Push Ad Live</option><option>Backlink Required</option><option>Backlink Acquired</option>
@@ -1472,6 +1472,7 @@ function clearForm() {
   document.getElementById('promptOutput').style.display='none';
   document.getElementById('newNoteInput').value='';
   renderNotesJournal('');
+  filterMessagesByStage('');
 }
 
 function fillForm(lead) {
@@ -1480,6 +1481,11 @@ function fillForm(lead) {
     const el=document.getElementById(`f-${col}`); if(!el) return;
     el.value=lead[col]||'';
   });
+  // Apply stage-based filtering AFTER all fields are set
+  filterMessagesByStage(lead.pipelineStage || '');
+  // Re-apply the saved lastMessageSent value (filterMessagesByStage rebuilds the dropdown)
+  const lmsEl = document.getElementById('f-lastMessageSent');
+  if (lmsEl && !lmsEl.disabled) lmsEl.value = lead.lastMessageSent || '';
   // Notes: detect whether it's structured or legacy raw text
   const raw = lead.notes || '';
   const isStructured = raw.includes(NOTE_SEP) || raw.includes(LEGACY_SEP);
@@ -1556,6 +1562,89 @@ function showToast(msg, type='success') {
   t.textContent=(type==='success'?'✓ ':'✕ ')+msg;
   t.className=`toast ${type} show`;
   setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ============================================================
+// STAGE → MESSAGE FILTERING
+// ============================================================
+const STAGE_MESSAGES = {
+  'Opportunity':        { placeholder: 'Update Pipeline Stage', options: [] },
+  '1st Reach Out':      { placeholder: null, options: ['1st Template','Prompt 1A','Prompt 1B','Prompt 1C'] },
+  'Mock Up Required':   { placeholder: 'Update Pipeline Stage', options: [] },
+  'Mock Up Sent':       { placeholder: null, options: ['2nd Template','Prompt 2A','Prompt 2B','Prompt 2C'] },
+  'Push Ad Live':       { placeholder: 'Update Pipeline Stage', options: [] },
+  'Backlink Required':  { placeholder: null, options: ['3rd Template','Prompt 3A','Prompt 3B','Prompt 3C'] },
+  'Backlink Acquired':  null,
+  'No Response':        null,
+  'Declined Offer':     null,
+};
+
+const MESSAGE_TO_PROMPT_KEY = {
+  '1st Template': '1st-template',
+  'Prompt 1A': 'prompt-1a', 'Prompt 1B': 'prompt-1b', 'Prompt 1C': 'prompt-1c',
+  '2nd Template': '2nd-template',
+  'Prompt 2A': 'prompt-2a', 'Prompt 2B': 'prompt-2b', 'Prompt 2C': 'prompt-2c',
+  '3rd Template': '3rd-template',
+  'Prompt 3A': 'prompt-3a', 'Prompt 3B': 'prompt-3b', 'Prompt 3C': 'prompt-3c',
+};
+
+function filterMessagesByStage(stage) {
+  const lmsField = document.getElementById('f-lastMessageSent');
+  const lmsGroup = lmsField ? lmsField.closest('.form-group') : null;
+  const promptSelectEl = document.getElementById('promptSelect');
+  const promptGroup = promptSelectEl ? promptSelectEl.closest('.form-group') : null;
+  const promptOutput = document.getElementById('promptOutput');
+
+  const config = stage ? STAGE_MESSAGES[stage] : undefined;
+
+  if (!lmsGroup) return;
+
+  if (!stage || config === undefined) {
+    // No stage selected — show all options
+    lmsGroup.style.display = '';
+    lmsField.disabled = false;
+    lmsField.innerHTML = '<option value=""></option>' +
+      ['1st Template','Prompt 1A','Prompt 1B','Prompt 1C','2nd Template','Prompt 2A','Prompt 2B','Prompt 2C','3rd Template','Prompt 3A','Prompt 3B','Prompt 3C']
+      .map(o => `<option value="${o}">${o}</option>`).join('');
+    if (promptGroup) {
+      promptGroup.style.display = '';
+      promptSelectEl.innerHTML = '<option value="">Select a template or prompt...</option>' +
+        ['1st-template','prompt-1a','prompt-1b','prompt-1c','2nd-template','prompt-2a','prompt-2b','prompt-2c','3rd-template','prompt-3a','prompt-3b','prompt-3c']
+        .map((k,i) => { const labels=['1st Template','Prompt 1A','Prompt 1B','Prompt 1C','2nd Template','Prompt 2A','Prompt 2B','Prompt 2C','3rd Template','Prompt 3A','Prompt 3B','Prompt 3C']; return `<option value="${k}">${labels[i]}</option>`; }).join('');
+    }
+    return;
+  }
+
+  if (config === null) {
+    // Hide entirely
+    lmsGroup.style.display = 'none';
+    lmsField.value = '';
+    lmsField.disabled = true;
+    if (promptGroup) { promptGroup.style.display = 'none'; promptSelectEl.value = ''; if (promptOutput) promptOutput.style.display = 'none'; }
+  } else if (config.options.length === 0) {
+    // Show but disabled with placeholder text
+    lmsGroup.style.display = '';
+    lmsField.disabled = true;
+    lmsField.innerHTML = `<option value="">${config.placeholder}</option>`;
+    lmsField.value = '';
+    if (promptGroup) { promptGroup.style.display = 'none'; promptSelectEl.value = ''; if (promptOutput) promptOutput.style.display = 'none'; }
+  } else {
+    // Show with filtered options
+    lmsGroup.style.display = '';
+    lmsField.disabled = false;
+    const currentVal = lmsField.value;
+    lmsField.innerHTML = '<option value=""></option>' +
+      config.options.map(o => `<option value="${o}"${o === currentVal ? ' selected' : ''}>${o}</option>`).join('');
+
+    if (promptGroup) {
+      promptGroup.style.display = '';
+      const currentPromptVal = promptSelectEl.value;
+      const validKeys = config.options.map(o => MESSAGE_TO_PROMPT_KEY[o]).filter(Boolean);
+      promptSelectEl.innerHTML = '<option value="">Select a template or prompt...</option>' +
+        config.options.map(o => { const key = MESSAGE_TO_PROMPT_KEY[o]; return key ? `<option value="${key}"${key === currentPromptVal ? ' selected' : ''}>${o}</option>` : ''; }).join('');
+      if (!validKeys.includes(currentPromptVal) && promptOutput) { promptOutput.style.display = 'none'; promptSelectEl.value = ''; }
+    }
+  }
 }
 
 // ============================================================
