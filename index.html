@@ -307,7 +307,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v2.2</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v2.3</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -673,7 +673,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
           </div>
           <div class="form-group">
             <label>Last Message Sent</label>
-            <select id="f-lastMessageSent">
+            <select id="f-lastMessageSent" onchange="syncPromptFromLMS(this.value)">
               <option value=""></option>
               <option>1st Template</option><option>Prompt 1A</option><option>Prompt 1B</option>
               <option>Prompt 1C</option><option>2nd Template</option><option>Prompt 2A</option>
@@ -1485,7 +1485,10 @@ function fillForm(lead) {
   filterMessagesByStage(lead.pipelineStage || '');
   // Re-apply the saved lastMessageSent value (filterMessagesByStage rebuilds the dropdown)
   const lmsEl = document.getElementById('f-lastMessageSent');
-  if (lmsEl && !lmsEl.disabled) lmsEl.value = lead.lastMessageSent || '';
+  if (lmsEl && !lmsEl.disabled) {
+    lmsEl.value = lead.lastMessageSent || '';
+    syncPromptFromLMS(lmsEl.value);
+  }
   // Notes: detect whether it's structured or legacy raw text
   const raw = lead.notes || '';
   const isStructured = raw.includes(NOTE_SEP) || raw.includes(LEGACY_SEP);
@@ -1790,6 +1793,25 @@ function generatePrompt() {
 
   document.getElementById('promptText').value = text;
   document.getElementById('promptOutput').style.display = 'block';
+}
+
+function syncPromptFromLMS(lmsValue) {
+  const promptSelectEl = document.getElementById('promptSelect');
+  const promptOutput = document.getElementById('promptOutput');
+  if (!lmsValue) {
+    // No LMS selected — hide prompt output, reset dropdown
+    if (promptSelectEl) promptSelectEl.value = '';
+    if (promptOutput) promptOutput.style.display = 'none';
+    return;
+  }
+  const key = MESSAGE_TO_PROMPT_KEY[lmsValue];
+  if (!key || !promptSelectEl) return;
+  // Only set if the key is available in the current dropdown options
+  const available = Array.from(promptSelectEl.options).some(o => o.value === key);
+  if (available) {
+    promptSelectEl.value = key;
+    generatePrompt();
+  }
 }
 
 function copyPrompt() {
