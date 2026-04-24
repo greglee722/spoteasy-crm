@@ -307,7 +307,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v2.3</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v2.4</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -341,7 +341,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
   </div>
 
   <div class="stats-row" id="statsRow" style="display:none">
-    <div class="stat-card"><div class="stat-val" id="statTotal">—</div><div class="stat-label">Total Leads</div></div>
     <div class="stat-card"><div class="stat-val blue" id="statOpportunity">—</div><div class="stat-label">Opportunities</div></div>
     <div class="stat-card"><div class="stat-val orange" id="statActive">—</div><div class="stat-label">Active</div></div>
     <div class="stat-card"><div class="stat-val green" id="statClosed">—</div><div class="stat-label">Backlinks Acquired</div></div>
@@ -359,7 +358,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
           <option value="">All Stages</option>
           <option>Opportunity</option><option>1st Reach Out</option><option>Mock Up Required</option>
           <option>Mock Up Sent</option><option>Push Ad Live</option><option>Backlink Required</option><option>Backlink Acquired</option>
-          <option>No Response</option><option>Declined Offer</option>
+          <option>On Hold</option><option>No Response</option><option>Declined Offer</option>
         </select>
         <select class="filter-select" id="filterLocation" onchange="renderAll()">
           <option value="">All Locations</option>
@@ -668,7 +667,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
               <option value=""></option>
               <option>Opportunity</option><option>1st Reach Out</option><option>Mock Up Required</option>
               <option>Mock Up Sent</option><option>Push Ad Live</option><option>Backlink Required</option><option>Backlink Acquired</option>
-              <option>No Response</option><option>Declined Offer</option>
+              <option>On Hold</option><option>No Response</option><option>Declined Offer</option>
             </select>
           </div>
           <div class="form-group">
@@ -876,8 +875,8 @@ function ensureToken() {
 let SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
 const SHEET_NAME = 'Sheet1';
 const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastMessageSent','lastUpdated','notes','addedBy'];
-const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Push Ad Live','Backlink Required','Backlink Acquired','No Response','Declined Offer'];
-const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Push Ad Live':'orange','Backlink Required':'red','Backlink Acquired':'green','No Response':'gray','Declined Offer':'red' };
+const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Push Ad Live','Backlink Required','Backlink Acquired','On Hold','No Response','Declined Offer'];
+const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Push Ad Live':'orange','Backlink Required':'red','Backlink Acquired':'green','On Hold':'yellow','No Response':'gray','Declined Offer':'red' };
 
 let leads = [], currentTab = 'all', editingRow = null, sortCol = null, sortDir = 1, _modalSnapshot = null;
 
@@ -1055,7 +1054,6 @@ function setStatus(s) {
 }
 
 function updateStats() {
-  document.getElementById('statTotal').textContent = leads.length;
   document.getElementById('statOpportunity').textContent = leads.filter(l => l.pipelineStage === 'Opportunity').length;
   document.getElementById('statActive').textContent = leads.filter(l => ['1st Reach Out','Mock Up Required','Mock Up Sent','Push Ad Live','Backlink Required'].includes(l.pipelineStage)).length;
   document.getElementById('statClosed').textContent = leads.filter(l => l.pipelineStage === 'Backlink Acquired').length;
@@ -1076,6 +1074,7 @@ const STAGE_TIPS = {
   'Push Ad Live': 'Agreement confirmed, push the ad live on Spot Easy',
   'Backlink Required': 'Ad is live, waiting on backlink from their site',
   'Backlink Acquired': 'Backlink received ✅ Deal closed',
+  'On Hold': 'Paused — revisit later',
   'No Response': 'No reply after all outreach attempts',
   'Declined Offer': 'Lead said no'
 };
@@ -1589,6 +1588,7 @@ const STAGE_MESSAGES = {
   'Push Ad Live':       { placeholder: 'Update Pipeline Stage', options: [] },
   'Backlink Required':  { placeholder: null, options: ['3rd Template','Prompt 3A','Prompt 3B','Prompt 3C'] },
   'Backlink Acquired':  null,
+  'On Hold':            null,
   'No Response':        null,
   'Declined Offer':     null,
 };
@@ -2072,8 +2072,8 @@ function briefingDateLabel() {
 function buildBriefingData() {
   const yesterday = yesterdayStr();
 
-  // Yesterday's activity — leads where lastUpdated === yesterday
-  const updatedYesterday = leads.filter(l => l.lastUpdated === yesterday);
+  // Yesterday's activity — leads updated ~1 day ago (matches kanban "1d" badge)
+  const updatedYesterday = leads.filter(l => daysSince(l.lastUpdated) === 1);
 
   const yesterdayStats = {
     opportunities:    updatedYesterday.filter(l => l.pipelineStage === 'Opportunity').length,
@@ -2084,7 +2084,7 @@ function buildBriefingData() {
   };
 
   // Today's action items
-  const backlinksRequired = leads.filter(l => l.pipelineStage === 'Backlink Required' && l.lastUpdated === yesterday);
+  const backlinksRequired = leads.filter(l => l.pipelineStage === 'Backlink Required' && daysSince(l.lastUpdated) === 1);
   const pushAdLiveAll     = leads.filter(l => l.pipelineStage === 'Push Ad Live');
   const mockUpRequired    = leads.filter(l => l.pipelineStage === 'Mock Up Required');
 
