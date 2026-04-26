@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spot Easy — Backlink Reach Out</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Mulish:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --bg: #f0f6fb;
@@ -285,13 +286,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <img src="logo.png" alt="Spot Easy" style="height:48px;display:block">
-  <div class="login-box" id="loginSetupBox" style="display:none">
-    <div class="login-title">One-time setup</div>
-    <div class="login-subtitle">Paste your Google OAuth Client ID to enable sign-in.<br>Get it from <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Credentials.</div>
-    <input class="login-input" type="text" id="loginClientIdInput" placeholder="123456789-abc.apps.googleusercontent.com">
-    <button class="login-btn" onclick="saveClientIdFromLogin()">Save & Continue</button>
-  </div>
-  <div class="login-box" id="loginSignInBox" style="display:none">
+  <div class="login-box" id="loginSignInBox" style="display:flex">
     <div class="login-title">Sign in to continue</div>
     <div class="login-subtitle">Only authorised SpotEasy team accounts can access this CRM.</div>
     <button class="login-btn" onclick="startOAuthFlow()" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1a2e3d;border:1px solid #cce0f0">
@@ -299,7 +294,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
       Sign in with Google
     </button>
     <div id="loginError" class="login-error" style="display:none">⚠ This Google account is not authorised. Please use your SpotEasy account.</div>
-    <span class="login-link" onclick="showClientIdSetup()">⚙ Change Client ID</span>
   </div>
 </div>
 
@@ -307,7 +301,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v2.4</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.0</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -334,11 +328,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 </div>
 
 <div class="main">
-
-  <div id="missingBanner" class="missing-banner" style="display:none">
-    <span class="missing-banner-text">⚠ Google Sheet not connected — add your Sheet ID in Settings.</span>
-    <button class="missing-banner-btn" onclick="switchTab('settings')">Go to Settings</button>
-  </div>
 
   <div class="stats-row" id="statsRow" style="display:none">
     <div class="stat-card"><div class="stat-val blue" id="statOpportunity">—</div><div class="stat-label">Opportunities</div></div>
@@ -531,13 +520,9 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
   <div id="section-settings" class="section-hidden">
 
     <div class="settings-section">
-      <div class="settings-title">🔌 Google Sheets Connection</div>
-      <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Sheet must be shared with Editor access for both team members. Sheet ID is in the URL: docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</p>
-      <div class="sheet-id-row">
-        <input type="text" id="sheetIdInput" placeholder="Sheet ID">
-        <button class="btn btn-primary" onclick="connectSheet()">Connect & Save</button>
-      </div>
-      <p style="font-size:11px;color:var(--text3);margin-top:10px;font-family:'DM Mono',monospace">Columns (A→L): Business Name, Business Type, URL, First Name, Location, Domain Rating, Instagram, Pipeline Stage, Last Email Sent, Last Updated, Notes, Added By</p>
+      <div class="settings-title">🗄 Database</div>
+      <p style="font-size:13px;color:var(--text3);margin-bottom:6px">Powered by Supabase. Schema, allowlist, and presence are managed in the Supabase dashboard.</p>
+      <p style="font-size:11px;color:var(--text3);margin-top:6px;font-family:'DM Mono',monospace" id="dbProjectUrl"></p>
     </div>
 
     <div class="settings-section">
@@ -571,17 +556,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
       </div>
       <div style="margin-top:12px;">
         <button class="btn btn-secondary" onclick="openBriefingManual()" style="font-size:12px;">📊 Preview Today's Briefing</button>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-title">🔐 OAuth Client ID</div>
-      <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Required for Google Sign-In. In Google Cloud Console, set:<br>
-      • Authorised JavaScript origin: <code style="color:var(--accent);font-family:'DM Mono',monospace">https://greglee722.github.io</code><br>
-      • Authorised redirect URI: <code style="color:var(--accent);font-family:'DM Mono',monospace">https://greglee722.github.io/spoteasy-crm/</code></p>
-      <div class="sheet-id-row">
-        <input type="text" id="clientIdInput" placeholder="Client ID (.apps.googleusercontent.com)">
-        <button class="btn btn-secondary" onclick="saveClientIdFromSettings()">Save & Reload</button>
       </div>
     </div>
 
@@ -740,116 +714,73 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 
 <script>
 // ============================================================
-// USER AUTH — implicit OAuth redirect (works on GitHub Pages)
+// USER AUTH — Supabase Google OAuth (replaces Google Sheets API)
 // ============================================================
-const ALLOWED_EMAILS = ['greg@spoteasy.com','sanket@spoteasy.com'];
-const GOOGLE_CLIENT_ID = localStorage.getItem('spoteasy_client_id') || '';
-const REDIRECT_URI = location.origin + location.pathname;
-let currentUser = null, oauthToken = null;
+const SUPABASE_URL = 'https://exjeqzhlkqzaajvypbgz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4amVxemhsa3F6YWFqdnlwYmd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMjkyNTEsImV4cCI6MjA5MjgwNTI1MX0.ia0Ucd5uT0cDITuVHafF915Zbm2L3zApzrdq_QDCtv4';
 
-// On page load, check if we're returning from an OAuth redirect
-function checkOAuthRedirect() {
-  const hash = window.location.hash;
-  if (!hash) return false;
-  const params = new URLSearchParams(hash.replace('#','?'));
-  const token = params.get('access_token');
-  const state = params.get('state');
-  if (!token) return false;
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce',
+  },
+});
 
-  // Clear the hash from the URL
-  history.replaceState(null, '', location.pathname);
+let currentUser = null;
 
-  // Restore user from state
-  try {
-    const savedUser = JSON.parse(decodeURIComponent(state || ''));
-    if (savedUser && ALLOWED_EMAILS.includes(savedUser.email)) {
-      currentUser = savedUser;
-      oauthToken = token;
-      sessionStorage.setItem('spoteasy_user', JSON.stringify(currentUser));
-      sessionStorage.setItem('spoteasy_token', token);
-      return true;
-    }
-  } catch(e) {}
-  return false;
-}
-
-function startOAuthFlow() {
-  if (!GOOGLE_CLIENT_ID) { showClientIdSetup(); return; }
-  // Save any pending user info from the ID token step into state param
-  const state = encodeURIComponent(sessionStorage.getItem('spoteasy_pending_user') || '{}');
-  const params = new URLSearchParams({
-    client_id: GOOGLE_CLIENT_ID,
-    redirect_uri: REDIRECT_URI,
-    response_type: 'token',
-    scope: 'https://www.googleapis.com/auth/spreadsheets openid email profile',
-    state: state,
-    prompt: 'select_account'
+async function startOAuthFlow() {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: location.origin + location.pathname },
   });
-  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
+  if (error) showToast('Sign-in failed: ' + error.message, 'error');
 }
 
-function showClientIdSetup() {
-  document.getElementById('loginSetupBox').style.display = 'flex';
-  document.getElementById('loginSignInBox').style.display = 'none';
-  const saved = localStorage.getItem('spoteasy_client_id') || '';
-  if (saved) document.getElementById('loginClientIdInput').value = saved;
-}
+// Called on page load and after OAuth redirect lands back here.
+async function verifyAndLogin() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return false;
 
-function saveClientIdFromLogin() {
-  const id = document.getElementById('loginClientIdInput').value.trim();
-  if (!id) { alert('Please paste your Client ID first.'); return; }
-  localStorage.setItem('spoteasy_client_id', id);
-  location.reload();
-}
+  const email = session.user.email;
+  // Allowlist check via RLS — the query returns 0 rows if email isn't in allowed_users.
+  const { data: allowed, error } = await sb
+    .from('allowed_users')
+    .select('email, full_name')
+    .eq('email', email)
+    .maybeSingle();
 
-function saveClientIdFromSettings() {
-  const id = document.getElementById('clientIdInput').value.trim();
-  if (!id) return;
-  localStorage.setItem('spoteasy_client_id', id);
-  showToast('Saved — reloading...', 'success');
-  setTimeout(() => location.reload(), 900);
-}
-
-// Called when returning from OAuth with a token — verify email via tokeninfo
-async function verifyAndLogin(token) {
-  try {
-    const res = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`);
-    const info = await res.json();
-    if (!info.email || !ALLOWED_EMAILS.includes(info.email)) {
-      document.getElementById('loginError').style.display = 'block';
-      document.getElementById('loginOverlay').style.display = 'flex';
-      document.getElementById('loginSetupBox').style.display = 'none';
-      document.getElementById('loginSignInBox').style.display = 'flex';
-      oauthToken = null;
-      return;
-    }
-    currentUser = {
-      name: info.name || info.email.split('@')[0],
-      email: info.email,
-      picture: info.picture || '',
-      initial: (info.name || info.email)[0].toUpperCase()
-    };
-    oauthToken = token;
-    sessionStorage.setItem('spoteasy_user', JSON.stringify(currentUser));
-    sessionStorage.setItem('spoteasy_token', token);
-    document.getElementById('loginOverlay').style.display = 'none';
-    updateUserBadge();
-    if (SHEET_ID) { await loadLeads(); maybeTriggerBriefing(); } else document.getElementById('missingBanner').style.display = 'flex';
-    startPresence();
-  } catch(e) {
-    showToast('Auth failed — please try again', 'error');
+  if (error || !allowed) {
+    await sb.auth.signOut();
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('loginSignInBox').style.display = 'flex';
+    return false;
   }
+
+  const meta = session.user.user_metadata || {};
+  currentUser = {
+    name: allowed.full_name || meta.full_name || email,
+    email,
+    picture: meta.avatar_url || '',
+    initial: (allowed.full_name || email)[0].toUpperCase(),
+  };
+  document.getElementById('loginOverlay').style.display = 'none';
+  updateUserBadge();
+  await loadLeads();
+  maybeTriggerBriefing();
+  startPresence();
+  return true;
 }
 
-function switchUser() {
+async function switchUser() {
   if (!confirm('Sign out?')) return;
-  clearPresence();
+  await clearPresence();
   stopPresence();
-  currentUser = null; oauthToken = null;
-  sessionStorage.removeItem('spoteasy_user');
-  sessionStorage.removeItem('spoteasy_token');
+  await sb.auth.signOut();
+  currentUser = null;
   document.getElementById('loginOverlay').style.display = 'flex';
-  document.getElementById('loginSetupBox').style.display = 'none';
   document.getElementById('loginSignInBox').style.display = 'flex';
   document.getElementById('userBadge').style.display = 'none';
 }
@@ -862,23 +793,56 @@ function updateUserBadge() {
   document.getElementById('userBadge').style.display = 'flex';
 }
 
-function ensureToken() {
-  return new Promise((resolve, reject) => {
-    if (oauthToken) { resolve(oauthToken); return; }
-    reject(new Error('Not authenticated — please sign in again'));
-  });
-}
+// Auto-handle session expiry (e.g. user revoked access in Google).
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+    showToast('Session expired — please sign in again', 'error');
+    setTimeout(() => {
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('loginSignInBox').style.display = 'flex';
+      document.getElementById('userBadge').style.display = 'none';
+    }, 1200);
+  }
+});
 
 // ============================================================
 // CONFIG & STATE
 // ============================================================
-let SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
-const SHEET_NAME = 'Sheet1';
 const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastMessageSent','lastUpdated','notes','addedBy'];
+// Maps in-memory lead-object keys → public.leads DB columns.
+const COLUMN_DB_MAP = {
+  businessName:    'business_name',
+  businessType:    'business_type',
+  url:             'url',
+  firstName:       'first_name',
+  location:        'location',
+  domainRating:    'domain_rating',
+  instagram:       'instagram',
+  pipelineStage:   'pipeline_stage',
+  lastMessageSent: 'last_message_sent',
+  lastUpdated:     'last_updated',
+  notes:           'notes',
+  addedBy:         'added_by_email',
+};
 const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Push Ad Live','Backlink Required','Backlink Acquired','On Hold','No Response','Declined Offer'];
 const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Push Ad Live':'orange','Backlink Required':'red','Backlink Acquired':'green','On Hold':'yellow','No Response':'gray','Declined Offer':'red' };
 
-let leads = [], currentTab = 'all', editingRow = null, sortCol = null, sortDir = 1, _modalSnapshot = null;
+let leads = [], currentTab = 'all', editingId = null, sortCol = null, sortDir = 1, _modalSnapshot = null;
+
+// Convert a DB row → in-memory lead object the UI expects.
+function rowFromDb(r) {
+  const obj = { _id: r.id };
+  for (const [ui, db] of Object.entries(COLUMN_DB_MAP)) obj[ui] = r[db] || '';
+  return obj;
+}
+// Convert an in-memory lead object → DB row payload (for insert/update).
+function dbFromLead(lead) {
+  const out = {};
+  for (const [ui, db] of Object.entries(COLUMN_DB_MAP)) {
+    if (ui in lead) out[db] = lead[ui] || null;
+  }
+  return out;
+}
 
 function getBusinessTypes() {
   const s = localStorage.getItem('spoteasy_business_types');
@@ -890,48 +854,18 @@ function saveBusinessTypes(t) { localStorage.setItem('spoteasy_business_types', 
 // INIT
 // ============================================================
 window.onload = async () => {
-  SHEET_ID = localStorage.getItem('spoteasy_sheet_id') || '';
-  if (SHEET_ID) document.getElementById('sheetIdInput').value = SHEET_ID;
-  const cid = localStorage.getItem('spoteasy_client_id') || '';
-  if (cid) document.getElementById('clientIdInput').value = cid;
   const wh = localStorage.getItem('spoteasy_slack_webhook') || '';
   if (wh) document.getElementById('slackWebhookInput').value = wh;
-
-  // Check if returning from OAuth redirect (token in URL hash)
-  const hash = window.location.hash;
-  if (hash && hash.includes('access_token')) {
-    const params = new URLSearchParams(hash.substring(1));
-    const token = params.get('access_token');
-    history.replaceState(null, '', location.pathname);
-    if (token) { await verifyAndLogin(token); return; }
-  }
-
-  // Restore session
-  const savedUser = sessionStorage.getItem('spoteasy_user');
-  const savedToken = sessionStorage.getItem('spoteasy_token');
-  if (savedUser && savedToken) {
-    try {
-      currentUser = JSON.parse(savedUser);
-      oauthToken = savedToken;
-      document.getElementById('loginOverlay').style.display = 'none';
-      updateUserBadge();
-      if (SHEET_ID) { await loadLeads(); maybeTriggerBriefing(); } else document.getElementById('missingBanner').style.display = 'flex';
-      renderTeamList(); renderTypeChips(); populateBusinessTypeDropdown();
-      startPresence();
-      return;
-    } catch(e) { currentUser = null; oauthToken = null; }
-  }
-
-  // Not logged in
-  document.getElementById('loginOverlay').style.display = 'flex';
-  if (GOOGLE_CLIENT_ID) {
-    document.getElementById('loginSetupBox').style.display = 'none';
-    document.getElementById('loginSignInBox').style.display = 'flex';
-  } else {
-    document.getElementById('loginSetupBox').style.display = 'flex';
-    document.getElementById('loginSignInBox').style.display = 'none';
-  }
   renderTeamList(); renderTypeChips(); populateBusinessTypeDropdown();
+
+  // supabase-js parses the OAuth callback from the URL automatically
+  // (detectSessionInUrl: true). After it's done, getSession() returns
+  // a session if the user is signed in.
+  const ok = await verifyAndLogin();
+  if (!ok) {
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('loginSignInBox').style.display = 'flex';
+  }
 };
 
 // ============================================================
@@ -947,30 +881,19 @@ function switchTab(tab) {
 }
 
 // ============================================================
-// SHEETS API
+// SUPABASE DATA LAYER (replaces Sheets API)
 // ============================================================
-function connectSheet() {
-  SHEET_ID = document.getElementById('sheetIdInput').value.trim();
-  if (!SHEET_ID) { showToast('Please enter a Sheet ID', 'error'); return; }
-  localStorage.setItem('spoteasy_sheet_id', SHEET_ID);
-  document.getElementById('missingBanner').style.display = 'none';
-  loadLeads();
-}
-
 async function loadLeads() {
   setStatus('loading');
   document.getElementById('loadingAll').style.display = 'flex';
   document.getElementById('tableAll').innerHTML = '';
   try {
-    const token = await ensureToken();
-    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}`, { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) throw new Error('Fetch failed');
-    const data = await res.json();
-    leads = (data.values || []).slice(1).map((row, i) => {
-      const obj = { _row: i + 2 };
-      COLUMNS.forEach((col, ci) => { obj[col] = row[ci] || ''; });
-      return obj;
-    });
+    const { data, error } = await sb
+      .from('leads')
+      .select('*')
+      .order('updated_at', { ascending: false });
+    if (error) throw error;
+    leads = (data || []).map(rowFromDb);
     setStatus('connected');
     populateLocationFilter(); updateStats(); renderAll(); renderPipeline();
     document.getElementById('statsRow').style.display = 'flex';
@@ -979,67 +902,32 @@ async function loadLeads() {
   } catch(e) {
     setStatus('error');
     document.getElementById('loadingAll').style.display = 'none';
-    showToast('Failed to load sheet. Check your Sheet ID.', 'error');
+    showToast('Failed to load leads: ' + (e.message || ''), 'error');
   }
 }
 
-function handleAuthError() {
-  oauthToken = null;
-  sessionStorage.removeItem('spoteasy_token');
-  showToast('Session expired — please sign in again', 'error');
-  setTimeout(() => {
-    document.getElementById('loginOverlay').style.display = 'flex';
-    document.getElementById('loginSetupBox').style.display = 'none';
-    document.getElementById('loginSignInBox').style.display = 'flex';
-    document.getElementById('userBadge').style.display = 'none';
-  }, 1200);
-}
-
-async function writeRow(rowNum, values) {
-  const token = await ensureToken();
-  const range = `${SHEET_NAME}!A${rowNum}:L${rowNum}`;
-  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ values: [values] })
-  });
-  if (!res.ok) {
-    const e = await res.json();
-    if (res.status === 401) { handleAuthError(); throw new Error('SESSION_EXPIRED'); }
-    throw new Error(e.error?.message || 'Write failed');
+// Save a lead. INSERTs if uiRow has no _id, UPDATEs otherwise.
+// Returns the saved row in UI shape (with _id populated).
+async function saveLeadRow(uiRow) {
+  const payload = dbFromLead(uiRow);
+  payload.last_updated = new Date().toISOString();
+  if (uiRow._id) {
+    const { data, error } = await sb
+      .from('leads').update(payload).eq('id', uiRow._id).select().single();
+    if (error) throw error;
+    return rowFromDb(data);
+  } else {
+    payload.added_by_email = currentUser?.email || null;
+    const { data, error } = await sb
+      .from('leads').insert(payload).select().single();
+    if (error) throw error;
+    return rowFromDb(data);
   }
 }
 
-async function appendRow(values) {
-  const token = await ensureToken();
-  const range = `${SHEET_NAME}!A:L`;
-  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ values: [values] })
-  });
-  if (!res.ok) {
-    const e = await res.json();
-    if (res.status === 401) { handleAuthError(); throw new Error('SESSION_EXPIRED'); }
-    throw new Error(e.error?.message || 'Append failed');
-  }
-}
-
-async function deleteRow(rowNum) {
-  const token = await ensureToken();
-  const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`, { headers: { Authorization: `Bearer ${token}` } });
-  if (!metaRes.ok) {
-    if (metaRes.status === 401) { handleAuthError(); throw new Error('SESSION_EXPIRED'); }
-    throw new Error('Delete failed');
-  }
-  const meta = await metaRes.json();
-  const sheetId = meta.sheets[0].properties.sheetId;
-  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ requests: [{ deleteDimension: { range: { sheetId, dimension: 'ROWS', startIndex: rowNum-1, endIndex: rowNum } } }] })
-  });
-  if (!res.ok) {
-    if (res.status === 401) { handleAuthError(); throw new Error('SESSION_EXPIRED'); }
-    throw new Error('Delete failed');
-  }
+async function deleteLeadRow(id) {
+  const { error } = await sb.from('leads').delete().eq('id', id);
+  if (error) throw error;
 }
 
 // ============================================================
@@ -1140,7 +1028,7 @@ function renderAll() {
   document.getElementById('emptyAll').classList.add('section-hidden');
   tbody.innerHTML = list.map(l => `
     <tr>
-      <td><div class="td-name" onclick="openEditModal(${l._row})">${l.businessName||'—'}</div>${renderAttributionTag(l.addedBy)}</td>
+      <td><div class="td-name" onclick="openEditModal('${l._id}')">${l.businessName||'—'}</div>${renderAttributionTag(l.addedBy)}</td>
       <td>${l.businessType||'—'}</td>
       <td>${l.location||'—'}</td>
       <td>${drCell(l.domainRating)}</td>
@@ -1149,8 +1037,8 @@ function renderAll() {
       <td style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace">${l.lastMessageSent||'—'}</td>
       <td style="font-size:12px;font-family:'DM Mono',monospace">${l.lastUpdated||'—'}</td>
       <td><div class="row-actions">
-        <div class="action-btn" onclick="openEditModal(${l._row})">✏</div>
-        <div class="action-btn del" onclick="quickDelete(${l._row})">🗑</div>
+        <div class="action-btn" onclick="openEditModal('${l._id}')">✏</div>
+        <div class="action-btn del" onclick="quickDelete('${l._id}')">🗑</div>
       </div></td>
     </tr>`).join('');
 }
@@ -1173,10 +1061,10 @@ function renderPipeline() {
       <div class="kanban-body">${cards.length ? cards.map(l => {
         const days = daysSince(l.lastUpdated);
         return `<div class="kanban-card" draggable="true"
-            data-row="${l._row}"
-            ondragstart="kanbanDragStart(event,${l._row})"
+            data-id="${l._id}"
+            ondragstart="kanbanDragStart(event,'${l._id}')"
             ondragend="kanbanDragEnd(event)"
-            onclick="openEditModal(${l._row})">
+            onclick="openEditModal('${l._id}')">
           <div class="kanban-card-name">${l.businessName}</div>
           <div class="kanban-card-type">${l.businessType||''}</div>
           ${(() => { const igm = l.instagram && l.instagram.match(/instagram\.com\/([^/?#]+)/); if (igm) return `<div class="kanban-card-url">@${igm[1]}</div>`; if (l.url) return `<div class="kanban-card-url">${l.url.replace(/https?:\/\//,'')}</div>`; return ''; })()}
@@ -1195,19 +1083,19 @@ function renderPipeline() {
 // ============================================================
 // KANBAN DRAG AND DROP
 // ============================================================
-let dragRow = null;
+let dragId = null;
 
-function kanbanDragStart(e, row) {
-  dragRow = row;
+function kanbanDragStart(e, id) {
+  dragId = id;
   e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', row);
+  e.dataTransfer.setData('text/plain', id);
   setTimeout(() => { if (e.target) e.target.classList.add('dragging'); }, 0);
 }
 
 function kanbanDragEnd(e) {
   if (e.target) e.target.classList.remove('dragging');
   document.querySelectorAll('.kanban-col').forEach(col => col.classList.remove('drag-over'));
-  dragRow = null;
+  dragId = null;
 }
 
 function kanbanDragOver(e) {
@@ -1227,9 +1115,9 @@ async function kanbanDrop(e, newStage) {
   e.preventDefault();
   const col = e.currentTarget;
   col.classList.remove('drag-over');
-  if (!dragRow) return;
+  if (!dragId) return;
 
-  const lead = leads.find(l => l._row === dragRow);
+  const lead = leads.find(l => l._id === dragId);
   if (!lead) return;
   if (lead.pipelineStage === newStage) return; // no change
 
@@ -1240,18 +1128,15 @@ async function kanbanDrop(e, newStage) {
   // Optimistically re-render
   renderAll(); renderPipeline(); updateStats();
 
-  // Save to Sheets
+  // Save to Supabase
   try {
-    const values = COLUMNS.map(col => lead[col] || '');
-    await writeRow(lead._row, values);
+    await saveLeadRow(lead);
     showToast(`Moved to "${newStage}"`, 'success');
   } catch(err) {
     // Roll back on failure
-    if (err.message !== 'SESSION_EXPIRED') {
-      lead.pipelineStage = oldStage;
-      renderAll(); renderPipeline(); updateStats();
-      showToast('Failed to update stage: ' + err.message, 'error');
-    }
+    lead.pipelineStage = oldStage;
+    renderAll(); renderPipeline(); updateStats();
+    showToast('Failed to update stage: ' + (err.message || ''), 'error');
   }
 }
 
@@ -1442,8 +1327,7 @@ function addNote() {
 // MODAL
 // ============================================================
 function openAddModal() {
-  if (!SHEET_ID) { switchTab('settings'); showToast('Add your Sheet ID first','error'); return; }
-  editingRow=null;
+  editingId=null;
   document.getElementById('modalTitle').textContent='Add Lead';
   document.getElementById('deleteBtn').style.display='none';
   clearForm(); populateBusinessTypeDropdown();
@@ -1451,19 +1335,19 @@ function openAddModal() {
   document.getElementById('leadModal').classList.add('open');
 }
 
-async function openEditModal(row) {
-  const lead=leads.find(l=>l._row===row); if (!lead) return;
-  editingRow=row;
+async function openEditModal(id) {
+  const lead=leads.find(l=>l._id===id); if (!lead) return;
+  editingId=id;
   document.getElementById('modalTitle').textContent='Edit Lead';
   document.getElementById('deleteBtn').style.display='flex';
   populateBusinessTypeDropdown(); fillForm(lead);
   switchModalTab('details');
   document.getElementById('leadModal').classList.add('open');
   _modalSnapshot = null;
-  _modalSnapshot = await fetchRowSnapshot(row);
+  _modalSnapshot = await fetchSnapshotById(id);
 }
 
-function closeModal() { document.getElementById('leadModal').classList.remove('open'); editingRow=null; }
+function closeModal() { document.getElementById('leadModal').classList.remove('open'); editingId=null; }
 
 function clearForm() {
   COLUMNS.forEach(col => { const el=document.getElementById(`f-${col}`); if(el) el.value=''; });
@@ -1505,8 +1389,8 @@ function getFormValues() { return COLUMNS.map(col => { const el=document.getElem
 
 async function saveLead() {
   // Conflict detection
-  if (editingRow && _modalSnapshot) {
-    const current = await fetchRowSnapshot(editingRow);
+  if (editingId && _modalSnapshot) {
+    const current = await fetchSnapshotById(editingId);
     if (current && JSON.stringify(current) !== JSON.stringify(_modalSnapshot)) {
       const go = confirm('⚠️ This lead was updated by someone else since you opened it.\n\nSave anyway and overwrite their changes?');
       if (!go) return;
@@ -1530,44 +1414,45 @@ async function saveLead() {
 
   // Auto-set Last Updated if pipeline stage OR last message sent changed
   const piIdx=COLUMNS.indexOf('pipelineStage'), luIdx=COLUMNS.indexOf('lastUpdated'), lmIdx=COLUMNS.indexOf('lastMessageSent');
-  if (editingRow) {
-    const old=leads.find(l=>l._row===editingRow);
+  if (editingId) {
+    const old=leads.find(l=>l._id===editingId);
     if (old&&(old.pipelineStage!==values[piIdx]||old.lastMessageSent!==values[lmIdx])) values[luIdx]=todayStr();
   } else if (values[piIdx]) values[luIdx]=todayStr();
 
-  // Set addedBy for new leads
-  if (!editingRow) values[COLUMNS.indexOf('addedBy')] = currentUser ? currentUser.name : '';
+  // Build the lead object from form values
+  const uiRow = editingId ? { _id: editingId } : {};
+  COLUMNS.forEach((c,i) => { uiRow[c] = values[i]; });
+  // Attribution: store the email (DB column is added_by_email and FK-references allowed_users)
+  if (!editingId) uiRow.addedBy = currentUser ? currentUser.email : null;
 
   try {
-    if (editingRow) {
-      await writeRow(editingRow, values);
-      const idx=leads.findIndex(l=>l._row===editingRow);
-      if (idx>=0) { const u={_row:editingRow}; COLUMNS.forEach((c,i)=>{u[c]=values[i];}); leads[idx]=u; }
+    const saved = await saveLeadRow(uiRow);
+    if (editingId) {
+      const idx = leads.findIndex(l => l._id === editingId);
+      if (idx >= 0) leads[idx] = saved;
       showToast('Lead updated!','success');
     } else {
-      await appendRow(values);
-      const nl={_row:leads.length+2}; COLUMNS.forEach((c,i)=>{nl[c]=values[i];}); leads.push(nl);
+      leads.push(saved);
       showToast('Lead added!','success');
     }
     closeModal(); updateStats(); populateLocationFilter(); renderAll(); renderPipeline();
-  } catch(e) { if (e.message !== 'SESSION_EXPIRED') showToast('Failed to save: '+e.message,'error'); }
+  } catch(e) { showToast('Failed to save: ' + (e.message || ''), 'error'); }
 }
 
 async function deleteLead() {
-  if (!editingRow) return;
+  if (!editingId) return;
   if (!confirm('Delete this lead? This cannot be undone.')) return;
   try {
-    await deleteRow(editingRow);
-    leads=leads.filter(l=>l._row!==editingRow);
-    leads.forEach((l,i)=>{l._row=i+2;});
+    await deleteLeadRow(editingId);
+    leads = leads.filter(l => l._id !== editingId);
     closeModal(); updateStats(); renderAll(); renderPipeline();
     showToast('Lead deleted','success');
-  } catch(e) { if (e.message !== 'SESSION_EXPIRED') showToast('Failed to delete: '+e.message,'error'); }
+  } catch(e) { showToast('Failed to delete: ' + (e.message || ''), 'error'); }
 }
 
-async function quickDelete(row) {
+async function quickDelete(id) {
   if (!confirm('Delete this lead?')) return;
-  editingRow=row; await deleteLead(); editingRow=null;
+  editingId=id; await deleteLead(); editingId=null;
 }
 
 function showToast(msg, type='success') {
@@ -1831,7 +1716,7 @@ function mockupPopulateLeadSelect() {
   [...leads].sort((a,b) => (a.businessName||'').localeCompare(b.businessName||'')).forEach(l => {
     if (!l.businessName) return;
     const o = document.createElement('option');
-    o.value = l._row;
+    o.value = l._id;
     o.textContent = l.businessName + (l.location ? ` — ${l.location}` : '');
     sel.appendChild(o);
   });
@@ -1839,9 +1724,9 @@ function mockupPopulateLeadSelect() {
 }
 
 function mockupFillFromLead() {
-  const row = parseInt(document.getElementById('mu-lead-select').value);
-  if (!row) return;
-  const lead = leads.find(l => l._row === row);
+  const id = document.getElementById('mu-lead-select').value;
+  if (!id) return;
+  const lead = leads.find(l => l._id === id);
   if (!lead) return;
   document.getElementById('mu-biz-name').value = lead.businessName || '';
   document.getElementById('mu-biz-addr').value = lead.url || '';
@@ -1921,63 +1806,48 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('leadModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 
 // ============================================================
-// PRESENCE — write/read _presence tab in Google Sheets
+// PRESENCE — Supabase `presence` table + Realtime
 // ============================================================
-const PRESENCE_SHEET = '_presence';
-const PRESENCE_INTERVAL = 90000; // 90 seconds
-const PRESENCE_TTL = 5 * 60 * 1000; // 5 minutes
+const PRESENCE_INTERVAL = 90000;             // 90s heartbeat
+const PRESENCE_TTL_MS = 5 * 60 * 1000;       // online if seen within 5 min
 let presenceTimer = null;
+let presenceChannel = null;
+let leadsChannel = null;
 
 async function writePresence() {
-  if (!oauthToken || !SHEET_ID || !currentUser) return;
+  if (!currentUser) return;
   try {
-    const token = await ensureToken();
-    // Each user writes to their own fixed row: greg=row1, sanket=row2, others=row3
-    const rowMap = { 'greg@spoteasy.com': 1, 'sanket@spoteasy.com': 2 };
-    const row = rowMap[currentUser.email] || 3;
-    const payload = JSON.stringify({ name: currentUser.name, email: currentUser.email, ts: Date.now() });
-    const range = `${PRESENCE_SHEET}!A${row}`;
-    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ values: [[payload]] })
+    await sb.from('presence').upsert({
+      email: currentUser.email,
+      full_name: currentUser.name,
+      last_seen: new Date().toISOString(),
     });
   } catch(e) { /* silent — presence is non-critical */ }
 }
 
 async function clearPresence() {
-  if (!oauthToken || !SHEET_ID || !currentUser) return;
+  if (!currentUser) return;
   try {
-    const token = await ensureToken();
-    const rowMap = { 'greg@spoteasy.com': 1, 'sanket@spoteasy.com': 2 };
-    const row = rowMap[currentUser.email] || 3;
-    const range = `${PRESENCE_SHEET}!A${row}`;
-    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ values: [['']] })
-    });
+    await sb.from('presence').delete().eq('email', currentUser.email);
   } catch(e) { /* silent */ }
 }
 
 async function pollPresence() {
-  if (!oauthToken || !SHEET_ID || !currentUser) return;
+  if (!currentUser) return;
   try {
-    const token = await ensureToken();
-    const range = `${PRESENCE_SHEET}!A1:A3`;
-    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    const rows = data.values || [];
+    const { data, error } = await sb
+      .from('presence')
+      .select('full_name, email, last_seen');
+    if (error) return;
     const now = Date.now();
-    const others = rows
-      .map(r => { try { return JSON.parse(r[0]); } catch(e) { return null; } })
-      .filter(p => p && p.email && p.email !== currentUser.email && (now - p.ts) < PRESENCE_TTL);
-
+    const others = (data || []).filter(p =>
+      p.email !== currentUser.email &&
+      (now - new Date(p.last_seen).getTime()) < PRESENCE_TTL_MS
+    );
     const pill = document.getElementById('presencePill');
     const nameEl = document.getElementById('presenceName');
     if (others.length > 0) {
-      const names = others.map(p => p.name.split(' ')[0]).join(' & ');
+      const names = others.map(p => (p.full_name || p.email).split(' ')[0]).join(' & ');
       nameEl.textContent = `${names} is online`;
       pill.style.display = 'flex';
     } else {
@@ -1989,6 +1859,23 @@ async function pollPresence() {
 function startPresence() {
   writePresence();
   pollPresence();
+
+  // Realtime: instant pill update when the other user upserts.
+  presenceChannel = sb
+    .channel('presence-watch')
+    .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'presence' },
+        () => pollPresence())
+    .subscribe();
+
+  // Realtime: instant lead refresh when anyone edits a lead.
+  leadsChannel = sb
+    .channel('leads-watch')
+    .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'leads' },
+        () => silentRefreshLeads())
+    .subscribe();
+
   presenceTimer = setInterval(() => {
     writePresence();
     pollPresence();
@@ -1998,47 +1885,39 @@ function startPresence() {
 
 function stopPresence() {
   if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
+  if (presenceChannel) { sb.removeChannel(presenceChannel); presenceChannel = null; }
+  if (leadsChannel) { sb.removeChannel(leadsChannel); leadsChannel = null; }
   document.getElementById('presencePill').style.display = 'none';
 }
 
 // ============================================================
-// AUTO-REFRESH — silent background reload every 90s
+// AUTO-REFRESH — silent background reload (Realtime triggers + 90s heartbeat)
 // ============================================================
 async function silentRefreshLeads() {
-  if (!oauthToken || !SHEET_ID) return;
+  if (!currentUser) return;
   // Don't refresh if a modal is open
   if (document.getElementById('leadModal').classList.contains('open')) return;
   try {
-    const token = await ensureToken();
-    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    const fresh = (data.values || []).slice(1).map((row, i) => {
-      const obj = { _row: i + 2 };
-      COLUMNS.forEach((col, ci) => { obj[col] = row[ci] || ''; });
-      return obj;
-    });
-    leads = fresh;
+    const { data, error } = await sb
+      .from('leads')
+      .select('*')
+      .order('updated_at', { ascending: false });
+    if (error) return;
+    leads = (data || []).map(rowFromDb);
     populateLocationFilter(); updateStats(); renderAll(); renderPipeline();
   } catch(e) { /* silent */ }
 }
 
 // ============================================================
-// CONFLICT DETECTION — snapshot row data when modal opens
+// CONFLICT DETECTION — snapshot a single lead by id
 // ============================================================
-async function fetchRowSnapshot(rowNum) {
-  if (!oauthToken || !SHEET_ID) return null;
+async function fetchSnapshotById(id) {
+  if (!currentUser || !id) return null;
   try {
-    const token = await ensureToken();
-    const range = `${SHEET_NAME}!A${rowNum}:L${rowNum}`;
-    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return (data.values || [[]])[0] || [];
+    const { data, error } = await sb
+      .from('leads').select('*').eq('id', id).single();
+    if (error) return null;
+    return rowFromDb(data);
   } catch(e) { return null; }
 }
 
