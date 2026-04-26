@@ -997,8 +997,11 @@ function sortBy(col) { if (sortCol===col) sortDir*=-1; else { sortCol=col; sortD
 
 function renderAttributionTag(addedBy) {
   if (!addedBy) return '';
-  const c = addedBy.toLowerCase().includes('greg') ? 'greg' : addedBy.toLowerCase().includes('sanket') ? 'sanket' : '';
-  return `<div class="attr-tag ${c}">✏ ${addedBy}</div>`;
+  const lower = addedBy.toLowerCase();
+  const c = lower.includes('greg') ? 'greg' : lower.includes('sanket') ? 'sanket' : '';
+  // If it's an email, show only the local part (before @); otherwise show the raw value.
+  const display = addedBy.includes('@') ? addedBy.split('@')[0] : addedBy;
+  return `<div class="attr-tag ${c}">✏ ${display}</div>`;
 }
 
 // ============================================================
