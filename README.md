@@ -8,10 +8,10 @@ https://greglee722.github.io/spoteasy-crm/
 
 ## Architecture
 
-- **Frontend:** single `index.html` — HTML + CSS + JS in one file (plus `logo.png`)
-- **Database:** Google Sheets (Sheets API v4)
+- **Frontend:** single `index.html` — HTML + CSS + JS in one file (plus `logo.png`), using `supabase-js` from CDN
+- **Database:** Supabase Postgres
 - **Hosting:** GitHub Pages (static)
-- **Auth:** Google OAuth 2.0 (Google Identity Services), restricted to the SpotEasy team via an email allowlist
+- **Auth:** Google OAuth via Supabase Auth (PKCE flow), restricted to the SpotEasy team via an email allowlist enforced by Row-Level Security
 
 ## Deployment
 
