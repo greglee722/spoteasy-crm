@@ -250,6 +250,20 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 .toast.success { background:#1a2e3d; color:#fff; }
 .toast.error { background:var(--red); color:#fff; }
 
+/* CSV IMPORT */
+.csv-overlay { position:fixed; inset:0; background:rgba(10,37,64,0.65); display:flex; align-items:center; justify-content:center; z-index:3000; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+.csv-overlay.open { opacity:1; pointer-events:all; }
+.csv-modal { background:var(--surface); border:1px solid var(--border); border-radius:14px; width:92%; max-width:760px; max-height:90vh; overflow-y:auto; transform:translateY(10px); transition:transform 0.2s; box-shadow:0 16px 60px rgba(0,0,0,0.14); }
+.csv-overlay.open .csv-modal { transform:translateY(0); }
+.csv-map-table { width:100%; border-collapse:collapse; }
+.csv-map-table th { padding:8px 14px; text-align:left; font-size:11px; font-weight:800; color:var(--text3); letter-spacing:0.06em; text-transform:uppercase; font-family:'DM Mono',monospace; border-bottom:1px solid var(--border); }
+.csv-map-table td { padding:9px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.csv-map-table tr:last-child td { border-bottom:none; }
+.csv-col-header { font-weight:700; color:var(--text); font-family:'DM Mono',monospace; font-size:12px; }
+.csv-sample { color:var(--text3); font-size:11px; font-family:'DM Mono',monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; display:block; }
+.csv-map-select { background:var(--surface2); border:1px solid var(--border); color:var(--text2); padding:6px 10px; border-radius:7px; font-family:'Mulish',sans-serif; font-size:12px; font-weight:600; outline:none; width:100%; cursor:pointer; }
+.csv-map-select.mapped { border-color:var(--accent); background:rgba(0,172,238,0.06); color:var(--text); }
+
 /* DAILY BRIEFING MODAL */
 .briefing-overlay { position:fixed; inset:0; background:rgba(10,37,64,0.7); display:flex; align-items:center; justify-content:center; z-index:2000; opacity:0; pointer-events:none; transition:opacity 0.2s; }
 .briefing-overlay.open { opacity:1; pointer-events:all; }
@@ -301,7 +315,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.0</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.1</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -354,7 +368,10 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         </select>
         <span class="count-badge" id="countAll">0</span>
       </div>
-      <button class="btn btn-primary" onclick="openAddModal()">+ Add Lead</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" onclick="openCsvUpload()">⬆ Upload CSV</button>
+        <button class="btn btn-primary" onclick="openAddModal()">+ Add Lead</button>
+      </div>
     </div>
     <div class="table-wrap">
       <table>
@@ -711,6 +728,23 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 </div>
 
 <div class="toast" id="toast"></div>
+
+<input type="file" id="csvFileInput" accept=".csv" style="display:none">
+
+<!-- CSV IMPORT MODAL -->
+<div class="csv-overlay" id="csvMapModal">
+  <div class="csv-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="csvModalTitle">Import CSV</div>
+      <button class="modal-close" onclick="closeCsvMapper()">✕</button>
+    </div>
+    <div class="modal-body" id="csvMapBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeCsvMapper()">Cancel</button>
+      <button class="btn btn-primary" id="csvImportBtn" onclick="confirmCsvImport()">Import</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ============================================================
@@ -2114,6 +2148,189 @@ async function sendBriefingToSlack() {
 
 // Close briefing on backdrop click
 document.getElementById('briefingModal').addEventListener('click', function(e){ if(e.target===this) closeBriefing(); });
+
+// ============================================================
+// CSV IMPORT
+// ============================================================
+
+const CSV_FIELD_LABELS = {
+  businessName:    'Business Name ★',
+  businessType:    'Business Type',
+  url:             'Website URL',
+  firstName:       'First Name',
+  location:        'Location',
+  domainRating:    'Domain Rating',
+  instagram:       'Instagram',
+  pipelineStage:   'Pipeline Stage',
+  lastMessageSent: 'Last Message Sent',
+  notes:           'Notes',
+};
+
+const CSV_HEADER_ALIASES = {
+  business_name:'businessName', business:'businessName', name:'businessName', company:'businessName', company_name:'businessName',
+  business_type:'businessType', type:'businessType', category:'businessType',
+  url:'url', website:'url', web:'url', link:'url', site:'url',
+  first_name:'firstName', first:'firstName', contact:'firstName', contact_name:'firstName', person:'firstName',
+  location:'location', city:'location', area:'location', neighborhood:'location',
+  domain_rating:'domainRating', dr:'domainRating', ahrefs_dr:'domainRating',
+  instagram:'instagram', ig:'instagram', instagram_handle:'instagram',
+  pipeline_stage:'pipelineStage', stage:'pipelineStage', status:'pipelineStage',
+  last_message_sent:'lastMessageSent', last_message:'lastMessageSent', message_sent:'lastMessageSent', template:'lastMessageSent',
+  notes:'notes', note:'notes', comments:'notes', comment:'notes',
+};
+
+let _csvRows = [];
+
+function openCsvUpload() {
+  document.getElementById('csvFileInput').value = '';
+  document.getElementById('csvFileInput').click();
+}
+
+document.getElementById('csvFileInput').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const { headers, rows } = parseCsvText(e.target.result);
+      if (!headers.length || !rows.length) { showToast('CSV is empty or unreadable', 'error'); return; }
+      _csvRows = rows;
+      showCsvMapper(headers, rows);
+    } catch(err) {
+      showToast('Failed to parse CSV: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+});
+
+function parseCsvText(text) {
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
+  if (lines.length < 2) return { headers:[], rows:[] };
+  function parseLine(line) {
+    const out = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { if (inQ && line[i+1]==='"') { cur+='"'; i++; } else inQ=!inQ; }
+      else if (ch === ',' && !inQ) { out.push(cur.trim()); cur=''; }
+      else cur+=ch;
+    }
+    out.push(cur.trim());
+    return out;
+  }
+  const headers = parseLine(lines[0]);
+  const rows = lines.slice(1).map(l => {
+    const vals = parseLine(l);
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = (vals[i]||'').trim());
+    return obj;
+  }).filter(r => headers.some(h => r[h] !== ''));
+  return { headers, rows };
+}
+
+function csvEsc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showCsvMapper(headers, rows) {
+  document.getElementById('csvModalTitle').textContent = 'Map Columns — ' + rows.length + ' row' + (rows.length!==1?'s':'') + ' detected';
+  const sampleRows = rows.slice(0,3);
+  const fieldOptions = Object.entries(CSV_FIELD_LABELS).map(([k,v]) => '<option value="' + k + '">' + v + '</option>').join('');
+
+  const tableRows = headers.map((h,idx) => {
+    const normalized = h.toLowerCase().replace(/[\s\-]+/g,'_');
+    const autoField = CSV_HEADER_ALIASES[normalized] || '';
+    const samples = sampleRows.map(r => r[h]||'').filter(Boolean).slice(0,2).join(', ');
+    const mappedClass = autoField ? ' mapped' : '';
+    return '<tr>' +
+      '<td><span class="csv-col-header">' + csvEsc(h) + '</span></td>' +
+      '<td><span class="csv-sample">' + (samples ? csvEsc(samples) : '<em style="color:var(--text3)">empty</em>') + '</span></td>' +
+      '<td><select class="csv-map-select' + mappedClass + '" id="csv-map-' + idx + '" onchange="this.classList.toggle(\'mapped\',this.value!==\'\')">' +
+        '<option value="">— Skip —</option>' + fieldOptions +
+      '</select></td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('csvMapBody').innerHTML =
+    '<p style="font-size:13px;color:var(--text2);margin-bottom:16px">Review the detected columns below and confirm the mapping to CRM fields. Auto-detected fields are highlighted. <strong>Business Name</strong> is required.</p>' +
+    '<div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">' +
+      '<table class="csv-map-table"><thead><tr>' +
+        '<th>CSV Column</th><th>Sample Data</th><th>Maps To CRM Field</th>' +
+      '</tr></thead><tbody>' + tableRows + '</tbody></table>' +
+    '</div>';
+
+  // Apply auto-detected values after innerHTML is set
+  headers.forEach((h,idx) => {
+    const normalized = h.toLowerCase().replace(/[\s\-]+/g,'_');
+    const autoField = CSV_HEADER_ALIASES[normalized] || '';
+    if (autoField) {
+      const sel = document.getElementById('csv-map-'+idx);
+      if (sel) sel.value = autoField;
+    }
+  });
+
+  document.getElementById('csvImportBtn').textContent = 'Import ' + rows.length + ' Lead' + (rows.length!==1?'s':'');
+  document.getElementById('csvImportBtn').disabled = false;
+  document.getElementById('csvMapModal').classList.add('open');
+}
+
+function closeCsvMapper() {
+  document.getElementById('csvMapModal').classList.remove('open');
+  _csvRows = [];
+}
+
+async function confirmCsvImport() {
+  if (!_csvRows.length) return;
+  const headers = Object.keys(_csvRows[0]);
+  const mapping = {};
+  headers.forEach((h,idx) => {
+    const sel = document.getElementById('csv-map-'+idx);
+    if (sel && sel.value) mapping[h] = sel.value;
+  });
+
+  if (!Object.values(mapping).includes('businessName')) {
+    showToast('Please map a column to Business Name before importing', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('csvImportBtn');
+  btn.textContent = 'Importing...';
+  btn.disabled = true;
+
+  const dbRows = [];
+  const skipped = [];
+  _csvRows.forEach((row,i) => {
+    const uiObj = {};
+    for (const [csvCol, crmField] of Object.entries(mapping)) uiObj[crmField] = (row[csvCol]||'').trim();
+    if (!uiObj.businessName) { skipped.push(i+2); return; }
+    if (uiObj.pipelineStage && !PIPELINE_STAGES.includes(uiObj.pipelineStage)) uiObj.pipelineStage = 'Opportunity';
+    if (!uiObj.pipelineStage) uiObj.pipelineStage = 'Opportunity';
+    const dbRow = dbFromLead(uiObj);
+    dbRow.added_by_email = currentUser.email;
+    dbRows.push(dbRow);
+  });
+
+  if (!dbRows.length) {
+    showToast('No valid rows — Business Name was empty in every row', 'error');
+    btn.textContent = 'Import ' + _csvRows.length + ' Lead' + (_csvRows.length!==1?'s':'');
+    btn.disabled = false;
+    return;
+  }
+
+  try {
+    const { error } = await sb.from('leads').insert(dbRows);
+    if (error) throw error;
+    await loadLeads();
+    closeCsvMapper();
+    const skipMsg = skipped.length ? ' (' + skipped.length + ' row' + (skipped.length>1?'s':'') + ' skipped — no Business Name)' : '';
+    showToast('Imported ' + dbRows.length + ' lead' + (dbRows.length!==1?'s':'') + skipMsg, 'success');
+  } catch(e) {
+    showToast('Import failed: ' + e.message, 'error');
+    btn.textContent = 'Import ' + _csvRows.length + ' Lead' + (_csvRows.length!==1?'s':'');
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('csvMapModal').addEventListener('click', function(e){ if(e.target===this) closeCsvMapper(); });
 
 </script>
 </body>
