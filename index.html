@@ -315,7 +315,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.1</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.2</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -1656,7 +1656,10 @@ It's very easy to set up, and you could be live in just a few days, starting to 
   },
 
   '3rd-template': (lead) => {
-    return `Awesome! We're excited to get you featured. Your business is now live on our platform and renters can start discovering you right away for listings in [neighborhood link].
+    const neighborhoodLink = lead.location
+      ? `https://www.spoteasy.com/${lead.location.trim().toLowerCase().replace(/\s+/g, '-')}-apartments`
+      : 'your neighborhood';
+    return `Awesome! We're excited to get you featured. Your business is now live on our platform and renters can start discovering you right away for listings in ${neighborhoodLink}.
 
 Here's what's next:
 
@@ -1668,7 +1671,10 @@ If you need anything or have questions about your listing, just let me know. I'm
   },
 
   'prompt-3a': (lead) => {
-    return `Hey! Just following up — your ad is now live on listings in [neighborhood link].
+    const neighborhoodLink = lead.location
+      ? `https://www.spoteasy.com/${lead.location.trim().toLowerCase().replace(/\s+/g, '-')}-apartments`
+      : 'your neighborhood';
+    return `Hey! Just following up — your ad is now live on listings in ${neighborhoodLink}.
 
 Have you had a chance to add that link to your site yet? No pressure if not — I know things get busy!
 
