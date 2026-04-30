@@ -86,6 +86,7 @@ body { background:var(--bg); color:var(--text); font-family:'Mulish',sans-serif;
 .stat-val.blue { color:var(--accent); }
 .stat-val.green { color:var(--green); }
 .stat-val.orange { color:var(--orange); }
+.stat-val.purple { color:var(--purple); }
 .stat-label { font-size:11px; color:var(--text3); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.05em; }
 
 /* TOOLBAR */
@@ -249,6 +250,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 .toast.show { opacity:1; transform:translateY(0); }
 .toast.success { background:#1a2e3d; color:#fff; }
 .toast.error { background:var(--red); color:#fff; }
+.toast.info  { background:var(--accent2); color:#fff; }
 
 /* CSV IMPORT */
 .csv-overlay { position:fixed; inset:0; background:rgba(10,37,64,0.65); display:flex; align-items:center; justify-content:center; z-index:3000; opacity:0; pointer-events:none; transition:opacity 0.2s; }
@@ -315,7 +317,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.3</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.4</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -347,6 +349,10 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
     <div class="stat-card"><div class="stat-val blue" id="statOpportunity">—</div><div class="stat-label">Opportunities</div></div>
     <div class="stat-card"><div class="stat-val orange" id="statActive">—</div><div class="stat-label">Active</div></div>
     <div class="stat-card"><div class="stat-val green" id="statClosed">—</div><div class="stat-label">Backlinks Acquired</div></div>
+    <div class="stat-card" id="statReminderCard" onclick="filterByReminders()" style="cursor:pointer" title="Click to filter leads with reminders set">
+      <div class="stat-val purple" id="statReminderCount">—</div>
+      <div class="stat-label">Reminders Set</div>
+    </div>
   </div>
 
   <!-- ALL LEADS -->
@@ -384,6 +390,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
           <th>Pipeline Stage</th>
           <th>Last Message Sent</th>
           <th onclick="sortBy('lastUpdated')">Last Updated ↕</th>
+          <th>Reminder</th>
           <th></th>
         </tr></thead>
         <tbody id="tableAll"></tbody>
@@ -672,6 +679,15 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
             </select>
           </div>
           <div class="form-group span2">
+            <label>🗓 Reminder Date</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="date" id="f-nextReminderDate" style="flex:1">
+              <button type="button" onclick="setNextBizDay()" class="btn btn-secondary" style="padding:7px 12px;font-size:12px;white-space:nowrap">Next Biz Day</button>
+              <button type="button" onclick="clearReminder()" class="btn btn-secondary" style="padding:7px 10px;font-size:12px" title="Clear reminder">✕</button>
+            </div>
+            <input type="text" id="f-reminderNote" placeholder="What's this reminder for? (optional)" style="margin-top:6px">
+          </div>
+          <div class="form-group span2">
             <label>📧 Prompt & Template Generator</label>
             <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px">
               <select id="promptSelect" onchange="generatePrompt()" style="flex:1">
@@ -842,7 +858,7 @@ sb.auth.onAuthStateChange((event, session) => {
 // ============================================================
 // CONFIG & STATE
 // ============================================================
-const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastMessageSent','lastUpdated','notes','addedBy'];
+const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastMessageSent','lastUpdated','notes','addedBy','nextReminderDate','reminderNote'];
 // Maps in-memory lead-object keys → public.leads DB columns.
 const COLUMN_DB_MAP = {
   businessName:    'business_name',
@@ -856,12 +872,14 @@ const COLUMN_DB_MAP = {
   lastMessageSent: 'last_message_sent',
   lastUpdated:     'last_updated',
   notes:           'notes',
-  addedBy:         'added_by_email',
+  addedBy:          'added_by_email',
+  nextReminderDate: 'next_reminder_date',
+  reminderNote:     'reminder_note',
 };
 const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Push Ad Live','Backlink Required','Backlink Acquired','On Hold','No Response','Declined Offer'];
 const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Push Ad Live':'orange','Backlink Required':'red','Backlink Acquired':'green','On Hold':'yellow','No Response':'gray','Declined Offer':'red' };
 
-let leads = [], currentTab = 'all', editingId = null, sortCol = null, sortDir = 1, _modalSnapshot = null;
+let leads = [], currentTab = 'all', editingId = null, sortCol = null, sortDir = 1, _modalSnapshot = null, reminderFilterActive = false;
 
 // Convert a DB row → in-memory lead object the UI expects.
 function rowFromDb(r) {
@@ -933,6 +951,7 @@ async function loadLeads() {
     document.getElementById('statsRow').style.display = 'flex';
     document.getElementById('loadingAll').style.display = 'none';
     showToast(`Loaded ${leads.length} leads`, 'success');
+    checkDueReminders();
   } catch(e) {
     setStatus('error');
     document.getElementById('loadingAll').style.display = 'none';
@@ -978,6 +997,10 @@ function updateStats() {
   document.getElementById('statOpportunity').textContent = leads.filter(l => l.pipelineStage === 'Opportunity').length;
   document.getElementById('statActive').textContent = leads.filter(l => ['1st Reach Out','Mock Up Required','Mock Up Sent','Push Ad Live','Backlink Required'].includes(l.pipelineStage)).length;
   document.getElementById('statClosed').textContent = leads.filter(l => l.pipelineStage === 'Backlink Acquired').length;
+  const remCount = leads.filter(l => l.nextReminderDate).length;
+  document.getElementById('statReminderCount').textContent = remCount || '—';
+  const card = document.getElementById('statReminderCard');
+  if (card) card.style.outline = reminderFilterActive ? '2px solid var(--purple)' : '';
 }
 
 function populateLocationFilter() {
@@ -1026,6 +1049,29 @@ function daysBadge(d) {
 }
 function todayStr() { return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
 
+function nextBusinessDay() {
+  const d = new Date(); d.setHours(0,0,0,0);
+  do { d.setDate(d.getDate() + 1); } while (d.getDay() === 0 || d.getDay() === 6);
+  return d.toISOString().slice(0,10);
+}
+function daysUntil(isoDate) {
+  if (!isoDate) return null;
+  const t = new Date(); t.setHours(0,0,0,0);
+  const s = new Date(isoDate + 'T00:00:00'); s.setHours(0,0,0,0);
+  return Math.floor((s - t) / 86400000);
+}
+function setNextBizDay() { document.getElementById('f-nextReminderDate').value = nextBusinessDay(); }
+function clearReminder()  { document.getElementById('f-nextReminderDate').value = ''; document.getElementById('f-reminderNote').value = ''; }
+function reminderBadgeHtml(isoDate, note) {
+  if (!isoDate) return '';
+  const n = daysUntil(isoDate);
+  const status = n < 0 ? Math.abs(n) + 'd overdue' : n === 0 ? 'Due today' : 'Due in ' + n + 'd';
+  const tooltip = (note ? status + ' — ' + note : status).replace(/"/g, '&quot;');
+  const cls = n <= 0 ? 'stale' : n <= 2 ? 'warn' : 'fresh';
+  const display = new Date(isoDate + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return '<span class="days-badge ' + cls + '" title="' + tooltip + '">🗓 ' + display + '</span>';
+}
+
 function sortBy(col) { if (sortCol===col) sortDir*=-1; else { sortCol=col; sortDir=1; } renderAll(); }
 
 function renderAttributionTag(addedBy) {
@@ -1048,6 +1094,7 @@ function filteredLeads() {
   if (q) list = list.filter(l => (l.businessName+l.location+l.businessType+l.firstName).toLowerCase().includes(q));
   if (stage) list = list.filter(l => l.pipelineStage === stage);
   if (loc) list = list.filter(l => l.location === loc);
+  if (reminderFilterActive) list = list.filter(l => l.nextReminderDate);
   if (sortCol) list.sort((a,b) => {
     let av=a[sortCol]||'', bv=b[sortCol]||'';
     if (sortCol==='domainRating') { av=parseFloat(av)||0; bv=parseFloat(bv)||0; }
@@ -1072,6 +1119,7 @@ function renderAll() {
       <td>${stagePill(l.pipelineStage)}</td>
       <td style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace">${l.lastMessageSent||'—'}</td>
       <td style="font-size:12px;font-family:'DM Mono',monospace">${l.lastUpdated||'—'}</td>
+      <td>${reminderBadgeHtml(l.nextReminderDate, l.reminderNote)}</td>
       <td><div class="row-actions">
         <div class="action-btn" onclick="openEditModal('${l._id}')">✏</div>
         <div class="action-btn del" onclick="quickDelete('${l._id}')">🗑</div>
@@ -1108,6 +1156,7 @@ function renderPipeline() {
             ${l.location?`<div class="kanban-card-meta-row"><span>📍 ${l.location}</span></div>`:''}
             ${l.lastMessageSent?`<div class="kanban-card-meta-row"><span>📧 ${l.lastMessageSent}</span></div>`:''}
             ${days!==null?`<div class="kanban-card-meta-row"><span>Updated</span>${daysBadge(days)}</div>`:''}
+            ${l.nextReminderDate ? '<div class="kanban-card-meta-row"><span>🗓 Reminder</span>' + reminderBadgeHtml(l.nextReminderDate, l.reminderNote) + '</div>' : ''}
           </div>
           ${renderAttributionTag(l.addedBy)}
         </div>`;
@@ -1491,11 +1540,11 @@ async function quickDelete(id) {
   editingId=id; await deleteLead(); editingId=null;
 }
 
-function showToast(msg, type='success') {
+function showToast(msg, type='success', duration=3000) {
   const t=document.getElementById('toast');
-  t.textContent=(type==='success'?'✓ ':'✕ ')+msg;
+  t.textContent=(type==='success'?'✓ ':type==='info'?'ℹ ':'✕ ')+msg;
   t.className=`toast ${type} show`;
-  setTimeout(()=>t.classList.remove('show'),3000);
+  setTimeout(()=>t.classList.remove('show'),duration);
 }
 
 // ============================================================
@@ -1947,7 +1996,30 @@ async function silentRefreshLeads() {
     if (error) return;
     leads = (data || []).map(rowFromDb);
     populateLocationFilter(); updateStats(); renderAll(); renderPipeline();
+    checkDueReminders();
   } catch(e) { /* silent */ }
+}
+
+// ============================================================
+// REMINDERS — filter toggle + due-today alert
+// ============================================================
+function filterByReminders() {
+  reminderFilterActive = !reminderFilterActive;
+  updateStats(); // refreshes the outline on the stat card
+  renderAll();
+}
+
+let _lastReminderAlertDay = null;
+function checkDueReminders() {
+  const due = leads.filter(l => l.nextReminderDate && daysUntil(l.nextReminderDate) <= 0);
+  if (!due.length) return;
+  const today = new Date().toDateString();
+  if (_lastReminderAlertDay === today) return; // show once per day per session
+  _lastReminderAlertDay = today;
+  const msg = due.length === 1
+    ? '1 reminder due — click "Reminders Set" to view'
+    : due.length + ' reminders due — click "Reminders Set" to view';
+  showToast(msg, 'info', 7000);
 }
 
 // ============================================================
