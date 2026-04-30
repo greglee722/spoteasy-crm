@@ -315,7 +315,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.2</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.3</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -944,7 +944,6 @@ async function loadLeads() {
 // Returns the saved row in UI shape (with _id populated).
 async function saveLeadRow(uiRow) {
   const payload = dbFromLead(uiRow);
-  payload.last_updated = new Date().toISOString();
   if (uiRow._id) {
     const { data, error } = await sb
       .from('leads').update(payload).eq('id', uiRow._id).select().single();
@@ -1019,7 +1018,7 @@ function igHandle(url) {
   return `<a href="${url}" target="_blank">@${m ? m[1] : 'ig'}</a>`;
 }
 
-function daysSince(d) { if (!d) return null; return Math.floor((new Date() - new Date(d)) / 86400000); }
+function daysSince(d) { if (!d) return null; const t=new Date(); t.setHours(0,0,0,0); const s=new Date(d); s.setHours(0,0,0,0); return Math.floor((t-s)/86400000); }
 function daysBadge(d) {
   if (d === null) return '';
   const label = d === 0 ? 'Today' : `${d}d ago`;
