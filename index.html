@@ -87,6 +87,14 @@ body { background:var(--bg); color:var(--text); font-family:'Mulish',sans-serif;
 .stat-val.green { color:var(--green); }
 .stat-val.orange { color:var(--orange); }
 .stat-val.purple { color:var(--purple); }
+
+/* Reminder highlight (toggled by clicking the Reminders Set tile) */
+body.reminders-highlighted tr[data-has-reminder]    { background:rgba(124,92,191,0.06); }
+body.reminders-highlighted tr[data-has-reminder] td:first-child { box-shadow:inset 3px 0 0 var(--purple); }
+body.reminders-highlighted .kanban-card[data-has-reminder] {
+  border-left:3px solid var(--purple);
+  background:rgba(124,92,191,0.04);
+}
 .stat-label { font-size:11px; color:var(--text3); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.05em; }
 
 /* TOOLBAR */
@@ -317,7 +325,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.4</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.5</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -349,7 +357,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
     <div class="stat-card"><div class="stat-val blue" id="statOpportunity">—</div><div class="stat-label">Opportunities</div></div>
     <div class="stat-card"><div class="stat-val orange" id="statActive">—</div><div class="stat-label">Active</div></div>
     <div class="stat-card"><div class="stat-val green" id="statClosed">—</div><div class="stat-label">Backlinks Acquired</div></div>
-    <div class="stat-card" id="statReminderCard" onclick="filterByReminders()" style="cursor:pointer" title="Click to filter leads with reminders set">
+    <div class="stat-card" id="statReminderCard" onclick="toggleReminderHighlight()" style="cursor:pointer" title="Click to highlight leads that have reminders">
       <div class="stat-val purple" id="statReminderCount">—</div>
       <div class="stat-label">Reminders Set</div>
     </div>
@@ -626,6 +634,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
       <div style="display:flex;border-bottom:1px solid var(--border);padding:0 24px;background:var(--surface)">
         <div id="modalTab-details" class="modal-tab active" onclick="switchModalTab('details')">Details</div>
         <div id="modalTab-notes" class="modal-tab" onclick="switchModalTab('notes')">Notes</div>
+        <div id="modalTab-reminder" class="modal-tab" onclick="switchModalTab('reminder')">🗓 Reminder</div>
       </div>
 
       <!-- Details Tab -->
@@ -679,15 +688,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
             </select>
           </div>
           <div class="form-group span2">
-            <label>🗓 Reminder Date</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="date" id="f-nextReminderDate" style="flex:1">
-              <button type="button" onclick="setNextBizDay()" class="btn btn-secondary" style="padding:7px 12px;font-size:12px;white-space:nowrap">Next Biz Day</button>
-              <button type="button" onclick="clearReminder()" class="btn btn-secondary" style="padding:7px 10px;font-size:12px" title="Clear reminder">✕</button>
-            </div>
-            <input type="text" id="f-reminderNote" placeholder="What's this reminder for? (optional)" style="margin-top:6px">
-          </div>
-          <div class="form-group span2">
             <label>📧 Prompt & Template Generator</label>
             <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px">
               <select id="promptSelect" onchange="generatePrompt()" style="flex:1">
@@ -733,6 +733,22 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         <div id="notesJournal" style="display:flex;flex-direction:column;gap:10px"></div>
         <!-- Hidden field to hold serialised notes for saving -->
         <input type="hidden" id="f-notes">
+      </div>
+
+      <!-- Reminder Tab -->
+      <div id="modalPane-reminder" style="display:none;padding:20px 24px">
+        <div class="form-group">
+          <label>🗓 Reminder Date</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="date" id="f-nextReminderDate" style="flex:1">
+            <button type="button" onclick="setNextBizDay()" class="btn btn-secondary" style="padding:7px 12px;font-size:12px;white-space:nowrap">Next Biz Day</button>
+            <button type="button" onclick="clearReminder()" class="btn btn-secondary" style="padding:7px 10px;font-size:12px" title="Clear reminder">✕</button>
+          </div>
+          <input type="text" id="f-reminderNote" placeholder="What's this reminder for? (optional)" style="margin-top:8px">
+        </div>
+        <p style="margin-top:14px;font-size:12px;color:var(--text3);line-height:1.6">
+          Set a date to follow up with this lead. The Reminders Set widget on your dashboard counts every lead with a reminder. When the date arrives or passes, you'll see a toast notification on next sync — and the lead will be highlighted in purple if you click the Reminders Set tile.
+        </p>
       </div>
     </div>
     <div class="modal-footer">
@@ -1094,7 +1110,6 @@ function filteredLeads() {
   if (q) list = list.filter(l => (l.businessName+l.location+l.businessType+l.firstName).toLowerCase().includes(q));
   if (stage) list = list.filter(l => l.pipelineStage === stage);
   if (loc) list = list.filter(l => l.location === loc);
-  if (reminderFilterActive) list = list.filter(l => l.nextReminderDate);
   if (sortCol) list.sort((a,b) => {
     let av=a[sortCol]||'', bv=b[sortCol]||'';
     if (sortCol==='domainRating') { av=parseFloat(av)||0; bv=parseFloat(bv)||0; }
@@ -1110,7 +1125,7 @@ function renderAll() {
   if (!list.length) { tbody.innerHTML=''; document.getElementById('emptyAll').classList.remove('section-hidden'); return; }
   document.getElementById('emptyAll').classList.add('section-hidden');
   tbody.innerHTML = list.map(l => `
-    <tr>
+    <tr ${l.nextReminderDate ? 'data-has-reminder="1"' : ''}>
       <td><div class="td-name" onclick="openEditModal('${l._id}')">${l.businessName||'—'}</div>${renderAttributionTag(l.addedBy)}</td>
       <td>${l.businessType||'—'}</td>
       <td>${l.location||'—'}</td>
@@ -1146,6 +1161,7 @@ function renderPipeline() {
         const days = daysSince(l.lastUpdated);
         return `<div class="kanban-card" draggable="true"
             data-id="${l._id}"
+            ${l.nextReminderDate ? 'data-has-reminder="1"' : ''}
             ondragstart="kanbanDragStart(event,'${l._id}')"
             ondragend="kanbanDragEnd(event)"
             onclick="openEditModal('${l._id}')">
@@ -1287,7 +1303,7 @@ function populateBusinessTypeDropdown() {
 // MODAL TABS
 // ============================================================
 function switchModalTab(tab) {
-  ['details','notes'].forEach(t => {
+  ['details','notes','reminder'].forEach(t => {
     document.getElementById(`modalTab-${t}`).classList.toggle('active', t === tab);
     document.getElementById(`modalPane-${t}`).style.display = t === tab ? 'block' : 'none';
   });
@@ -2003,10 +2019,12 @@ async function silentRefreshLeads() {
 // ============================================================
 // REMINDERS — filter toggle + due-today alert
 // ============================================================
-function filterByReminders() {
+function toggleReminderHighlight() {
   reminderFilterActive = !reminderFilterActive;
-  updateStats(); // refreshes the outline on the stat card
-  renderAll();
+  document.body.classList.toggle('reminders-highlighted', reminderFilterActive);
+  updateStats();
+  // If user is on a tab that doesn't show leads, jump to All Leads so the highlight is visible
+  if (reminderFilterActive && currentTab !== 'all' && currentTab !== 'pipeline') switchTab('all');
 }
 
 let _lastReminderAlertDay = null;
