@@ -325,7 +325,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.8</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.9</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -709,9 +709,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
                   <option value="prompt-3a">Prompt 3A</option>
                   <option value="prompt-3b">Prompt 3B</option>
                   <option value="prompt-3c">Prompt 3C</option>
-                </optgroup>
-                <optgroup label="Alternates">
-                  <option value="1st-template-email">1st Template - Email</option>
                 </optgroup>
               </select>
             </div>
@@ -1572,7 +1569,7 @@ function showToast(msg, type='success', duration=3000) {
 // ============================================================
 const STAGE_MESSAGES = {
   'Opportunity':        { placeholder: 'Update Pipeline Stage', options: [] },
-  '1st Reach Out':      { placeholder: null, options: ['1st Template','Prompt 1A','Prompt 1B','Prompt 1C'] },
+  '1st Reach Out':      { placeholder: null, options: ['1st Template','Prompt 1A','Prompt 1B','Prompt 1C','1st Template - Email'] },
   'Mock Up Required':   { placeholder: 'Update Pipeline Stage', options: [] },
   'Mock Up Sent':       { placeholder: null, options: ['2nd Template','Prompt 2A','Prompt 2B','Prompt 2C'] },
   'Push Ad Live':       { placeholder: 'Update Pipeline Stage', options: [] },
@@ -1615,8 +1612,7 @@ function filterMessagesByStage(stage) {
       promptGroup.style.display = '';
       promptSelectEl.innerHTML = '<option value="">Select a template or prompt...</option>' +
         ['1st-template','prompt-1a','prompt-1b','prompt-1c','2nd-template','prompt-2a','prompt-2b','prompt-2c','3rd-template','prompt-3a','prompt-3b','prompt-3c']
-        .map((k,i) => { const labels=['1st Template','Prompt 1A','Prompt 1B','Prompt 1C','2nd Template','Prompt 2A','Prompt 2B','Prompt 2C','3rd Template','Prompt 3A','Prompt 3B','Prompt 3C']; return `<option value="${k}">${labels[i]}</option>`; }).join('') +
-        '<optgroup label="Alternates"><option value="1st-template-email">1st Template - Email</option></optgroup>';
+        .map((k,i) => { const labels=['1st Template','Prompt 1A','Prompt 1B','Prompt 1C','2nd Template','Prompt 2A','Prompt 2B','Prompt 2C','3rd Template','Prompt 3A','Prompt 3B','Prompt 3C']; return `<option value="${k}">${labels[i]}</option>`; }).join('');
     }
     return;
   }
@@ -1646,13 +1642,9 @@ function filterMessagesByStage(stage) {
       promptGroup.style.display = '';
       const currentPromptVal = promptSelectEl.value;
       const validKeys = config.options.map(o => MESSAGE_TO_PROMPT_KEY[o]).filter(Boolean);
-      const isFirstReachOut = stage === '1st Reach Out';
-      const alternatesHtml = isFirstReachOut ? `<optgroup label="Alternates"><option value="1st-template-email"${currentPromptVal === '1st-template-email' ? ' selected' : ''}>1st Template - Email</option></optgroup>` : '';
       promptSelectEl.innerHTML = '<option value="">Select a template or prompt...</option>' +
-        config.options.map(o => { const key = MESSAGE_TO_PROMPT_KEY[o]; return key ? `<option value="${key}"${key === currentPromptVal ? ' selected' : ''}>${o}</option>` : ''; }).join('') +
-        alternatesHtml;
-      const allValidKeys = isFirstReachOut ? [...validKeys, '1st-template-email'] : validKeys;
-      if (!allValidKeys.includes(currentPromptVal) && promptOutput) { promptOutput.style.display = 'none'; promptSelectEl.value = ''; }
+        config.options.map(o => { const key = MESSAGE_TO_PROMPT_KEY[o]; return key ? `<option value="${key}"${key === currentPromptVal ? ' selected' : ''}>${o}</option>` : ''; }).join('');
+      if (!validKeys.includes(currentPromptVal) && promptOutput) { promptOutput.style.display = 'none'; promptSelectEl.value = ''; }
     }
   }
 }
