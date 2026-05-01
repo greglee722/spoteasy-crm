@@ -325,7 +325,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.6</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.7</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -709,6 +709,9 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
                   <option value="prompt-3a">Prompt 3A</option>
                   <option value="prompt-3b">Prompt 3B</option>
                   <option value="prompt-3c">Prompt 3C</option>
+                </optgroup>
+                <optgroup label="Alternates">
+                  <option value="1st-template-email">1st Template - Email</option>
                 </optgroup>
               </select>
             </div>
@@ -1582,6 +1585,7 @@ const STAGE_MESSAGES = {
 
 const MESSAGE_TO_PROMPT_KEY = {
   '1st Template': '1st-template',
+  '1st Template - Email': '1st-template-email',
   'Prompt 1A': 'prompt-1a', 'Prompt 1B': 'prompt-1b', 'Prompt 1C': 'prompt-1c',
   '2nd Template': '2nd-template',
   'Prompt 2A': 'prompt-2a', 'Prompt 2B': 'prompt-2b', 'Prompt 2C': 'prompt-2c',
@@ -1654,15 +1658,13 @@ function filterMessagesByStage(stage) {
 const PROMPT_TEMPLATES = {
   '1st-template': (lead) => {
     const biz = lead.businessName || 'your business';
-    return `=== INSTAGRAM ===
+    return `Hey ${biz} 👋 We're Spot Easy, a Boston apartment rental platform with 50K+ monthly visitors. We're building a "Local Spots" guide to help new renters discover the best places in their neighborhood and city - and we'd love to feature you on our website for free!
 
-Hey ${biz} 👋 We're Spot Easy, a Boston apartment rental platform with 50K+ monthly visitors. We're building a "Local Spots" guide to help new renters discover the best places in their neighborhood and city - and we'd love to feature you on our website for free!
+Your business meets our requirements. Would you be interested in being featured?`;
+  },
 
-Your business meets our requirements. Would you be interested in being featured?
-
-=== EMAIL ===
-
-Hi,
+  '1st-template-email': (lead) => {
+    return `Hi,
 
 I'm Greg, and I handle local partnerships for Spot Easy, an apartment rental platform based in the Boston area, similar to Zillow but focused on Boston and surrounding cities. However, as a local apartment rental platform, we have proven more trustworthy than our national competitors, resulting in over 50,000 monthly visits from renters searching for apartments.
 
