@@ -325,7 +325,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v3.9</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.0</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -475,6 +475,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         <div class="mockup-btn-row">
           <button class="btn btn-secondary" onclick="mockupUpdatePreview()">Update Preview</button>
           <button class="btn btn-primary" onclick="mockupExportJpg()">⬇ Download JPG</button>
+          <button class="btn btn-secondary" onclick="mockupUploadToStorage()">☁ Upload to Lead</button>
         </div>
         <p id="mockup-status" style="font-size:12px;color:var(--text3);margin-top:10px;text-align:center;font-family:'DM Mono',monospace;min-height:18px"></p>
 
@@ -719,6 +720,24 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
               </div>
             </div>
           </div>
+          <div class="form-group span2" style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px">
+            <label style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);font-family:'DM Mono',monospace;">ManyChat Automation</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+              <div>
+                <label style="font-size:12px;color:var(--text2)">ManyChat Subscriber ID</label>
+                <input type="text" id="f-manychatSubscriberId" placeholder="Auto-populated by Make" style="margin-top:4px;font-family:'DM Mono',monospace;font-size:12px">
+              </div>
+              <div>
+                <label style="font-size:12px;color:var(--text2)">Mock-up Image</label>
+                <div id="mockup-url-display" style="margin-top:4px;font-size:12px;color:var(--text3);padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;min-height:34px;display:flex;align-items:center">None</div>
+                <input type="hidden" id="f-mockupImageUrl">
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="f-autoOutreachEnabled" style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary)">
+              <label for="f-autoOutreachEnabled" style="font-size:13px;cursor:pointer;margin:0">Auto-outreach enabled <span style="font-size:11px;color:var(--text3)">(uncheck to exclude from Make automation)</span></label>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -874,7 +893,7 @@ sb.auth.onAuthStateChange((event, session) => {
 // ============================================================
 // CONFIG & STATE
 // ============================================================
-const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastMessageSent','lastUpdated','notes','addedBy','nextReminderDate','reminderNote'];
+const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastMessageSent','lastUpdated','notes','addedBy','nextReminderDate','reminderNote','mockupImageUrl','manychatSubscriberId','autoOutreachEnabled'];
 // Maps in-memory lead-object keys → public.leads DB columns.
 const COLUMN_DB_MAP = {
   businessName:    'business_name',
@@ -889,8 +908,11 @@ const COLUMN_DB_MAP = {
   lastUpdated:     'last_updated',
   notes:           'notes',
   addedBy:          'added_by_email',
-  nextReminderDate: 'next_reminder_date',
-  reminderNote:     'reminder_note',
+  nextReminderDate:      'next_reminder_date',
+  reminderNote:          'reminder_note',
+  mockupImageUrl:        'mockup_image_url',
+  manychatSubscriberId:  'manychat_subscriber_id',
+  autoOutreachEnabled:   'auto_outreach_enabled',
 };
 const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Push Ad Live','Backlink Required','Backlink Acquired','On Hold','No Response','Declined Offer'];
 const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Push Ad Live':'orange','Backlink Required':'red','Backlink Acquired':'green','On Hold':'yellow','No Response':'gray','Declined Offer':'red' };
@@ -900,14 +922,20 @@ let leads = [], currentTab = 'all', editingId = null, sortCol = null, sortDir = 
 // Convert a DB row → in-memory lead object the UI expects.
 function rowFromDb(r) {
   const obj = { _id: r.id };
-  for (const [ui, db] of Object.entries(COLUMN_DB_MAP)) obj[ui] = r[db] || '';
+  for (const [ui, db] of Object.entries(COLUMN_DB_MAP)) {
+    const v = r[db];
+    obj[ui] = (v === null || v === undefined) ? '' : v;
+  }
   return obj;
 }
 // Convert an in-memory lead object → DB row payload (for insert/update).
 function dbFromLead(lead) {
   const out = {};
   for (const [ui, db] of Object.entries(COLUMN_DB_MAP)) {
-    if (ui in lead) out[db] = lead[ui] || null;
+    if (ui in lead) {
+      const v = lead[ui];
+      out[db] = typeof v === 'boolean' ? v : (v || null);
+    }
   }
   return out;
 }
@@ -1453,6 +1481,10 @@ function closeModal() { document.getElementById('leadModal').classList.remove('o
 
 function clearForm() {
   COLUMNS.forEach(col => { const el=document.getElementById(`f-${col}`); if(el) el.value=''; });
+  const cbEl = document.getElementById('f-autoOutreachEnabled');
+  if (cbEl) cbEl.checked = true; // default on for new leads
+  const muDisplay = document.getElementById('mockup-url-display');
+  if (muDisplay) muDisplay.textContent = 'None';
   document.getElementById('promptSelect').value='';
   document.getElementById('promptOutput').style.display='none';
   document.getElementById('newNoteInput').value='';
@@ -1463,9 +1495,17 @@ function clearForm() {
 function fillForm(lead) {
   COLUMNS.forEach(col => {
     if (col === 'notes') return; // handled separately
+    if (col === 'autoOutreachEnabled') return; // handled below (checkbox)
     const el=document.getElementById(`f-${col}`); if(!el) return;
     el.value=lead[col]||'';
   });
+  // Checkbox: auto_outreach_enabled (false stays false, not coerced to '')
+  const cbEl = document.getElementById('f-autoOutreachEnabled');
+  if (cbEl) cbEl.checked = lead.autoOutreachEnabled !== false && lead.autoOutreachEnabled !== 'false';
+  // Mock-up display link
+  const muDisplay = document.getElementById('mockup-url-display');
+  const muUrl = lead.mockupImageUrl || '';
+  if (muDisplay) muDisplay.innerHTML = muUrl ? '<a href="' + muUrl + '" target="_blank" style="color:var(--primary)">View mock-up ↗</a>' : 'None';
   // Apply stage-based filtering AFTER all fields are set
   filterMessagesByStage(lead.pipelineStage || '');
   // Re-apply the saved lastMessageSent value (filterMessagesByStage rebuilds the dropdown)
@@ -1524,6 +1564,9 @@ async function saveLead() {
   // Build the lead object from form values
   const uiRow = editingId ? { _id: editingId } : {};
   COLUMNS.forEach((c,i) => { uiRow[c] = values[i]; });
+  // Checkbox override: el.value is always "on", need el.checked for boolean
+  const cbEl = document.getElementById('f-autoOutreachEnabled');
+  uiRow.autoOutreachEnabled = cbEl ? cbEl.checked : true;
   // Attribution: store the email (DB column is added_by_email and FK-references allowed_users)
   if (!editingId) uiRow.addedBy = currentUser ? currentUser.email : null;
 
@@ -1899,6 +1942,45 @@ function mockupExportJpg() {
   s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
   s.onload = doExport;
   s.onerror = () => { status.textContent = 'Failed to load export library. Check internet connection.'; };
+  document.head.appendChild(s);
+}
+
+async function mockupUploadToStorage() {
+  const leadId = document.getElementById('mu-lead-select').value;
+  const status = document.getElementById('mockup-status');
+  if (!leadId) { showToast('Select a lead first', 'error'); return; }
+  const card = document.getElementById('mu-card');
+  function doUpload() {
+    status.textContent = 'Rendering...';
+    html2canvas(card, { scale:2, backgroundColor:'#f1f3f5', useCORS:true, allowTaint:false, logging:false }).then(canvas => {
+      status.textContent = 'Uploading...';
+      canvas.toBlob(async blob => {
+        try {
+          const { error: upErr } = await sb.storage.from('mockup-images').upload(leadId + '.jpg', blob, { upsert:true, contentType:'image/jpeg' });
+          if (upErr) throw upErr;
+          const { data: urlData } = sb.storage.from('mockup-images').getPublicUrl(leadId + '.jpg');
+          const publicUrl = urlData.publicUrl;
+          const { error: dbErr } = await sb.from('leads').update({ mockup_image_url: publicUrl }).eq('id', leadId);
+          if (dbErr) throw dbErr;
+          const lead = leads.find(l => l._id === leadId);
+          if (lead) lead.mockupImageUrl = publicUrl;
+          status.textContent = '✓ Uploaded and saved to lead';
+          setTimeout(() => status.textContent = '', 3000);
+        } catch(e) {
+          status.textContent = 'Upload failed: ' + (e.message || e);
+          console.error(e);
+        }
+      }, 'image/jpeg', 0.92);
+    }).catch(err => {
+      status.textContent = 'Render failed — check logo URL for CORS issues.';
+      console.error(err);
+    });
+  }
+  if (typeof html2canvas !== 'undefined') { doUpload(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+  s.onload = doUpload;
+  s.onerror = () => { status.textContent = 'Failed to load export library.'; };
   document.head.appendChild(s);
 }
 
