@@ -169,6 +169,13 @@ tr:hover .row-actions { opacity:1; }
 .days-badge.fresh { background:rgba(0,184,122,0.12); color:var(--green); }
 .days-badge.warn { background:rgba(240,165,0,0.12); color:var(--yellow); }
 .days-badge.stale { background:rgba(232,67,122,0.12); color:var(--red); }
+.kanban-quick-action { display:block; width:100%; margin-top:10px; padding:7px 10px; border:none; border-radius:6px; font-size:11px; font-weight:700; font-family:inherit; cursor:pointer; transition:all 0.15s; letter-spacing:0.02em; }
+.kanban-quick-action.primary { background:var(--accent); color:#fff; }
+.kanban-quick-action.primary:hover { background:#0099d4; transform:translateY(-1px); box-shadow:0 4px 10px rgba(0,172,238,0.3); }
+.kanban-quick-action.danger { background:rgba(232,67,122,0.1); color:var(--red); border:1px solid rgba(232,67,122,0.3); }
+.kanban-quick-action.danger:hover { background:rgba(232,67,122,0.18); }
+.kanban-quick-action:disabled, .kanban-quick-action.locked { background:var(--surface2) !important; color:var(--text3) !important; border:1px solid var(--border) !important; cursor:not-allowed !important; box-shadow:none !important; transform:none !important; }
+.kanban-quick-action:disabled:hover, .kanban-quick-action.locked:hover { background:var(--surface2) !important; color:var(--text3) !important; transform:none !important; box-shadow:none !important; }
 
 /* ATTRIBUTION */
 .attr-tag { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-family:'DM Mono',monospace; color:var(--text3); background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:1px 6px; margin-top:3px; }
@@ -325,7 +332,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.1</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.3</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -1180,6 +1187,46 @@ function renderPipeline() {
   board.innerHTML = PIPELINE_STAGES.map(stage => {
     const cards = list.filter(l => l.pipelineStage === stage);
     const color = STAGE_COLORS[stage] || 'gray';
+    // Quick action button shows up on Opportunity + 1st Reach Out cards.
+    // Drives the cold outreach pipeline manually (since IG cold DMs cannot be automated).
+    // 1st Reach Out actions are LOCKED until the next business day after the last send,
+    // to prevent accidentally sending two prompts to the same lead on the same day.
+    function nbdAfter(fromIso) {
+      const d = new Date(fromIso);
+      if (isNaN(d.getTime())) return null;
+      d.setHours(0,0,0,0);
+      d.setDate(d.getDate() + 1);
+      while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+      return d;
+    }
+    function quickActionLockInfo(l) {
+      // Opportunity stage is never locked (no prior send).
+      if (l.pipelineStage !== '1st Reach Out') return { locked: false };
+      if (!l.lastUpdated) return { locked: false };
+      const unlock = nbdAfter(l.lastUpdated);
+      if (!unlock) return { locked: false };
+      const today = new Date(); today.setHours(0,0,0,0);
+      if (today.getTime() >= unlock.getTime()) return { locked: false };
+      const opts = { weekday: 'short', month: 'short', day: 'numeric' };
+      return { locked: true, unlockLabel: unlock.toLocaleDateString(undefined, opts) };
+    }
+    function getQuickAction(l) {
+      let action = null;
+      if (l.pipelineStage === 'Opportunity') {
+        action = { label: '📩 Send 1st Template', cls: 'primary', kind: 'send', key: '1st-template', nextLms: '1st Template', nextStage: '1st Reach Out' };
+      } else if (l.pipelineStage === '1st Reach Out') {
+        const lms = l.lastMessageSent || '';
+        if (lms === '1st Template') action = { label: 'Send Next Prompt →', cls: 'primary', kind: 'send', key: 'prompt-1a', nextLms: 'Prompt 1A' };
+        else if (lms === 'Prompt 1A') action = { label: 'Send Next Prompt →', cls: 'primary', kind: 'send', key: 'prompt-1b', nextLms: 'Prompt 1B' };
+        else if (lms === 'Prompt 1B') action = { label: 'Send Next Prompt →', cls: 'primary', kind: 'send', key: 'prompt-1c', nextLms: 'Prompt 1C' };
+        else if (lms === 'Prompt 1C') action = { label: 'Mark as No Response', cls: 'danger',  kind: 'no_response' };
+      }
+      if (!action) return null;
+      const lock = quickActionLockInfo(l);
+      action.locked = lock.locked;
+      action.unlockLabel = lock.unlockLabel || null;
+      return action;
+    }
     return `<div class="kanban-col" data-stage="${stage}"
         ondragover="kanbanDragOver(event)" ondragleave="kanbanDragLeave(event)" ondrop="kanbanDrop(event,'${stage}')">
       <div class="kanban-header">
@@ -1204,10 +1251,132 @@ function renderPipeline() {
             ${l.nextReminderDate ? '<div class="kanban-card-meta-row"><span>🗓 Reminder</span>' + reminderBadgeHtml(l.nextReminderDate, l.reminderNote) + '</div>' : ''}
           </div>
           ${renderAttributionTag(l.addedBy)}
+          ${(() => {
+            const qa = getQuickAction(l);
+            if (!qa) return '';
+            if (qa.locked) {
+              const tip = `Available ${qa.unlockLabel} (next business day after last send)`;
+              return `<button class="kanban-quick-action locked" disabled title="${tip}" onclick="event.stopPropagation()">🔒 Available ${qa.unlockLabel}</button>`;
+            }
+            return `<button class="kanban-quick-action ${qa.cls}" onclick="handleQuickAction('${l._id}', event)">${qa.label}</button>`;
+          })()}
         </div>`;
       }).join('') : '<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">Empty</div>'}</div>
     </div>`;
   }).join('');
+}
+
+// ============================================================
+// KANBAN QUICK-ACTION BUTTON
+// Drives manual cold-outreach pipeline:
+//   Opportunity → 1st Template → Prompt 1A → 1B → 1C → No Response
+// On click: confirm → personalize template → copy to clipboard → open IG profile in new tab → update Supabase.
+// IG cold DMs cannot be automated (no manychat_subscriber_id until lead replies), so this is the
+// fastest manual path: one click prepares everything, you paste + send in IG, lead is logged in CRM.
+// ============================================================
+function extractIgHandle(igField) {
+  if (!igField) return null;
+  const s = String(igField).trim();
+  const m = s.match(/instagram\.com\/([^/?#]+)/i);
+  if (m) return m[1].replace(/^@/, '');
+  return s.replace(/^@/, '').replace(/\/+$/, '') || null;
+}
+
+async function handleQuickAction(leadId, event) {
+  if (event) event.stopPropagation();
+  const lead = leads.find(l => l._id === leadId);
+  if (!lead) { showToast('Lead not found', 'error'); return; }
+
+  // Recompute the action from current lead state (don't trust cached button label).
+  const stage = lead.pipelineStage;
+  const lms = lead.lastMessageSent || '';
+  let action = null;
+  if (stage === 'Opportunity') {
+    action = { kind: 'send', key: '1st-template', nextLms: '1st Template', nextStage: '1st Reach Out' };
+  } else if (stage === '1st Reach Out') {
+    if (lms === '1st Template') action = { kind: 'send', key: 'prompt-1a', nextLms: 'Prompt 1A' };
+    else if (lms === 'Prompt 1A') action = { kind: 'send', key: 'prompt-1b', nextLms: 'Prompt 1B' };
+    else if (lms === 'Prompt 1B') action = { kind: 'send', key: 'prompt-1c', nextLms: 'Prompt 1C' };
+    else if (lms === 'Prompt 1C') action = { kind: 'no_response' };
+  }
+  if (!action) { showToast('No quick action for this lead', 'error'); return; }
+
+  // Re-check the business-day lock client-side (defense in depth — disabled button can be bypassed via devtools).
+  if (stage === '1st Reach Out' && lead.lastUpdated) {
+    const d = new Date(lead.lastUpdated);
+    if (!isNaN(d.getTime())) {
+      d.setHours(0,0,0,0); d.setDate(d.getDate() + 1);
+      while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+      const today = new Date(); today.setHours(0,0,0,0);
+      if (today.getTime() < d.getTime()) {
+        const opts = { weekday: 'short', month: 'short', day: 'numeric' };
+        showToast(`Locked until ${d.toLocaleDateString(undefined, opts)} (next business day)`, 'error');
+        return;
+      }
+    }
+  }
+
+  if (action.kind === 'no_response') {
+    if (!confirm(`Mark "${lead.businessName}" as No Response?\n\nThis stops the drip for this lead.`)) return;
+    try {
+      const { error } = await sb.from('leads').update({
+        pipeline_stage: 'No Response',
+        last_updated: new Date().toISOString(),
+      }).eq('id', leadId);
+      if (error) throw error;
+      showToast(`${lead.businessName} marked as No Response`, 'success');
+    } catch (e) {
+      console.error(e);
+      showToast(`Update failed: ${e.message}`, 'error');
+    }
+    return;
+  }
+
+  // action.kind === 'send'
+  const handle = extractIgHandle(lead.instagram);
+  if (!handle) { showToast('No Instagram handle on this lead', 'error'); return; }
+
+  const generator = PROMPT_TEMPLATES[action.key];
+  if (!generator) { showToast(`Template ${action.key} not found`, 'error'); return; }
+  const message = generator(lead);
+
+  const labelMap = { '1st-template': '1st Template', 'prompt-1a': 'Prompt 1A', 'prompt-1b': 'Prompt 1B', 'prompt-1c': 'Prompt 1C' };
+  const label = labelMap[action.key] || action.key;
+
+  const confirmMsg = `Send "${label}" to ${lead.businessName}?\n\n• Copies the message to your clipboard\n• Opens instagram.com/${handle}/ in a new tab\n• Marks LMS as "${action.nextLms}"${action.nextStage ? ` and stage as "${action.nextStage}"` : ''}\n\nYou'll paste + send in Instagram.`;
+  if (!confirm(confirmMsg)) return;
+
+  // 1. Copy to clipboard
+  try {
+    await navigator.clipboard.writeText(message);
+  } catch (e) {
+    console.error('clipboard write failed', e);
+    // Fallback: prompt user
+    const ta = document.createElement('textarea');
+    ta.value = message; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (_) {}
+    document.body.removeChild(ta);
+  }
+
+  // 2. Update Supabase
+  try {
+    const update = {
+      last_message_sent: action.nextLms,
+      last_updated: new Date().toISOString(),
+    };
+    if (action.nextStage) update.pipeline_stage = action.nextStage;
+    const { error } = await sb.from('leads').update(update).eq('id', leadId);
+    if (error) throw error;
+  } catch (e) {
+    console.error(e);
+    showToast(`Update failed: ${e.message}. Message still copied — paste manually.`, 'error');
+    return;
+  }
+
+  // 3. Open IG in new tab (after CRM update — the new tab steals focus)
+  window.open(`https://www.instagram.com/${handle}/`, '_blank', 'noopener');
+
+  showToast(`${label} copied. Paste + send in IG tab.`, 'success', 4000);
 }
 
 // ============================================================
