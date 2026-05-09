@@ -332,7 +332,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.5-rc1</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.5-rc2</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -456,8 +456,12 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
           <input type="text" class="mockup-input" id="mu-biz-addr" placeholder="150 Huntington Ave, Boston, MA 02115">
         </div>
         <div class="mockup-field-group">
-          <label class="mockup-label">Business Description</label>
+          <label class="mockup-label" style="display:flex;align-items:center;justify-content:space-between">
+            <span>Business Description</span>
+            <button type="button" id="genDescBtn" onclick="generateDescriptionFromUrl()" style="background:none;border:none;color:var(--primary);font-size:11px;font-family:'DM Mono',monospace;font-weight:700;letter-spacing:0.04em;cursor:pointer;padding:2px 4px;text-transform:uppercase">✨ Auto-generate</button>
+          </label>
           <textarea class="mockup-input" id="mu-biz-desc" placeholder="Award-winning restaurant serving..."></textarea>
+          <p id="genDescStatus" style="font-size:11px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace;min-height:14px"></p>
         </div>
 
         <div class="mockup-divider">Listing Info</div>
@@ -2113,6 +2117,49 @@ function mockupFillFromLead() {
   document.getElementById('mu-city').value = 'Boston';
   document.getElementById('mu-logo-url').value = '';
   mockupUpdatePreview();
+}
+
+// Calls the generate-description Edge Function with the business URL from the
+// mock-up form. Falls back to manual entry on any failure (graceful degradation).
+async function generateDescriptionFromUrl() {
+  const urlInput = document.getElementById('mu-biz-addr');
+  const descInput = document.getElementById('mu-biz-desc');
+  const nameInput = document.getElementById('mu-biz-name');
+  const status = document.getElementById('genDescStatus');
+  const btn = document.getElementById('genDescBtn');
+  const url = (urlInput.value || '').trim();
+  if (!url) {
+    status.textContent = 'Enter a Business Address (URL) first';
+    status.style.color = 'var(--danger)';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating…';
+  status.textContent = 'Fetching site and writing description…';
+  status.style.color = 'var(--text3)';
+  try {
+    const { data, error } = await sb.functions.invoke('generate-description', {
+      body: { url, businessName: nameInput.value || '' },
+    });
+    if (error) throw error;
+    if (data && data.description) {
+      descInput.value = data.description;
+      mockupUpdatePreview();
+      status.textContent = '✓ Generated — review and edit if needed';
+      status.style.color = 'var(--success, #10b981)';
+    } else {
+      const reason = data && data.reason ? data.reason.replace(/_/g, ' ') : 'unknown';
+      status.textContent = `Couldn't auto-generate (${reason}). Please write one manually.`;
+      status.style.color = 'var(--text2)';
+    }
+  } catch (e) {
+    console.error('generate-description failed', e);
+    status.textContent = `Error: ${(e && e.message) || 'unknown'}. Please write one manually.`;
+    status.style.color = 'var(--danger)';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Auto-generate';
+  }
 }
 
 // Called from the "Generate Mock-up" button on the lead modal (Mock Up Required stage).
