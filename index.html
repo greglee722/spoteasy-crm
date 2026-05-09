@@ -332,7 +332,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.5-rc7</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.5-rc8</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -1231,7 +1231,7 @@ function renderPipeline() {
       } else if (l.pipelineStage === 'Mock Up Required') {
         if (l.mockupImageUrl) {
           // Reuse the standard send flow — image opens in a new tab so Greg can grab it.
-          action = { label: '📤 Send Mock-up', cls: 'primary', kind: 'send', key: '2nd-template', nextLms: '2nd Template', nextStage: 'Mock Up Sent', openMockupImage: true };
+          action = { label: '📤 Send Mock-up', cls: 'primary', kind: 'send', key: '2nd-template', nextLms: '2nd Template', nextStage: 'Mock Up Sent' };
         } else {
           action = { label: '🎨 Generate Mock-up', cls: 'primary', kind: 'generate_mockup' };
         }
@@ -1378,7 +1378,7 @@ async function handleQuickAction(leadId, event) {
     else if (lms === 'Prompt 1C') action = { kind: 'no_response' };
   } else if (stage === 'Mock Up Required') {
     action = lead.mockupImageUrl
-      ? { kind: 'send', key: '2nd-template', nextLms: '2nd Template', nextStage: 'Mock Up Sent', openMockupImage: true, mockupUrl: lead.mockupImageUrl }
+      ? { kind: 'send', key: '2nd-template', nextLms: '2nd Template', nextStage: 'Mock Up Sent' }
       : { kind: 'generate_mockup' };
   } else if (stage === 'Mock Up Sent') {
     if (lms === '2nd Template')   action = { kind: 'send', key: 'prompt-2a', nextLms: 'Prompt 2A' };
@@ -1446,13 +1446,7 @@ async function handleQuickAction(leadId, event) {
   };
   const label = labelMap[action.key] || action.key;
 
-  const bullets = [
-    '• Copies the message to your clipboard',
-    action.openMockupImage ? '• Opens the mock-up image in a new tab (right-click → Save / Copy)' : null,
-    `• Opens instagram.com/${handle}/ in a new tab`,
-    `• Marks LMS as "${action.nextLms}"${action.nextStage ? ` and stage as "${action.nextStage}"` : ''}`,
-  ].filter(Boolean).join('\n');
-  const confirmMsg = `Send "${label}" to ${lead.businessName}?\n\n${bullets}\n\nYou'll paste + send in Instagram.`;
+  const confirmMsg = `Send "${label}" to ${lead.businessName}?\n\n• Copies the message to your clipboard\n• Opens instagram.com/${handle}/ in a new tab\n• Marks LMS as "${action.nextLms}"${action.nextStage ? ` and stage as "${action.nextStage}"` : ''}\n\nYou'll paste + send in Instagram.`;
   if (!confirm(confirmMsg)) return;
 
   // 1. Copy to clipboard
@@ -1482,12 +1476,7 @@ async function handleQuickAction(leadId, event) {
     return;
   }
 
-  // 3. If this is a mock-up send, open the mockup image first so it's ready in a tab
-  if (action.openMockupImage && lead.mockupImageUrl) {
-    window.open(lead.mockupImageUrl, '_blank', 'noopener');
-  }
-
-  // 4. Open IG in new tab (after CRM update — the new tab steals focus)
+  // 3. Open IG in new tab (after CRM update — the new tab steals focus)
   window.open(`https://www.instagram.com/${handle}/`, '_blank', 'noopener');
 
   showToast(`${label} copied. Paste + send in IG tab.`, 'success', 4000);
@@ -2032,9 +2021,7 @@ A simple mention of us on your site (anywhere, even in the footer - it doesn't n
 
 I've included a mockup of how your business will be promoted. We can have you live in as little as two days and circle back regarding how you can easily mention us somewhere on your site after your business is live.
 
-Would that work for you?
-
-[attach mock up]`;
+Would that work for you?`;
   },
 
   'prompt-2a': (lead) => {
