@@ -332,7 +332,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.5-rc3</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.5-rc4</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -458,7 +458,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         <div class="mockup-field-group">
           <label class="mockup-label">Business Description</label>
           <textarea class="mockup-input" id="mu-biz-desc" placeholder="Award-winning restaurant serving..."></textarea>
-          <button type="button" id="genDescBtn" class="btn btn-primary" onclick="generateDescriptionFromUrl()" style="margin-top:8px;width:100%;justify-content:center;font-size:12px;padding:7px 12px">✨ Auto-generate description</button>
+          <button type="button" id="genDescBtn" class="btn btn-primary" onclick="generateDescriptionFromUrl()" style="margin-top:8px;width:100%;justify-content:center;font-size:12px;padding:7px 12px">✨ Auto-fill from website</button>
           <p id="genDescStatus" style="font-size:11px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace;min-height:14px;text-align:center"></p>
         </div>
 
@@ -2122,6 +2122,7 @@ function mockupFillFromLead() {
 async function generateDescriptionFromUrl() {
   const urlInput = document.getElementById('mu-biz-addr');
   const descInput = document.getElementById('mu-biz-desc');
+  const logoInput = document.getElementById('mu-logo-url');
   const nameInput = document.getElementById('mu-biz-name');
   const status = document.getElementById('genDescStatus');
   const btn = document.getElementById('genDescBtn');
@@ -2133,30 +2134,39 @@ async function generateDescriptionFromUrl() {
   }
   btn.disabled = true;
   btn.textContent = '⏳ Generating…';
-  status.textContent = 'Fetching site and writing description…';
+  status.textContent = 'Fetching site, finding logo, and writing description…';
   status.style.color = 'var(--text3)';
   try {
     const { data, error } = await sb.functions.invoke('generate-description', {
       body: { url, businessName: nameInput.value || '' },
     });
     if (error) throw error;
+    const got = [];
     if (data && data.description) {
       descInput.value = data.description;
+      got.push('description');
+    }
+    if (data && data.logoUrl && logoInput && !logoInput.value.trim()) {
+      // Only fill the logo if the field is empty (don't overwrite a manually-set URL)
+      logoInput.value = data.logoUrl;
+      got.push('logo');
+    }
+    if (got.length) {
       mockupUpdatePreview();
-      status.textContent = '✓ Generated — review and edit if needed';
+      status.textContent = `✓ Filled ${got.join(' + ')} — review and edit if needed`;
       status.style.color = 'var(--success, #10b981)';
     } else {
-      const reason = data && data.reason ? data.reason.replace(/_/g, ' ') : 'unknown';
-      status.textContent = `Couldn't auto-generate (${reason}). Please write one manually.`;
+      const reason = data && data.reason ? data.reason.replace(/_/g, ' ') : 'no usable content';
+      status.textContent = `Couldn't auto-generate (${reason}). Please fill in manually.`;
       status.style.color = 'var(--text2)';
     }
   } catch (e) {
     console.error('generate-description failed', e);
-    status.textContent = `Error: ${(e && e.message) || 'unknown'}. Please write one manually.`;
+    status.textContent = `Error: ${(e && e.message) || 'unknown'}. Please fill in manually.`;
     status.style.color = 'var(--danger)';
   } finally {
     btn.disabled = false;
-    btn.textContent = '✨ Auto-generate description';
+    btn.textContent = '✨ Auto-fill from website';
   }
 }
 
