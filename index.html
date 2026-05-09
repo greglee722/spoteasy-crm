@@ -332,7 +332,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.3</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.4</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -1247,6 +1247,7 @@ function renderPipeline() {
           <div class="kanban-card-meta">
             ${l.location?`<div class="kanban-card-meta-row"><span>📍 ${l.location}</span></div>`:''}
             ${l.lastMessageSent?`<div class="kanban-card-meta-row"><span>📧 ${l.lastMessageSent}</span></div>`:''}
+            ${(() => { const nd = computeNextDrip(l); return nd ? `<div class="kanban-card-meta-row"><span>⏭ Next: ${nd.label}</span><span style="color:var(--text3);font-size:11px">${nd.dateLabel}</span></div>` : ''; })()}
             ${days!==null?`<div class="kanban-card-meta-row"><span>Updated</span>${daysBadge(days)}</div>`:''}
             ${l.nextReminderDate ? '<div class="kanban-card-meta-row"><span>🗓 Reminder</span>' + reminderBadgeHtml(l.nextReminderDate, l.reminderNote) + '</div>' : ''}
           </div>
@@ -1264,6 +1265,58 @@ function renderPipeline() {
       }).join('') : '<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">Empty</div>'}</div>
     </div>`;
   }).join('');
+}
+
+// ============================================================
+// NEXT-SCHEDULED HELPER
+// Mirrors daily-drip's nextAction() logic so the CRM can preview what message
+// will fire next and roughly when. Returns { label, dateLabel } or null.
+// Day intervals: 1st Reach Out = +1d, Mock Up Sent = +1d (then +2d for customs),
+// Backlink Required = +2d throughout.
+// ============================================================
+function computeNextDrip(lead) {
+  if (!lead || !lead.lastUpdated) return null;
+  const stage = lead.pipelineStage;
+  const lms = lead.lastMessageSent || '';
+  let next = null, gapDays = 0;
+
+  if (stage === '1st Reach Out') {
+    gapDays = 1;
+    if (lms === '1st Template') next = 'Prompt 1A';
+    else if (lms === 'Prompt 1A') next = 'Prompt 1B';
+    else if (lms === 'Prompt 1B') next = 'Prompt 1C';
+    else if (lms === 'Prompt 1C') next = 'Mark No Response';
+  } else if (stage === 'Mock Up Sent') {
+    if (lms === '2nd Template') { next = 'Prompt 2A'; gapDays = 1; }
+    else if (lms === 'Prompt 2A') { next = 'Prompt 2B'; gapDays = 1; }
+    else if (lms === 'Prompt 2B') { next = 'Prompt 2C'; gapDays = 1; }
+    else if (lms === 'Prompt 2C') { next = 'Custom 1'; gapDays = 2; }
+    else if (lms === 'Custom 1') { next = 'Custom 2'; gapDays = 2; }
+    else if (lms === 'Custom 2') { next = 'Custom 3'; gapDays = 2; }
+    else if (lms === 'Custom 3') { next = 'Slack alert (exhausted)'; gapDays = 2; }
+  } else if (stage === 'Backlink Required') {
+    gapDays = 2;
+    if (lms === '3rd Template') next = 'Prompt 3A';
+    else if (lms === 'Prompt 3A') next = 'Prompt 3B';
+    else if (lms === 'Prompt 3B') next = 'Prompt 3C';
+    else if (lms === 'Prompt 3C') next = 'Custom 1';
+    else if (lms === 'Custom 1') next = 'Custom 2';
+    else if (lms === 'Custom 2') next = 'Custom 3';
+    else if (lms === 'Custom 3') next = 'Slack alert (exhausted)';
+  }
+  if (!next) return null;
+
+  const fireDate = new Date(lead.lastUpdated);
+  fireDate.setDate(fireDate.getDate() + gapDays);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const fd = new Date(fireDate); fd.setHours(0,0,0,0);
+  const diff = Math.round((fd - today) / 86400000);
+  let dateLabel;
+  if (diff < 0) dateLabel = 'due now';
+  else if (diff === 0) dateLabel = 'today';
+  else if (diff === 1) dateLabel = 'tomorrow';
+  else dateLabel = fireDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return { label: next, dateLabel };
 }
 
 // ============================================================
