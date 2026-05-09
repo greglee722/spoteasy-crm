@@ -332,7 +332,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.4</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.5-rc1</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -738,6 +738,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
                 <label style="font-size:12px;color:var(--text2)">Mock-up Image</label>
                 <div id="mockup-url-display" style="margin-top:4px;font-size:12px;color:var(--text3);padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;min-height:34px;display:flex;align-items:center">None</div>
                 <input type="hidden" id="f-mockupImageUrl">
+                <button type="button" id="generateMockupBtn" class="btn btn-primary" style="display:none;margin-top:8px;width:100%;justify-content:center" onclick="generateMockupForCurrentLead()">🎨 Generate Mock-up</button>
               </div>
             </div>
             <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
@@ -863,6 +864,7 @@ async function verifyAndLogin() {
   await loadLeads();
   maybeTriggerBriefing();
   startPresence();
+  handleDeepLink();
   return true;
 }
 
@@ -1707,6 +1709,8 @@ function clearForm() {
   if (cbEl) cbEl.checked = true; // default on for new leads
   const muDisplay = document.getElementById('mockup-url-display');
   if (muDisplay) muDisplay.textContent = 'None';
+  const genBtn = document.getElementById('generateMockupBtn');
+  if (genBtn) genBtn.style.display = 'none';
   document.getElementById('promptSelect').value='';
   document.getElementById('promptOutput').style.display='none';
   document.getElementById('newNoteInput').value='';
@@ -1728,6 +1732,9 @@ function fillForm(lead) {
   const muDisplay = document.getElementById('mockup-url-display');
   const muUrl = lead.mockupImageUrl || '';
   if (muDisplay) muDisplay.innerHTML = muUrl ? '<a href="' + muUrl + '" target="_blank" style="color:var(--primary)">View mock-up ↗</a>' : 'None';
+  // Show "Generate Mock-up" button only when stage is Mock Up Required
+  const genBtn = document.getElementById('generateMockupBtn');
+  if (genBtn) genBtn.style.display = (lead.pipelineStage === 'Mock Up Required') ? 'flex' : 'none';
   // Apply stage-based filtering AFTER all fields are set
   filterMessagesByStage(lead.pipelineStage || '');
   // Re-apply the saved lastMessageSent value (filterMessagesByStage rebuilds the dropdown)
@@ -2106,6 +2113,38 @@ function mockupFillFromLead() {
   document.getElementById('mu-city').value = 'Boston';
   document.getElementById('mu-logo-url').value = '';
   mockupUpdatePreview();
+}
+
+// Called from the "Generate Mock-up" button on the lead modal (Mock Up Required stage).
+// Closes modal, switches to mockup tab, prefills the generator with this lead's info.
+function generateMockupForCurrentLead() {
+  const id = editingId;
+  if (!id) return;
+  closeModal();
+  switchTab('mockup');
+  const sel = document.getElementById('mu-lead-select');
+  if (sel) {
+    sel.value = id;
+    mockupFillFromLead();
+  }
+}
+
+// Deep-link handler: ?leadId=<uuid> opens that lead's edit modal after leads load.
+// Used by Slack alerts (e.g. "Mock-up required" notification → CRM lead card).
+function handleDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const leadId = params.get('leadId');
+  if (!leadId) return;
+  const lead = leads.find(l => l._id === leadId);
+  if (!lead) {
+    showToast(`Lead ${leadId} not found`, 'error');
+    return;
+  }
+  openEditModal(leadId);
+  // Clear the param so a refresh doesn't re-open the modal
+  const url = new URL(window.location.href);
+  url.searchParams.delete('leadId');
+  window.history.replaceState({}, '', url.toString());
 }
 
 function mockupUpdatePreview() {
