@@ -332,7 +332,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.5-rc6</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.5-rc7</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -636,36 +636,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 </div>
 
 <!-- MODAL -->
-<!-- SEND MOCK-UP MODAL -->
-<div class="modal-overlay" id="sendMockupModal">
-  <div class="modal" style="max-width:600px">
-    <div class="modal-header">
-      <div class="modal-title">📤 Send Mock-up — <span id="smu-biz">—</span></div>
-      <button class="modal-close" onclick="closeSendMockupModal()">✕</button>
-    </div>
-    <div style="padding:20px 24px;display:flex;flex-direction:column;gap:16px">
-      <div style="font-size:12px;color:var(--text2);font-family:'DM Mono',monospace">Sending to <span id="smu-handle" style="color:var(--accent)">—</span></div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
-        <img id="smu-img" src="" alt="Mock-up preview" style="max-width:100%;max-height:300px;border-radius:6px;display:inline-block">
-      </div>
-      <div>
-        <label style="font-size:11px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:0.05em;font-family:'DM Mono',monospace">2nd Template</label>
-        <textarea id="smu-text" readonly style="width:100%;min-height:160px;margin-top:6px;padding:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Mulish',sans-serif;font-size:13px;line-height:1.5;border-radius:8px;resize:vertical"></textarea>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button class="btn btn-secondary" onclick="smuCopyImage()" style="justify-content:center">📷 Copy Image</button>
-        <button class="btn btn-secondary" onclick="smuCopyText()" style="justify-content:center">📋 Copy Text</button>
-      </div>
-      <button id="smu-ig-btn" class="btn btn-secondary" style="justify-content:center;width:100%">↗ Open Instagram DM</button>
-      <p id="smu-status" style="font-size:12px;color:var(--text3);margin:0;text-align:center;font-family:'DM Mono',monospace;min-height:18px"></p>
-      <div style="border-top:1px solid var(--border);padding-top:14px;display:flex;gap:8px;justify-content:flex-end">
-        <button class="btn btn-secondary" onclick="closeSendMockupModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="smuMarkSent()">✓ Mark Sent</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="leadModal">
   <div class="modal">
     <div class="modal-header">
@@ -1260,7 +1230,8 @@ function renderPipeline() {
         else if (lms === 'Prompt 1C') action = { label: 'Mark as No Response', cls: 'danger',  kind: 'no_response' };
       } else if (l.pipelineStage === 'Mock Up Required') {
         if (l.mockupImageUrl) {
-          action = { label: '📤 Send Mock-up', cls: 'primary', kind: 'send_mockup' };
+          // Reuse the standard send flow — image opens in a new tab so Greg can grab it.
+          action = { label: '📤 Send Mock-up', cls: 'primary', kind: 'send', key: '2nd-template', nextLms: '2nd Template', nextStage: 'Mock Up Sent', openMockupImage: true };
         } else {
           action = { label: '🎨 Generate Mock-up', cls: 'primary', kind: 'generate_mockup' };
         }
@@ -1406,7 +1377,9 @@ async function handleQuickAction(leadId, event) {
     else if (lms === 'Prompt 1B') action = { kind: 'send', key: 'prompt-1c', nextLms: 'Prompt 1C' };
     else if (lms === 'Prompt 1C') action = { kind: 'no_response' };
   } else if (stage === 'Mock Up Required') {
-    action = lead.mockupImageUrl ? { kind: 'send_mockup' } : { kind: 'generate_mockup' };
+    action = lead.mockupImageUrl
+      ? { kind: 'send', key: '2nd-template', nextLms: '2nd Template', nextStage: 'Mock Up Sent', openMockupImage: true, mockupUrl: lead.mockupImageUrl }
+      : { kind: 'generate_mockup' };
   } else if (stage === 'Mock Up Sent') {
     if (lms === '2nd Template')   action = { kind: 'send', key: 'prompt-2a', nextLms: 'Prompt 2A' };
     else if (lms === 'Prompt 2A') action = { kind: 'send', key: 'prompt-2b', nextLms: 'Prompt 2B' };
@@ -1436,13 +1409,9 @@ async function handleQuickAction(leadId, event) {
     }
   }
 
-  // New action kinds
+  // New action kind: open the lead modal so Greg can hit the in-modal Generate Mock-up button
   if (action.kind === 'generate_mockup') {
     openEditModal(leadId);
-    return;
-  }
-  if (action.kind === 'send_mockup') {
-    openSendMockupModal(lead);
     return;
   }
 
@@ -1477,7 +1446,13 @@ async function handleQuickAction(leadId, event) {
   };
   const label = labelMap[action.key] || action.key;
 
-  const confirmMsg = `Send "${label}" to ${lead.businessName}?\n\n• Copies the message to your clipboard\n• Opens instagram.com/${handle}/ in a new tab\n• Marks LMS as "${action.nextLms}"${action.nextStage ? ` and stage as "${action.nextStage}"` : ''}\n\nYou'll paste + send in Instagram.`;
+  const bullets = [
+    '• Copies the message to your clipboard',
+    action.openMockupImage ? '• Opens the mock-up image in a new tab (right-click → Save / Copy)' : null,
+    `• Opens instagram.com/${handle}/ in a new tab`,
+    `• Marks LMS as "${action.nextLms}"${action.nextStage ? ` and stage as "${action.nextStage}"` : ''}`,
+  ].filter(Boolean).join('\n');
+  const confirmMsg = `Send "${label}" to ${lead.businessName}?\n\n${bullets}\n\nYou'll paste + send in Instagram.`;
   if (!confirm(confirmMsg)) return;
 
   // 1. Copy to clipboard
@@ -1507,7 +1482,12 @@ async function handleQuickAction(leadId, event) {
     return;
   }
 
-  // 3. Open IG in new tab (after CRM update — the new tab steals focus)
+  // 3. If this is a mock-up send, open the mockup image first so it's ready in a tab
+  if (action.openMockupImage && lead.mockupImageUrl) {
+    window.open(lead.mockupImageUrl, '_blank', 'noopener');
+  }
+
+  // 4. Open IG in new tab (after CRM update — the new tab steals focus)
   window.open(`https://www.instagram.com/${handle}/`, '_blank', 'noopener');
 
   showToast(`${label} copied. Paste + send in IG tab.`, 'success', 4000);
@@ -1782,116 +1762,6 @@ async function openEditModal(id) {
 
 function closeModal() { document.getElementById('leadModal').classList.remove('open'); editingId=null; }
 
-// ============================================================
-// SEND MOCK-UP MODAL
-// Opens an overlay with: mockup image preview, 2nd Template text,
-// Copy Image / Copy Text / Open IG / Mark Sent buttons.
-// On Mark Sent: stage → Mock Up Sent, LMS → '2nd Template'.
-// ============================================================
-let _sendMockupLeadId = null;
-
-function openSendMockupModal(lead) {
-  _sendMockupLeadId = lead._id;
-  const overlay = document.getElementById('sendMockupModal');
-  const igHandle = extractIgHandle(lead.instagram);
-  const message = (PROMPT_TEMPLATES['2nd-template'] || (() => ''))(lead);
-  document.getElementById('smu-biz').textContent = lead.businessName || '—';
-  document.getElementById('smu-handle').textContent = igHandle ? '@' + igHandle : '(no IG handle)';
-  document.getElementById('smu-img').src = lead.mockupImageUrl || '';
-  document.getElementById('smu-text').value = message;
-  const igBtn = document.getElementById('smu-ig-btn');
-  if (igHandle) {
-    igBtn.style.display = '';
-    igBtn.onclick = () => window.open(`https://www.instagram.com/${igHandle}/`, '_blank', 'noopener');
-  } else {
-    igBtn.style.display = 'none';
-  }
-  document.getElementById('smu-status').textContent = '';
-  overlay.classList.add('open');
-}
-
-function closeSendMockupModal() {
-  document.getElementById('sendMockupModal').classList.remove('open');
-  _sendMockupLeadId = null;
-}
-
-async function smuCopyImage() {
-  const img = document.getElementById('smu-img');
-  const status = document.getElementById('smu-status');
-  if (!img.src) { status.textContent = 'No mockup image on this lead.'; return; }
-  status.textContent = 'Copying image…';
-  try {
-    // Fetch the image bytes (Supabase Storage public URL is CORS-friendly)
-    const res = await fetch(img.src, { mode: 'cors' });
-    const blob = await res.blob();
-    // ClipboardItem only reliably accepts PNG. Convert via canvas.
-    const png = await blobToPng(blob);
-    await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
-    status.textContent = '✓ Image copied — paste in Instagram';
-    status.style.color = 'var(--success, #10b981)';
-  } catch (e) {
-    console.error('copy image failed', e);
-    status.textContent = `Couldn't copy image: ${(e && e.message) || 'unknown'}. Try right-clicking the preview to copy.`;
-    status.style.color = 'var(--danger)';
-  }
-}
-
-function blobToPng(srcBlob) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(srcBlob);
-    const im = new Image();
-    im.crossOrigin = 'anonymous';
-    im.onload = () => {
-      const c = document.createElement('canvas');
-      c.width = im.naturalWidth; c.height = im.naturalHeight;
-      const ctx = c.getContext('2d');
-      ctx.drawImage(im, 0, 0);
-      c.toBlob(b => { URL.revokeObjectURL(url); b ? resolve(b) : reject(new Error('toBlob returned null')); }, 'image/png');
-    };
-    im.onerror = (e) => { URL.revokeObjectURL(url); reject(new Error('image load failed')); };
-    im.src = url;
-  });
-}
-
-async function smuCopyText() {
-  const ta = document.getElementById('smu-text');
-  const status = document.getElementById('smu-status');
-  try {
-    await navigator.clipboard.writeText(ta.value);
-    status.textContent = '✓ Text copied — paste in Instagram';
-    status.style.color = 'var(--success, #10b981)';
-  } catch (e) {
-    ta.select();
-    try { document.execCommand('copy'); } catch (_) {}
-    status.textContent = '✓ Text copied (fallback)';
-  }
-}
-
-async function smuMarkSent() {
-  const id = _sendMockupLeadId;
-  if (!id) return;
-  const lead = leads.find(l => l._id === id);
-  if (!lead) return;
-  if (!confirm(`Mark mock-up as sent to ${lead.businessName}?\n\nStage → Mock Up Sent\nLast message → 2nd Template`)) return;
-  try {
-    const { error } = await sb.from('leads').update({
-      pipeline_stage: 'Mock Up Sent',
-      last_message_sent: '2nd Template',
-      last_updated: new Date().toISOString(),
-    }).eq('id', id);
-    if (error) throw error;
-    lead.pipelineStage = 'Mock Up Sent';
-    lead.lastMessageSent = '2nd Template';
-    lead.lastUpdated = new Date().toISOString();
-    closeSendMockupModal();
-    showToast(`${lead.businessName} → Mock Up Sent`, 'success');
-    renderPipeline(); updateStats();
-  } catch (e) {
-    console.error(e);
-    document.getElementById('smu-status').textContent = `Update failed: ${e.message}`;
-    document.getElementById('smu-status').style.color = 'var(--danger)';
-  }
-}
 
 function clearForm() {
   COLUMNS.forEach(col => { const el=document.getElementById(`f-${col}`); if(el) el.value=''; });
@@ -2505,6 +2375,8 @@ async function mockupUploadToStorage() {
           if (dbErr) throw dbErr;
           const lead = leads.find(l => l._id === leadId);
           if (lead) lead.mockupImageUrl = publicUrl;
+          // Refresh kanban + table so the tile button switches from "Generate Mock-up" → "Send Mock-up"
+          try { renderPipeline(); renderAll(); } catch(_) {}
           status.textContent = '✓ Uploaded and saved to lead';
           setTimeout(() => status.textContent = '', 3000);
         } catch(e) {
@@ -2534,7 +2406,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.getElementById('leadModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
-document.getElementById('sendMockupModal').addEventListener('click', function(e){ if(e.target===this) closeSendMockupModal(); });
 
 // ============================================================
 // PRESENCE — Supabase `presence` table + Realtime
