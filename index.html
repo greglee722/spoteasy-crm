@@ -332,7 +332,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.6</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.7</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -643,6 +643,14 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body" style="padding:0">
+      <div id="pendingDraftBanner" style="display:none;background:#fffbe6;border:1px solid #f0c14b;border-radius:6px;padding:12px 16px;margin:16px 24px 0">
+        <div style="font-weight:600;margin-bottom:6px;">📋 Unsent Reply Draft</div>
+        <div id="pendingDraftText" style="font-size:13px;color:#333;margin-bottom:10px;white-space:pre-wrap;"></div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="usePendingDraft()" style="background:#f0c14b;border:none;border-radius:4px;padding:6px 14px;cursor:pointer;font-weight:600;">Copy &amp; Open Instagram</button>
+          <button onclick="dismissPendingDraft()" style="background:#eee;border:none;border-radius:4px;padding:6px 14px;cursor:pointer;">Dismiss</button>
+        </div>
+      </div>
       <!-- Modal Tabs -->
       <div style="display:flex;border-bottom:1px solid var(--border);padding:0 24px;background:var(--surface)">
         <div id="modalTab-details" class="modal-tab active" onclick="switchModalTab('details')">Details</div>
@@ -907,7 +915,7 @@ sb.auth.onAuthStateChange((event, session) => {
 // ============================================================
 // CONFIG & STATE
 // ============================================================
-const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastMessageSent','lastUpdated','notes','addedBy','nextReminderDate','reminderNote','mockupImageUrl','manychatSubscriberId','autoOutreachEnabled'];
+const COLUMNS = ['businessName','businessType','url','firstName','location','domainRating','instagram','pipelineStage','lastMessageSent','lastUpdated','notes','addedBy','nextReminderDate','reminderNote','mockupImageUrl','manychatSubscriberId','autoOutreachEnabled','pendingReplyDraft'];
 // Maps in-memory lead-object keys → public.leads DB columns.
 const COLUMN_DB_MAP = {
   businessName:    'business_name',
@@ -927,6 +935,7 @@ const COLUMN_DB_MAP = {
   mockupImageUrl:        'mockup_image_url',
   manychatSubscriberId:  'manychat_subscriber_id',
   autoOutreachEnabled:   'auto_outreach_enabled',
+  pendingReplyDraft:     'pending_reply_draft',
 };
 const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Push Ad Live','Backlink Required','Backlink Acquired','On Hold','No Response','Declined Offer'];
 const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Push Ad Live':'orange','Backlink Required':'red','Backlink Acquired':'green','On Hold':'yellow','No Response':'gray','Declined Offer':'red' };
@@ -1360,6 +1369,37 @@ function extractIgHandle(igField) {
   return s.replace(/^@/, '').replace(/\/+$/, '') || null;
 }
 
+function showPendingDraftBanner(lead) {
+  const banner = document.getElementById('pendingDraftBanner');
+  const textEl = document.getElementById('pendingDraftText');
+  if (lead.pendingReplyDraft) {
+    textEl.textContent = lead.pendingReplyDraft;
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+async function usePendingDraft() {
+  const lead = leads.find(l => l._id === editingId);
+  if (!lead || !lead.pendingReplyDraft) return;
+  await navigator.clipboard.writeText(lead.pendingReplyDraft);
+  showToast('Draft copied to clipboard!');
+  const handle = extractIgHandle(lead.instagram);
+  if (handle) window.open('https://www.instagram.com/' + handle + '/', '_blank');
+  await saveLeadRow({ _id: editingId, pendingReplyDraft: null });
+  lead.pendingReplyDraft = '';
+  document.getElementById('pendingDraftBanner').style.display = 'none';
+}
+
+async function dismissPendingDraft() {
+  const lead = leads.find(l => l._id === editingId);
+  if (!lead) return;
+  await saveLeadRow({ _id: editingId, pendingReplyDraft: null });
+  lead.pendingReplyDraft = '';
+  document.getElementById('pendingDraftBanner').style.display = 'none';
+}
+
 async function handleQuickAction(leadId, event) {
   if (event) event.stopPropagation();
   const lead = leads.find(l => l._id === leadId);
@@ -1742,14 +1782,14 @@ async function openEditModal(id) {
   editingId=id;
   document.getElementById('modalTitle').textContent='Edit Lead';
   document.getElementById('deleteBtn').style.display='flex';
-  populateBusinessTypeDropdown(); fillForm(lead);
+  populateBusinessTypeDropdown(); fillForm(lead); showPendingDraftBanner(lead);
   switchModalTab('details');
   document.getElementById('leadModal').classList.add('open');
   _modalSnapshot = null;
   _modalSnapshot = await fetchSnapshotById(id);
 }
 
-function closeModal() { document.getElementById('leadModal').classList.remove('open'); editingId=null; }
+function closeModal() { document.getElementById('pendingDraftBanner').style.display='none'; document.getElementById('leadModal').classList.remove('open'); editingId=null; }
 
 
 function clearForm() {
