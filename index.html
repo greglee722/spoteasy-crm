@@ -332,7 +332,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.7</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v4.8</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -387,6 +387,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         <select class="filter-select" id="filterLocation" onchange="renderAll()">
           <option value="">All Locations</option>
         </select>
+        <button id="pendingDraftChip" onclick="togglePendingDraftFilter()" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;white-space:nowrap">📋 <span id="pendingDraftChipCount">0</span> Pending Draft</button>
         <span class="count-badge" id="countAll">0</span>
       </div>
       <div style="display:flex;gap:8px">
@@ -940,7 +941,7 @@ const COLUMN_DB_MAP = {
 const PIPELINE_STAGES = ['Opportunity','1st Reach Out','Mock Up Required','Mock Up Sent','Push Ad Live','Backlink Required','Backlink Acquired','On Hold','No Response','Declined Offer'];
 const STAGE_COLORS = { 'Opportunity':'blue','1st Reach Out':'yellow','Mock Up Required':'orange','Mock Up Sent':'purple','Push Ad Live':'orange','Backlink Required':'red','Backlink Acquired':'green','On Hold':'yellow','No Response':'gray','Declined Offer':'red' };
 
-let leads = [], currentTab = 'all', editingId = null, sortCol = null, sortDir = 1, _modalSnapshot = null, reminderFilterActive = false;
+let leads = [], currentTab = 'all', editingId = null, sortCol = null, sortDir = 1, _modalSnapshot = null, reminderFilterActive = false, pendingDraftFilterActive = false;
 
 // Convert a DB row → in-memory lead object the UI expects.
 function rowFromDb(r) {
@@ -1068,6 +1069,14 @@ function updateStats() {
   document.getElementById('statReminderCount').textContent = remCount || '—';
   const card = document.getElementById('statReminderCard');
   if (card) card.style.outline = reminderFilterActive ? '2px solid var(--purple)' : '';
+  const draftCount = leads.filter(l => l.pendingReplyDraft).length;
+  const chip = document.getElementById('pendingDraftChip');
+  if (chip) {
+    document.getElementById('pendingDraftChipCount').textContent = draftCount;
+    chip.style.display = draftCount ? '' : 'none';
+    chip.style.outline = pendingDraftFilterActive ? '2px solid #f0c14b' : '';
+    if (!draftCount && pendingDraftFilterActive) { pendingDraftFilterActive = false; renderAll(); }
+  }
 }
 
 function populateLocationFilter() {
@@ -1162,6 +1171,7 @@ function filteredLeads() {
   if (q) list = list.filter(l => (l.businessName+l.location+l.businessType+l.firstName).toLowerCase().includes(q));
   if (stage) list = list.filter(l => l.pipelineStage === stage);
   if (loc) list = list.filter(l => l.location === loc);
+  if (pendingDraftFilterActive) list = list.filter(l => l.pendingReplyDraft);
   if (sortCol) list.sort((a,b) => {
     let av=a[sortCol]||'', bv=b[sortCol]||'';
     if (sortCol==='domainRating') { av=parseFloat(av)||0; bv=parseFloat(bv)||0; }
@@ -2573,6 +2583,13 @@ function toggleReminderHighlight() {
   updateStats();
   // If user is on a tab that doesn't show leads, jump to All Leads so the highlight is visible
   if (reminderFilterActive && currentTab !== 'all' && currentTab !== 'pipeline') switchTab('all');
+}
+
+function togglePendingDraftFilter() {
+  pendingDraftFilterActive = !pendingDraftFilterActive;
+  updateStats();
+  if (pendingDraftFilterActive && currentTab !== 'all') switchTab('all');
+  renderAll();
 }
 
 let _lastReminderAlertDay = null;
