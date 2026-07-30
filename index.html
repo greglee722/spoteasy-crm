@@ -355,7 +355,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.4</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.5</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -621,6 +621,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         <span class="count-badge" id="ocCount">0</span>
       </div>
       <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" onclick="openOcPlaybook()" title="The working checklist for a Full Playbook target">📘 Playbook</button>
         <button class="btn btn-secondary" onclick="openOcCsvUpload()">⬆ Import CSV</button>
         <button class="btn btn-primary" onclick="openOcAddModal()">+ Add Contact</button>
       </div>
@@ -931,6 +932,76 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
      All ids below are oc-prefixed. Never reuse f-*, modalTab-*,
      modalPane-*, notesJournal, newNoteInput, csvFileInput, csvMapModal.
      ============================================================ -->
+<!-- Playbook: the working checklist for a Full Playbook target. Deliberately
+     generic — this repo is PUBLIC, so no company assessments, no link-velocity
+     numbers, and nothing about how we pace the programme. The full internal
+     playbook lives outside the repo; keep it that way. -->
+<div class="modal-overlay" id="ocPlaybookModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📘 Outreach Playbook</div>
+      <button class="modal-close" onclick="closeOcPlaybook()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px 24px;line-height:1.65;font-size:13px">
+
+      <p style="margin:0 0 18px;color:var(--text2)"><strong>Link to them first, then ask.</strong> The email is the last step, not the first. If the linking work is weak, no email saves it.</p>
+
+      <div style="font-weight:600;margin:0 0 8px">1. Do they link out at all?</div>
+      <p style="margin:0 0 18px;color:var(--text2)">Open two or three of their posts and count external links. A site that never links to anyone will not link to us, however good the pitch. Cheapest gate there is — do it before reading anything properly. Careful with small samples: three posts with no outbound links means "rarely", not "never".</p>
+
+      <div style="font-weight:600;margin:0 0 8px">2. Find a fact worth citing</div>
+      <p style="margin:0 0 10px;color:var(--text2)">Not a page to link to — a specific number, timeline, threshold or checklist step that would genuinely improve one of our articles. Read the actual post body; never infer content from the title or the slug. "Moving is stressful" is not a fact. "Book movers four weeks out" is.</p>
+      <p style="margin:0 0 6px;color:var(--text2)"><strong>Sort every fact into a bucket — they carry different risk:</strong></p>
+      <ul style="margin:0 0 18px;padding-left:20px;color:var(--text2)">
+        <li><strong>Their own advice</strong> ("start six weeks out") — it's their recommendation, it cannot be factually wrong. Safest, and the ideal kind.</li>
+        <li><strong>Their own claim about the world</strong> ("70% of leases turn over Sept 1") — if it's wrong and we repeat it, that's our byline on a bad stat. Verify independently or don't use it.</li>
+        <li><strong>Someone else's stat they're quoting</strong> — we'd be citing a citation. Cite the original instead, which gives them no link. Usually means find a different fact.</li>
+      </ul>
+
+      <div style="font-weight:600;margin:0 0 8px">3. Find the gap on our side</div>
+      <p style="margin:0 0 10px;color:var(--text2)"><strong>Never write a new paragraph to hold a link.</strong> Find the paragraph that is already weak and fix it. Two patterns that work:</p>
+      <ul style="margin:0 0 10px;padding-left:20px;color:var(--text2)">
+        <li><strong>The vague answer</strong> — we assert something without specifics ("book as early as possible").</li>
+        <li><strong>The unnamed category</strong> — we describe a type of service without naming a single provider.</li>
+      </ul>
+      <p style="margin:0 0 18px;color:var(--text2)">The test: <em>would we make this edit if there were no relationship?</em> If no, it's a planted link and it will read as one.</p>
+
+      <div style="font-weight:600;margin:0 0 8px">4. Verify before publishing</div>
+      <ul style="margin:0 0 18px;padding-left:20px;color:var(--text2)">
+        <li>Every claim about their business checked against <em>their own page</em>, and quoted. Never publish a claim their site doesn't make.</li>
+        <li><strong>Get the company name right.</strong> Check the <code>&lt;title&gt;</code> tag and footer copyright, not the domain — domains drop spaces and add plurals.</li>
+        <li>Any date maths worked out explicitly.</li>
+        <li>Read the page we're asking them to link <em>from</em> — its real title, its real audience.</li>
+      </ul>
+
+      <div style="font-weight:600;margin:0 0 8px">5. QA with fresh eyes</div>
+      <p style="margin:0 0 18px;color:var(--text2)">Before publishing, have someone who hasn't seen the drafting work review it. The brief: <em>does this read as paid, traded, or forced?</em> Anyone with context will rationalise. Then publish and confirm it actually landed — check the live page, don't trust a success message.</p>
+
+      <div style="font-weight:600;margin:0 0 8px">6. Then write the email</div>
+      <p style="margin:0 0 10px;color:var(--text2)">Who we are (one true credibility fact) → why them specifically → what we already did (describe the links accurately; they <em>will</em> click) → the ask, with an explicit escape hatch → close on one question they can answer with a single URL.</p>
+      <p style="margin:0 0 18px;color:var(--text2)">Ask them for a link on a commercial page. Offer them one on a service page rather than our homepage — deep links are usually what an SEO actually wants, and it matches the context of the sentence.</p>
+
+      <div style="font-weight:600;margin:0 0 8px">Hard rules</div>
+      <ul style="margin:0 0 18px;padding-left:20px;color:var(--text2)">
+        <li>Never publish a claim about their business that isn't on their site. Quote or cut.</li>
+        <li>Never invent a paragraph to hold a link. Fix a weak one.</li>
+        <li>Two links to one domain is the ceiling, and only if both are independently earned. One now and one later reads far more natural than two at once.</li>
+        <li>Descriptive anchors over brand-name-on-homepage.</li>
+        <li>Don't harden a hunch into a fact. "I gather you're behind X too" reads as an industry observation; "I know you own X" reads like we've been researching them.</li>
+        <li>Never overstate our own credentials — easiest thing to check, most expensive to be caught on.</li>
+      </ul>
+
+      <div style="font-weight:600;margin:0 0 8px">Tiers</div>
+      <p style="margin:0 0 4px;color:var(--text2)"><strong>Full Playbook</strong> — citable fact + they link out. Everything above applies.</p>
+      <p style="margin:0 0 4px;color:var(--text2)"><strong>Low Touch</strong> — real and relevant, but nothing citable or never links out. Generic outreach only.</p>
+      <p style="margin:0 0 4px;color:var(--text2)"><strong>Not a Fit</strong> — wrong audience or not local. Record why in the notes.</p>
+      <p style="margin:0 0 18px;color:var(--text2)">Tier is separate from Stage: stage is how far along they are, tier is how much effort they deserve.</p>
+
+      <p style="margin:0;padding-top:14px;border-top:1px solid var(--border);color:var(--text3);font-size:12px">Working checklist only. The full playbook — risk, pacing and target research — is kept outside this repo.</p>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="ocModal">
   <div class="modal">
     <div class="modal-header">
@@ -3794,6 +3865,10 @@ function closeOcModal() {
   editingOcId = null;
   _ocModalSnapshot = null;
 }
+
+// Static reference panel — no data layer, nothing to load or save.
+function openOcPlaybook()  { document.getElementById('ocPlaybookModal').classList.add('open'); }
+function closeOcPlaybook() { document.getElementById('ocPlaybookModal').classList.remove('open'); }
 
 async function saveOcContact() {
   const vals = getOcFormValues();
