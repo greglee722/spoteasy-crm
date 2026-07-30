@@ -355,7 +355,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.3</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.4</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -615,6 +615,9 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         <select class="filter-select" id="ocFilterType" onchange="renderOutreach()">
           <option value="">All Types</option>
         </select>
+        <select class="filter-select" id="ocFilterTier" onchange="renderOutreach()">
+          <option value="">All Tiers</option>
+        </select>
         <span class="count-badge" id="ocCount">0</span>
       </div>
       <div style="display:flex;gap:8px">
@@ -632,6 +635,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         <table>
           <thead><tr>
             <th onclick="sortOcBy('companyName')">Company ↕</th>
+            <th id="ocTierTh" onclick="sortOcBy('tier')">Tier <span style="cursor:help">ⓘ</span> ↕</th>
             <th>Website</th>
             <th onclick="sortOcBy('contactName')">Contact ↕</th>
             <th>Email</th>
@@ -962,6 +966,14 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
           <div class="form-group">
             <label>Backlink Type</label>
             <select id="oc-backlinkType"></select>
+          </div>
+          <div class="form-group">
+            <label>Tier <span id="ocTierHelp" style="font-weight:400;color:var(--text3);cursor:help">— screening result ⓘ</span></label>
+            <select id="oc-tier"></select>
+          </div>
+          <div class="form-group span2">
+            <label>Their Blog URL <span style="font-weight:400;color:var(--text3)">— where we look for a citable fact</span></label>
+            <input type="url" id="oc-blogUrl" placeholder="https://.../blog/">
           </div>
           <div class="form-group">
             <label>Stage</label>
@@ -3328,15 +3340,28 @@ const OUTREACH_STAGE_COLORS = {
 const OUTREACH_EMAILED_STAGES = ['1st Email','Follow Up','2nd Follow Up'];
 const OUTREACH_ACTIVE_STAGES  = ['1st Email','Follow Up','2nd Follow Up','Working'];
 const BACKLINK_TYPES = ['Niche Edit','Link Swap','Guest Post'];
+// Screening result — how much effort a target deserves. Independent of stage:
+// stage is where they are in the process, tier is how hard we try.
+//   Full Playbook — has a blog with a genuinely citable fact AND links out.
+//                   Worth reading their content, fixing a gap in one of our
+//                   posts, publishing first, then emailing.
+//   Low Touch     — real and relevant, but nothing worth citing, or the site
+//                   never links out. Generic outreach only.
+//   Not a Fit     — wrong audience or not local. Don't pursue.
+// Named for what they mean on purpose: an earlier "Tier 1/Tier 2" scheme read
+// backwards (Tier 2 was the good one) and nobody could remember which was which.
+const OUTREACH_TIERS = ['Full Playbook','Low Touch','Not a Fit','Unscreened'];
 // Days without a reply before a contact is flagged stale in the daily briefing.
 // Single constant on purpose — changing the follow-up cadence is a one-line edit.
 const OUTREACH_STALE_DAYS = 7;
 
-const OUTREACH_COLUMNS = ['companyName','websiteUrl','contactName','contactEmail','backlinkType','outreachStage','targetUrl','liveUrl','firstContactedAt','nextReminderDate','reminderNote','notes','lastUpdated','addedBy'];
+const OUTREACH_COLUMNS = ['companyName','websiteUrl','blogUrl','tier','contactName','contactEmail','backlinkType','outreachStage','targetUrl','liveUrl','firstContactedAt','nextReminderDate','reminderNote','notes','lastUpdated','addedBy'];
 const OUTREACH_COLUMN_DB_MAP = {
   _id:                'id',
   companyName:        'company_name',
   websiteUrl:         'website_url',
+  blogUrl:            'blog_url',
+  tier:               'tier',
   contactName:        'contact_name',
   contactEmail:       'contact_email',
   backlinkType:       'backlink_type',
@@ -3460,6 +3485,18 @@ function initOcOptionLists() {
   if (mStage) mStage.innerHTML = stageOpts;
   const mType = document.getElementById('oc-backlinkType');
   if (mType) mType.innerHTML = '<option value=""></option>' + typeOpts;
+  const tierOpts = OUTREACH_TIERS.map(t => '<option>' + ocEsc(t) + '</option>').join('');
+  const fTier = document.getElementById('ocFilterTier');
+  if (fTier) fTier.innerHTML = '<option value="">All Tiers</option>' + tierOpts;
+  const mTier = document.getElementById('oc-tier');
+  if (mTier) { mTier.innerHTML = '<option value=""></option>' + tierOpts; mTier.title = OUTREACH_TIER_HELP_SUMMARY; }
+  // Same help text on the column header, the filter and the modal label, all
+  // sourced from OUTREACH_TIER_HELP_SUMMARY so they cannot drift apart.
+  const tierTh = document.getElementById('ocTierTh');
+  if (tierTh) tierTh.title = OUTREACH_TIER_HELP_SUMMARY;
+  if (fTier) fTier.title = OUTREACH_TIER_HELP_SUMMARY;
+  const tierLbl = document.getElementById('ocTierHelp');
+  if (tierLbl) tierLbl.title = OUTREACH_TIER_HELP_SUMMARY;
 }
 
 // ------------------------------------------------------------
@@ -3481,12 +3518,15 @@ function filteredOutreach() {
   const q = qEl ? qEl.value.toLowerCase() : '';
   const stEl = document.getElementById('ocFilterStage');
   const tyEl = document.getElementById('ocFilterType');
+  const tiEl = document.getElementById('ocFilterTier');
   const stage = stEl ? stEl.value : '';
   const type  = tyEl ? tyEl.value : '';
+  const tier  = tiEl ? tiEl.value : '';
   let list = [...outreachContacts];
   if (q) list = list.filter(c => (c.companyName + c.contactName + c.contactEmail + c.websiteUrl).toLowerCase().includes(q));
   if (stage) list = list.filter(c => c.outreachStage === stage);
   if (type)  list = list.filter(c => c.backlinkType === type);
+  if (tier)  list = list.filter(c => c.tier === tier);
   if (ocSortCol) list.sort((a,b) => {
     const av = a[ocSortCol] || '', bv = b[ocSortCol] || '';
     return av > bv ? ocSortDir : av < bv ? -ocSortDir : 0;
@@ -3503,6 +3543,28 @@ function ocStagePill(s) {
   if (!s) return '—';
   const c = OUTREACH_STAGE_COLORS[s] || 'gray';
   return '<span class="pill pill-' + c + '"><span class="pill-dot"></span>' + ocEsc(s) + '</span>';
+}
+
+const OUTREACH_TIER_COLORS = { 'Full Playbook':'green', 'Low Touch':'yellow', 'Not a Fit':'gray', 'Unscreened':'blue' };
+// Hover help. Defined once here and pushed into the column header, the modal
+// select, and every pill by initOcOptionLists()/ocTierPill() — so the wording
+// can never drift between the three places it appears.
+const OUTREACH_TIER_HELP = {
+  'Full Playbook': 'Their blog has a fact worth quoting, and their site links out. Worth the full treatment: read their content, find the fact, use it to fix a weak spot in one of our posts, publish that first, then email them.',
+  'Low Touch':     'Real, relevant business — but nothing worth quoting, or their site never links out. Generic outreach only. Not worth an afternoon.',
+  'Not a Fit':     'Wrong audience or not local. Do not pursue. The reason is in the contact notes.',
+  'Unscreened':    'Nobody has checked their blog yet. Screen before spending time on outreach.',
+};
+const OUTREACH_TIER_HELP_SUMMARY =
+  'How much effort a target deserves — separate from Stage, which is how far along they are.\n\n'
+  + OUTREACH_TIERS.map(t => t + ' — ' + OUTREACH_TIER_HELP[t]).join('\n\n');
+
+function ocTierPill(t) {
+  if (!t) return '—';
+  const c = OUTREACH_TIER_COLORS[t] || 'gray';
+  const help = OUTREACH_TIER_HELP[t];
+  return '<span class="pill pill-' + c + '"' + (help ? ' title="' + ocEsc(help) + '"' : '')
+    + '><span class="pill-dot"></span>' + ocEsc(t) + '</span>';
 }
 
 function ocLinkCell(url) {
@@ -3528,6 +3590,7 @@ function renderOcTable() {
     const rem = c.nextReminderDate ? ' data-oc-reminder="1"' : '';
     return '<tr' + rem + '>'
       + '<td><div class="td-name" onclick="openOcModal(\'' + c._id + '\')">' + ocEsc(c.companyName || '—') + '</div>' + renderAttributionTag(c.addedBy) + '</td>'
+      + '<td>' + ocTierPill(c.tier) + '</td>'
       + '<td class="td-url">' + ocLinkCell(c.websiteUrl) + '</td>'
       + '<td>' + ocEsc(c.contactName || '—') + '</td>'
       + '<td class="td-url">' + (c.contactEmail ? '<a href="mailto:' + ocEsc(c.contactEmail) + '">' + ocEsc(c.contactEmail) + '</a>' : '—') + '</td>'
