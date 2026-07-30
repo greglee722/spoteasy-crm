@@ -355,7 +355,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.2</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.3</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -965,7 +965,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
           </div>
           <div class="form-group">
             <label>Stage</label>
-            <select id="oc-outreachStage"></select>
+            <select id="oc-outreachStage" onchange="ocSyncFirstContacted()"></select>
           </div>
           <div class="form-group span2">
             <label>Our Target URL <span style="font-weight:400;color:var(--text3)">— the page we want linked</span></label>
@@ -978,6 +978,9 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
           <div class="form-group">
             <label>First Contacted</label>
             <input type="date" id="oc-firstContactedAt">
+            <div id="oc-firstContactedHint" style="display:none;font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5">
+              Queued means not contacted yet — this fills in automatically when the contact leaves Queued.
+            </div>
           </div>
         </div>
       </div>
@@ -3366,6 +3369,12 @@ function ocRowFromDb(r) {
 
 function ocDbFromRow(c) {
   const r = {};
+  // first_contacted_at invariant, enforced here because EVERY write path
+  // (modal save, kanban drop, CSV import) funnels through this function:
+  //   Queued = not contacted yet, so a date is a contradiction — always blank.
+  //   Any other stage with no date yet = stamp today.
+  if (c.outreachStage === 'Queued') c.firstContactedAt = '';
+  else if (c.outreachStage && !c.firstContactedAt) c.firstContactedAt = new Date().toISOString().slice(0,10);
   Object.keys(OUTREACH_COLUMN_DB_MAP).forEach(k => {
     if (k === '_id') return;
     const col = OUTREACH_COLUMN_DB_MAP[k];
@@ -3410,11 +3419,8 @@ async function silentRefreshOutreach() {
 }
 
 async function saveOutreachRow(row) {
-  // Single choke point for first_contacted_at, so modal save, kanban drop and CSV
-  // import can never drift apart on the rule.
-  if (row.outreachStage && row.outreachStage !== 'Queued' && !row.firstContactedAt) {
-    row.firstContactedAt = new Date().toISOString().slice(0,10);
-  }
+  // The first_contacted_at invariant lives in ocDbFromRow() — every write path
+  // goes through it, so it cannot be bypassed here or by the CSV importer.
   const payload = ocDbFromRow(row);
   if (row._id) {
     const { data, error } = await sb.from('outreach_contacts').update(payload).eq('id', row._id).select().single();
@@ -3650,6 +3656,22 @@ function switchOcModalTab(tab) {
   });
 }
 
+// Locks + blanks First Contacted while the stage is Queued. Mirrors the
+// authoritative rule in saveOutreachRow() so the form can never show a value
+// the save path would strip.
+function ocSyncFirstContacted() {
+  const stageEl = document.getElementById('oc-outreachStage');
+  const dateEl  = document.getElementById('oc-firstContactedAt');
+  const hintEl  = document.getElementById('oc-firstContactedHint');
+  if (!stageEl || !dateEl) return;
+  const queued = stageEl.value === 'Queued';
+  dateEl.disabled = queued;
+  dateEl.style.opacity = queued ? '0.5' : '';
+  dateEl.style.cursor = queued ? 'not-allowed' : '';
+  if (queued) dateEl.value = '';
+  if (hintEl) hintEl.style.display = queued ? 'block' : 'none';
+}
+
 function clearOcForm() {
   OUTREACH_COLUMNS.forEach(k => {
     const el = document.getElementById('oc-' + k);
@@ -3660,6 +3682,7 @@ function clearOcForm() {
   const ni = document.getElementById('ocNewNoteInput');
   if (ni) ni.value = '';
   renderOcNotesJournal('');
+  ocSyncFirstContacted();
 }
 
 function fillOcForm(c) {
@@ -3668,6 +3691,7 @@ function fillOcForm(c) {
     if (el) el.value = c[k] || '';
   });
   renderOcNotesJournal(c.notes || '');
+  ocSyncFirstContacted();
 }
 
 function getOcFormValues() {
