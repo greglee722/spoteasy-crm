@@ -355,7 +355,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.5</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.6</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -1062,7 +1062,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
             <label>First Contacted</label>
             <input type="date" id="oc-firstContactedAt">
             <div id="oc-firstContactedHint" style="display:none;font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5">
-              Queued means not contacted yet — this fills in automatically when the contact leaves Queued.
+              Screening and Queued both mean not contacted yet — this fills in automatically once the contact moves past them.
             </div>
           </div>
         </div>
@@ -3402,11 +3402,18 @@ document.getElementById('csvMapModal').addEventListener('click', function(e){ if
 // ============================================================
 // ============================================================
 
-const OUTREACH_STAGES = ['Queued','1st Email','Follow Up','2nd Follow Up','Working','Link Acquired','Stale / No Response','Declined'];
+// Screening = imported but nobody has evaluated the target yet. Queued means
+// screened AND ready to email. Keeping them apart matters once a bulk import
+// lands: without it, "Queued" silently stops meaning "ready to contact" and
+// becomes "everything we have ever heard of".
+const OUTREACH_STAGES = ['Screening','Queued','1st Email','Follow Up','2nd Follow Up','Working','Link Acquired','Stale / No Response','Declined'];
 const OUTREACH_STAGE_COLORS = {
-  'Queued':'blue', '1st Email':'yellow', 'Follow Up':'yellow', '2nd Follow Up':'orange',
+  'Screening':'gray', 'Queued':'blue', '1st Email':'yellow', 'Follow Up':'yellow', '2nd Follow Up':'orange',
   'Working':'purple', 'Link Acquired':'green', 'Stale / No Response':'gray', 'Declined':'red'
 };
+// Stages that mean "we have not contacted them yet" — a first-contacted date in
+// either is a contradiction. Enforced in ocDbFromRow(); see the note there.
+const OUTREACH_NOT_CONTACTED_STAGES = ['Screening','Queued'];
 // Stages that mean "we have emailed them and are waiting" — used for the stale check.
 const OUTREACH_EMAILED_STAGES = ['1st Email','Follow Up','2nd Follow Up'];
 const OUTREACH_ACTIVE_STAGES  = ['1st Email','Follow Up','2nd Follow Up','Working'];
@@ -3467,9 +3474,12 @@ function ocDbFromRow(c) {
   const r = {};
   // first_contacted_at invariant, enforced here because EVERY write path
   // (modal save, kanban drop, CSV import) funnels through this function:
-  //   Queued = not contacted yet, so a date is a contradiction — always blank.
-  //   Any other stage with no date yet = stamp today.
-  if (c.outreachStage === 'Queued') c.firstContactedAt = '';
+  //   Screening or Queued = not contacted yet, so a date is a contradiction —
+  //   always blank. Any other stage with no date yet = stamp today.
+  // NOTE: this MUST test the not-contacted list, not `=== 'Queued'`. When
+  // Screening was added, a bare Queued check would have stamped today's date on
+  // every bulk-imported row, making 200+ untouched prospects look contacted.
+  if (OUTREACH_NOT_CONTACTED_STAGES.includes(c.outreachStage)) c.firstContactedAt = '';
   else if (c.outreachStage && !c.firstContactedAt) c.firstContactedAt = new Date().toISOString().slice(0,10);
   Object.keys(OUTREACH_COLUMN_DB_MAP).forEach(k => {
     if (k === '_id') return;
@@ -3790,20 +3800,20 @@ function switchOcModalTab(tab) {
   });
 }
 
-// Locks + blanks First Contacted while the stage is Queued. Mirrors the
-// authoritative rule in saveOutreachRow() so the form can never show a value
-// the save path would strip.
+// Locks + blanks First Contacted while the stage means "not contacted yet"
+// (Screening or Queued). Mirrors the authoritative rule in ocDbFromRow() so the
+// form can never show a value the save path would strip.
 function ocSyncFirstContacted() {
   const stageEl = document.getElementById('oc-outreachStage');
   const dateEl  = document.getElementById('oc-firstContactedAt');
   const hintEl  = document.getElementById('oc-firstContactedHint');
   if (!stageEl || !dateEl) return;
-  const queued = stageEl.value === 'Queued';
-  dateEl.disabled = queued;
-  dateEl.style.opacity = queued ? '0.5' : '';
-  dateEl.style.cursor = queued ? 'not-allowed' : '';
-  if (queued) dateEl.value = '';
-  if (hintEl) hintEl.style.display = queued ? 'block' : 'none';
+  const uncontacted = OUTREACH_NOT_CONTACTED_STAGES.includes(stageEl.value);
+  dateEl.disabled = uncontacted;
+  dateEl.style.opacity = uncontacted ? '0.5' : '';
+  dateEl.style.cursor = uncontacted ? 'not-allowed' : '';
+  if (uncontacted) dateEl.value = '';
+  if (hintEl) hintEl.style.display = uncontacted ? 'block' : 'none';
 }
 
 function clearOcForm() {
@@ -4144,7 +4154,10 @@ function previewOcCsv(text) {
       contactEmail: get('contact_email'),
       backlinkType: type,
       targetUrl: get('target_url'),
-      outreachStage: 'Queued',
+      // Bulk imports land in Screening, not Queued. A CSV is a prospect list —
+      // nobody has evaluated these yet, and dropping them straight into Queued
+      // is what turns "ready to email" into "everything we have ever heard of".
+      outreachStage: 'Screening',
       notes: note ? (initials + ' | ' + dateLabel + '\n' + note) : '',
     });
   }
