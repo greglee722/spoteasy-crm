@@ -371,7 +371,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.9</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v6.0</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -1242,15 +1242,28 @@ function switchTab(tab) {
 // ============================================================
 // SUPABASE DATA LAYER (replaces Sheets API)
 // ============================================================
+// PostgREST returns at most 1000 rows per select, and public.leads holds more
+// (2019 on 2026-10-01). Page by id — immutable, so an edit during the load cannot
+// move a row between pages — then sort newest-updated first, as before.
+// Returns { data, error } like a supabase-js query so callers stay unchanged.
+async function fetchAllLeadRows() {
+  const rows = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await sb.from('leads').select('*').order('id').range(from, from + 999);
+    if (error) return { data: null, error };
+    rows.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  rows.sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
+  return { data: rows, error: null };
+}
+
 async function loadLeads() {
   setStatus('loading');
   document.getElementById('loadingAll').style.display = 'flex';
   document.getElementById('tableAll').innerHTML = '';
   try {
-    const { data, error } = await sb
-      .from('leads')
-      .select('*')
-      .order('updated_at', { ascending: false });
+    const { data, error } = await fetchAllLeadRows();
     if (error) throw error;
     leads = (data || []).map(rowFromDb);
     setStatus('connected');
@@ -2810,10 +2823,7 @@ async function silentRefreshLeads() {
   // Don't refresh if a modal is open
   if (document.getElementById('leadModal').classList.contains('open')) return;
   try {
-    const { data, error } = await sb
-      .from('leads')
-      .select('*')
-      .order('updated_at', { ascending: false });
+    const { data, error } = await fetchAllLeadRows();
     if (error) return;
     leads = (data || []).map(rowFromDb);
     populateLocationFilter(); updateStats(); renderAll(); renderPipeline();
