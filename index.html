@@ -333,6 +333,44 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 .briefing-action-item::before { content:'—'; color:var(--text3); font-size:11px; flex-shrink:0; }
 .briefing-empty-action { font-size:13px; color:var(--text3); font-style:italic; padding-left:14px; }
 .briefing-footer { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:16px 24px; border-top:1px solid var(--border); }
+/* EMAIL OUTREACH (eo) */
+.eo-viewtoggle { display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:var(--surface); }
+.eo-viewbtn { border:none; background:transparent; padding:7px 14px; font-size:12px; font-weight:700; color:var(--text3); cursor:pointer; font-family:inherit; }
+.eo-viewbtn.active { background:var(--accent); color:#fff; }
+.eo-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-bottom:16px; }
+.eo-card-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+.eo-card-title { font-weight:900; font-size:15px; color:var(--navy); display:flex; align-items:center; gap:8px; }
+.eo-subhead { font-weight:800; font-size:12px; color:var(--text2); text-transform:uppercase; letter-spacing:0.05em; font-family:'DM Mono',monospace; margin:12px 0 6px; }
+.eo-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; margin-bottom:8px; background:var(--surface2); }
+.eo-row:hover { border-color:var(--accent); }
+.eo-row-main { flex:1; min-width:0; cursor:pointer; }
+.eo-row-name { font-weight:800; color:var(--text); }
+.eo-row-sub { font-size:12px; color:var(--text2); margin-top:3px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.eo-row-actions { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+.eo-btn-sm { padding:6px 10px; font-size:12px; }
+.eo-muted { color:var(--text3); font-size:12px; font-weight:400; }
+.eo-empty { color:var(--text3); font-size:13px; padding:8px 2px; }
+.eo-warn-text { color:var(--orange); font-weight:700; }
+.eo-hint { font-size:12px; color:var(--text3); margin-top:2px; }
+.eo-alert { font-size:12px; background:rgba(240,122,0,0.08); border:1px solid rgba(240,122,0,0.3); color:var(--orange); border-radius:8px; padding:8px 10px; }
+.eo-info { font-size:12px; background:rgba(0,172,238,0.06); border:1px solid rgba(0,172,238,0.3); color:var(--text2); border-radius:8px; padding:8px 10px; }
+.eo-rules { font-size:12px; color:var(--text2); background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:10px 12px; white-space:pre-wrap; max-height:220px; overflow:auto; line-height:1.5; }
+.eo-badge { display:inline-block; font-size:11px; font-weight:800; padding:2px 8px; border-radius:10px; white-space:nowrap; }
+.eo-badge-pre { background:var(--surface2); color:var(--text2); border:1px solid var(--border); }
+.eo-badge-ready { background:rgba(0,172,238,0.12); color:var(--accent2); }
+.eo-badge-seq { background:rgba(124,92,191,0.12); color:var(--purple); }
+.eo-badge-warm { background:rgba(0,184,122,0.12); color:var(--green); }
+.eo-badge-exit { background:rgba(122,154,181,0.15); color:var(--text3); }
+.eo-chip { display:inline-block; font-size:10px; font-weight:800; padding:1px 7px; border-radius:8px; font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.03em; }
+.eo-chip-ok { background:rgba(0,184,122,0.12); color:var(--green); }
+.eo-chip-warn { background:rgba(240,165,0,0.15); color:#a86f00; }
+.eo-chip-bad { background:rgba(232,67,122,0.12); color:var(--red); }
+.eo-chip-info { background:rgba(0,172,238,0.12); color:var(--accent2); }
+.eo-touch { padding:8px 10px; border:1px solid var(--border); border-radius:8px; margin-bottom:6px; font-size:13px; background:var(--surface2); }
+.eo-check { display:flex; align-items:flex-start; gap:8px; font-size:13px; color:var(--text2); text-transform:none; letter-spacing:0; font-family:'Mulish',sans-serif; font-weight:600; }
+.eo-check input { margin-top:3px; }
+#section-eo .table-wrap { overflow-x:auto; }
+@media (max-width: 700px) { .eo-row { flex-direction:column; align-items:stretch; } .eo-row-actions { justify-content:flex-start; } }
 </style>
 </head>
 <body>
@@ -355,7 +393,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.6</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.7</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -378,7 +416,8 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
   <div class="nav-tab active" onclick="switchTab('all')" id="tab-all">📋 All Leads</div>
   <div class="nav-tab" onclick="switchTab('pipeline')" id="tab-pipeline">🏆 Pipeline</div>
   <div class="nav-tab" onclick="switchTab('mockup')" id="tab-mockup">🎨 Mock Up</div>
-  <div class="nav-tab" onclick="switchTab('outreach')" id="tab-outreach">🔗 Link Outreach</div>
+  <div class="nav-tab" onclick="switchTab('outreach')" id="tab-outreach" style="display:none">🔗 Link Outreach</div>
+  <div class="nav-tab" onclick="switchTab('eo')" id="tab-eo">📧 Email Outreach</div>
   <div class="nav-tab" onclick="switchTab('settings')" id="tab-settings">⚙ Settings</div>
 </div>
 
@@ -665,6 +704,63 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
       </div>
     </div>
 
+  </div>
+
+
+  <!-- EMAIL OUTREACH (eo) — replaces Link Outreach. Spec 2026-10-01. -->
+  <div id="section-eo" class="section-hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="eo-viewtoggle">
+          <button class="eo-viewbtn active" id="eoViewBtn-today" onclick="eoSwitchView('today')">Today</button>
+          <button class="eo-viewbtn" id="eoViewBtn-prospects" onclick="eoSwitchView('prospects')">Prospects</button>
+          <button class="eo-viewbtn" id="eoViewBtn-dashboard" onclick="eoSwitchView('dashboard')">Dashboard</button>
+        </div>
+        <select class="filter-select" id="eoFilterCampaign" onchange="eoRender()"><option value="">All verticals</option></select>
+        <div id="eoProspectFilters" style="display:none;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="search-wrap">
+            <input type="text" class="search-input" id="eoSearch" placeholder="Search name, domain, email..." oninput="eoRenderProspects()">
+            <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          </div>
+          <select class="filter-select" id="eoFilterStage" onchange="eoRenderProspects()"><option value="">All stages</option></select>
+          <select class="filter-select" id="eoFilterTier" onchange="eoRenderProspects()"><option value="">All tiers</option><option>A</option><option>B</option><option>C</option></select>
+          <select class="filter-select" id="eoFilterEmail" onchange="eoRenderProspects()"><option value="">Any email status</option><option value="verified">verified</option><option value="role_account">role account</option><option value="unverified">unverified</option><option value="catch_all">catch-all</option><option value="no_email">no email</option><option value="bounced">bounced</option></select>
+          <select class="filter-select" id="eoFilterGeo" onchange="eoRenderProspects()"><option value="">Any geo</option><option>IN</option><option>CHECK</option><option>OUT</option></select>
+          <span class="count-badge" id="eoCount">0</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" onclick="eoOpenImport()">⬆ Import list</button>
+        <button class="btn btn-primary" onclick="eoOpenAddModal()">+ Add prospect</button>
+      </div>
+    </div>
+
+    <div id="eoView-today"><div class="loading"><div class="spinner"></div> Loading email outreach...</div></div>
+
+    <div id="eoView-prospects" class="section-hidden">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th onclick="eoSortBy('business_name')">Business ↕</th>
+            <th>Vertical</th>
+            <th onclick="eoSortBy('stage')">Stage ↕</th>
+            <th onclick="eoSortBy('tier')">Tier ↕</th>
+            <th>Email</th>
+            <th>Geo</th>
+            <th onclick="eoSortBy('last')">Last sent ↕</th>
+            <th onclick="eoSortBy('due')">Next due ↕</th>
+            <th>Instagram</th>
+          </tr></thead>
+          <tbody id="eoTable"></tbody>
+        </table>
+        <div id="eoEmpty" class="empty-state section-hidden">
+          <div class="empty-icon">📧</div><div class="empty-title">No prospects match</div>
+          <div class="empty-desc">Change the filters, add a prospect, or import a list</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="eoView-dashboard" class="section-hidden"></div>
   </div>
 
   <!-- SETTINGS -->
@@ -1002,6 +1098,125 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
   </div>
 </div>
 
+<!-- EMAIL OUTREACH: record modal -->
+<div class="modal-overlay" id="eoModal">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-header">
+      <div class="modal-title" id="eoModalTitle">Prospect</div>
+      <button class="modal-close" onclick="eoCloseModal()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div style="display:flex;flex-wrap:wrap;border-bottom:1px solid var(--border);padding:0 24px;background:var(--surface)">
+        <div id="eoModalTab-details" class="modal-tab active" onclick="eoSwitchModalTab('details')">Details</div>
+        <div id="eoModalTab-screening" class="modal-tab" onclick="eoSwitchModalTab('screening')">Screening</div>
+        <div id="eoModalTab-deal" class="modal-tab" onclick="eoSwitchModalTab('deal')">Deal</div>
+        <div id="eoModalTab-touches" class="modal-tab" onclick="eoSwitchModalTab('touches')">Emails</div>
+        <div id="eoModalTab-notes" class="modal-tab" onclick="eoSwitchModalTab('notes')">Notes</div>
+      </div>
+
+      <div id="eoModalPane-details" style="padding:20px 24px">
+        <div class="form-grid">
+          <div class="form-group span2"><label>Business name *</label><input type="text" id="eo-business_name"></div>
+          <div class="form-group"><label>Vertical</label><select id="eo-campaign_id" onchange="eoRefreshModalHints()"></select></div>
+          <div class="form-group"><label>Stage</label><select id="eo-stage" onchange="eoRefreshModalHints()"></select></div>
+          <div class="form-group span2" id="eoHoldWrap" style="display:none"><label>On Hold reason *</label><input type="text" id="eo-hold_reason" placeholder="no email, verify first, dormant, ..."></div>
+          <div class="form-group"><label>Domain</label><input type="text" id="eo-domain" placeholder="example.com" oninput="eoRefreshModalHints()"></div>
+          <div class="form-group"><label>Blog URL</label><input type="url" id="eo-blog_url" placeholder="https://..."></div>
+          <div class="form-group"><label>Email</label><input type="email" id="eo-email"></div>
+          <div class="form-group"><label>Phone</label><input type="text" id="eo-phone"></div>
+          <div class="form-group"><label>City</label><input type="text" id="eo-city"></div>
+          <div class="form-group"><label>Instagram</label><input type="text" id="eo-instagram"></div>
+          <div class="form-group"><label>Owner group</label><input type="text" id="eo-owner_group" placeholder="Same owner = one thread"></div>
+          <div class="form-group"><label>Track</label>
+            <select id="eo-track" onchange="eoRefreshModalHints()"><option value="">Campaign default</option><option value="guest_post">Guest post</option><option value="link_insertion">Link insertion</option></select>
+            <div class="eo-hint" id="eoTrackHint"></div></div>
+          <div class="form-group span2"><div class="eo-info" id="eoIgHint" style="display:none"></div></div>
+          <div class="form-group span2">
+            <label>Sending rules</label>
+            <div class="eo-info">Send from a real person with a monitored reply-to. Plain text only: no tracking pixels, no images, no link shorteners. No em dashes. No Saturday or Sunday sends.</div>
+            <details style="margin-top:6px"><summary class="eo-muted" style="cursor:pointer">Campaign rules (from the workbook README)</summary><div class="eo-rules" id="eoCampaignRules"></div></details>
+          </div>
+        </div>
+      </div>
+
+      <div id="eoModalPane-screening" style="padding:20px 24px;display:none">
+        <div class="form-grid">
+          <div class="form-group"><label>Email status</label>
+            <select id="eo-email_status"><option value="">(not set)</option><option value="verified">verified</option><option value="role_account">role account</option><option value="unverified">unverified</option><option value="catch_all">catch-all</option><option value="no_email">no email</option><option value="bounced">bounced</option></select></div>
+          <div class="form-group"><label>Geo</label>
+            <div style="display:flex;gap:6px"><select id="eo-geo_status" style="flex:1"><option value="">(not set)</option><option>IN</option><option>CHECK</option><option>OUT</option></select>
+            <button class="btn btn-secondary eo-btn-sm" type="button" onclick="eoSuggestGeo()" title="Suggest from the phone area code">From phone</button></div></div>
+          <div class="form-group span2"><label>Geo reason</label><input type="text" id="eo-geo_reason"></div>
+          <div class="form-group span2"><label class="eo-check"><input type="checkbox" id="eo-geo_confirmed"> Confirmed Greater Boston (manual override for CHECK)</label>
+            <input type="text" id="eo-geo_confirm_note" placeholder="How you confirmed it"></div>
+          <div class="form-group"><label>Last real post</label><input type="date" id="eo-last_real_post_date" oninput="eoRefreshModalHints()"><div class="eo-hint" id="eoTierHint"></div></div>
+          <div class="form-group"><label>Angle tag</label><input type="text" id="eo-angle_tag" placeholder="short label" oninput="eoRefreshModalHints()"><div class="eo-alert" id="eoAngleHint" style="display:none;margin-top:4px"></div></div>
+          <div class="form-group span2"><label>Personal angle * (required for Ready)</label><textarea id="eo-personal_angle" style="min-height:70px" placeholder="The specific reason, drawn from their actual blog"></textarea></div>
+          <div class="form-group span2"><label class="eo-check"><input type="checkbox" id="eo-blog_fit_confirmed"> Guest post fit: the blog has 3+ real posts, and at least one reaches renters, leases, apartments, students or moving dates</label></div>
+          <div class="form-group"><label>Spot Easy post that links to them</label><input type="url" id="eo-spoteasy_link_url" placeholder="https://www.spoteasy.com/blog/..."><div class="eo-hint">One prospect per Spot Easy post.</div></div>
+          <div class="form-group"><label>Our link live on</label><input type="date" id="eo-our_link_live_at"></div>
+        </div>
+      </div>
+
+      <div id="eoModalPane-deal" style="padding:20px 24px;display:none">
+        <div class="form-grid">
+          <div class="form-group"><label>Deal format</label>
+            <select id="eo-deal_format"><option value="">(not set)</option><option value="guest_post">Guest post</option><option value="paragraph">Paragraph in their post</option><option value="link_insertion">Link insertion</option></select></div>
+          <div class="form-group"><label>Their link verified live on</label><input type="date" id="eo-their_link_verified_at"></div>
+          <div class="form-group span2"><label>Their page that links to us</label><input type="url" id="eo-their_link_url" placeholder="https://..."><div class="eo-hint">Check it is dofollow and the page is indexable before you set the date.</div></div>
+          <div class="form-group span2"><label>Outcome notes</label><textarea id="eo-outcome_notes"></textarea></div>
+        </div>
+      </div>
+
+      <div id="eoModalPane-touches" style="padding:20px 24px;display:none">
+        <div id="eoTouchesList"></div>
+        <div class="eo-hint" id="eoNextDueHint" style="margin:6px 0 12px"></div>
+        <div id="eoTouchActions" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input type="date" id="eoTouchDate" title="Date the email was sent (blank = today)">
+          <button class="btn btn-primary eo-btn-sm" type="button" onclick="eoModalMarkSent()">Log email sent</button>
+          <button class="btn btn-secondary eo-btn-sm" type="button" onclick="eoMarkReplied(eoEditingId)">They replied</button>
+          <button class="btn btn-secondary eo-btn-sm" type="button" onclick="eoMarkBounced(eoEditingId)">Bounced</button>
+          <button class="btn btn-secondary eo-btn-sm" type="button" onclick="eoUndoLastTouch(eoEditingId)">Undo last email</button>
+        </div>
+      </div>
+
+      <div id="eoModalPane-notes" style="padding:20px 24px;display:none">
+        <div class="form-group"><label>Notes</label><textarea id="eo-notes" style="min-height:180px"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="eoDeleteBtn" onclick="eoDeleteProspect()" style="margin-right:auto">Delete</button>
+      <button class="btn btn-secondary" onclick="eoCloseModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="eoSaveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMAIL OUTREACH: list importer -->
+<div class="modal-overlay" id="eoImportModal">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header">
+      <div class="modal-title">Import a prospect list</div>
+      <button class="modal-close" onclick="eoCloseImport()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group span2"><label>Vertical</label><select id="eoImportCampaign" onchange="eoImportCampaignChanged()"></select></div>
+        <div class="form-group span2" id="eoImportNewWrap" style="display:none;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="form-group"><label>New vertical name</label><input type="text" id="eoImportNewVertical" placeholder="locksmiths"></div>
+          <div class="form-group"><label>Default track</label><select id="eoImportNewTrack"><option value="guest_post">Guest post</option><option value="link_insertion">Link insertion</option></select></div>
+        </div>
+        <div class="form-group span2"><label>File (.xlsx or .csv, first sheet)</label><input type="file" id="eoImportFile" accept=".xlsx,.xls,.csv" onchange="eoImportFileChosen(this)"></div>
+        <div class="form-group span2" id="eoImportPreview"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="eoCloseImport()">Cancel</button>
+      <button class="btn btn-primary" id="eoImportCommit" onclick="eoCommitImport()" disabled>Import</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="ocModal">
   <div class="modal">
     <div class="modal-header">
@@ -1180,6 +1395,8 @@ async function verifyAndLogin() {
   // loadOutreach() has its own try/catch and can never reject — do not Promise.all
   // this with loadLeads(), a rejection there would escape and strand the login flow.
   await loadOutreach();
+  // eoLoad() never rejects either; it must also finish before the briefing reads eoProspects.
+  await eoLoad();
   maybeTriggerBriefing();
   startPresence();
   handleDeepLink();
@@ -1297,7 +1514,7 @@ window.onload = async () => {
 // ============================================================
 function switchTab(tab) {
   currentTab = tab;
-  ['all','pipeline','mockup','outreach','settings'].forEach(t => {
+  ['all','pipeline','mockup','outreach','eo','settings'].forEach(t => {
     const tabEl = document.getElementById(`tab-${t}`);
     const secEl = document.getElementById(`section-${t}`);
     if (tabEl) tabEl.classList.toggle('active', t === tab);
@@ -1309,7 +1526,7 @@ function switchTab(tab) {
   // other tab is byte-identical to before this feature existed.
   const sr = document.getElementById('statsRow');
   if (sr) {
-    if (tab === 'outreach') {
+    if (tab === 'outreach' || tab === 'eo') {
       if (sr.style.display !== 'none') sr.dataset.ocPrevDisplay = sr.style.display;
       sr.style.display = 'none';
     } else if (sr.dataset.ocPrevDisplay) {
@@ -1318,6 +1535,7 @@ function switchTab(tab) {
   }
   if (tab === 'mockup') mockupPopulateLeadSelect();
   if (tab === 'outreach') renderOutreach();
+  if (tab === 'eo') eoRender();
 }
 
 // ============================================================
@@ -2888,6 +3106,7 @@ function stopPresence() {
   if (presenceChannel) { sb.removeChannel(presenceChannel); presenceChannel = null; }
   if (leadsChannel) { sb.removeChannel(leadsChannel); leadsChannel = null; }
   if (outreachChannel) { sb.removeChannel(outreachChannel); outreachChannel = null; }
+  if (typeof eoChannel !== 'undefined' && eoChannel) { sb.removeChannel(eoChannel); eoChannel = null; }
   document.getElementById('presencePill').style.display = 'none';
 }
 
@@ -3046,39 +3265,37 @@ function renderBriefingModal() {
     actionGroup('🟡', 'Mock Up Required', mockUpRequired, 'None in this stage'),
   ].join('');
 
-  // --- Link Outreach section (append-only; hidden + empty when unused) ---
+  // --- Email Outreach section (hidden + empty when there are no prospects) ---
+  // Replaced the Link Outreach block on 2026-10-01. Sanket's three morning questions.
   const ocEl = document.getElementById('briefingOutreach');
   if (ocEl) {
-    if (!outreachContacts.length) {
+    if (typeof eoProspects === 'undefined' || !eoProspects.length) {
       ocEl.innerHTML = '';
       ocEl.style.display = 'none';
     } else {
-      const oc = buildOutreachBriefingData();
-      const ocStatRows = [
-        { label: 'Emails Sent',     val: oc.stats.emailsSent,    cls: oc.stats.emailsSent > 0 ? 'positive' : 'zero' },
-        { label: 'Follow-Ups Sent', val: oc.stats.followUpsSent, cls: oc.stats.followUpsSent > 0 ? 'positive' : 'zero' },
-        { label: 'Now Working',     val: oc.stats.nowWorking,    cls: oc.stats.nowWorking > 0 ? 'positive' : 'zero' },
-        { label: 'Links Acquired',  val: oc.stats.linksAcquired, cls: oc.stats.linksAcquired > 0 ? 'green' : 'zero' },
+      const eb = eoBriefingData();
+      const eoStatRows = [
+        { label: 'First emails to send', val: eb.firstToday,        cls: eb.firstToday > 0 ? 'positive' : 'zero' },
+        { label: 'Follow-ups due',       val: eb.followUps.length,  cls: eb.followUps.length > 0 ? 'positive' : 'zero' },
+        { label: 'Replies needing action', val: eb.replies.length,  cls: eb.replies.length > 0 ? 'green' : 'zero' },
       ];
-      const ocGroup = (emoji, title, items, emptyMsg) => {
+      const eoGroup = (emoji, title, items, emptyMsg) => {
         const inner = items.length
-          ? '<div class="briefing-action-list">' + items.map(c => '<div class="briefing-action-item">' + ocEsc(c.companyName || '—') + '</div>').join('') + '</div>'
+          ? '<div class="briefing-action-list">' + items.map(p => '<div class="briefing-action-item">' + eoEsc(p.business_name || '—') + '</div>').join('') + '</div>'
           : '<div class="briefing-empty-action">' + emptyMsg + '</div>';
         return '<div class="briefing-action-group"><div class="briefing-action-stage">' + emoji + ' ' + title + '</div>' + inner + '</div>';
       };
       ocEl.innerHTML =
           '<hr class="briefing-divider">'
-        + '<div><div class="briefing-section-title">🔗 Link Outreach — Yesterday</div>'
+        + '<div><div class="briefing-section-title">📧 Email Outreach — Today</div>'
         + '<div class="briefing-stats">'
-        + ocStatRows.map(r => '<div class="briefing-stat-row"><span class="briefing-stat-label">' + r.label + '</span>'
+        + eoStatRows.map(r => '<div class="briefing-stat-row"><span class="briefing-stat-label">' + r.label + '</span>'
             + '<span class="briefing-stat-val ' + r.cls + '">' + r.val + '</span></div>').join('')
         + '</div></div>'
-        + '<div style="margin-top:20px"><div class="briefing-section-title">🔗 Link Outreach — Today</div>'
-        + '<div style="display:flex;flex-direction:column;gap:14px">'
-        +   ocGroup('🗓', 'Reminders due', oc.remindersDue, 'None due')
-        +   ocGroup('📥', 'Queued — not emailed yet', oc.queued, 'Queue is empty')
-        +   ocGroup('⏳', 'No reply in ' + OUTREACH_STALE_DAYS + '+ days', oc.goneStale, 'Nothing stale')
-        + '</div></div>';
+        + '<div style="margin-top:20px;display:flex;flex-direction:column;gap:14px">'
+        +   eoGroup('💬', 'Replies needing action', eb.replies, 'No replies waiting')
+        +   eoGroup('🔁', 'Follow-ups due', eb.followUps, 'None due')
+        + '</div>';
       ocEl.style.display = 'block';
     }
   }
@@ -3156,27 +3373,23 @@ async function sendBriefingToSlack() {
     listItems(pushAdLiveAll),
     `🟡 *Mock Up Required:*`,
     listItems(mockUpRequired),
-    // Link Outreach — spread guard, NOT push-then-filter: the array is join('\n')ed,
-    // so pushing empty strings would append trailing newlines and the zero-contact
-    // payload would no longer be byte-identical to the pre-feature message.
-    ...(outreachContacts.length ? (() => {
-      const oc = buildOutreachBriefingData();
-      const ocList = arr => arr.length ? arr.map(c => `    — ${c.companyName || '—'}`).join('\n') : '    — None';
+    // Email Outreach — spread guard, NOT push-then-filter: the array is join('\n')ed,
+    // so pushing empty strings would append trailing newlines and the zero-prospect
+    // payload would no longer be byte-identical to the leads-only message.
+    ...((typeof eoProspects !== 'undefined' && eoProspects.length) ? (() => {
+      const eb = eoBriefingData();
+      const slackEsc = v => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const eoList = arr => arr.length ? arr.map(p => '    — ' + slackEsc(p.business_name || '—')).join('\n') : '    — None';
       return [
         '',
-        `🔗 *Link Outreach — Yesterday:*`,
-        fmt('Emails Sent', oc.stats.emailsSent),
-        fmt('Follow-Ups Sent', oc.stats.followUpsSent),
-        fmt('Now Working', oc.stats.nowWorking),
-        fmt('Links Acquired', oc.stats.linksAcquired),
-        '',
-        `🔗 *Link Outreach — Today:*`,
-        `🗓 *Reminders due:*`,
-        ocList(oc.remindersDue),
-        `📥 *Queued — not emailed yet:*`,
-        ocList(oc.queued),
-        `⏳ *No reply in ${OUTREACH_STALE_DAYS}+ days:*`,
-        ocList(oc.goneStale),
+        '📧 *Email Outreach — Today:*',
+        fmt('First emails to send', eb.firstToday),
+        fmt('Follow-ups due', eb.followUps.length),
+        fmt('Replies needing action', eb.replies.length),
+        '💬 *Replies needing action:*',
+        eoList(eb.replies),
+        '🔁 *Follow-ups due:*',
+        eoList(eb.followUps),
       ];
     })() : []),
   ].join('\n');
@@ -4269,6 +4482,1122 @@ initOcOptionLists();
   const ocModal = document.getElementById('ocModal');
   if (ocModal) ocModal.addEventListener('click', function(e) { if (e.target === this) closeOcModal(); });
 })();
+
+
+// ============================================================
+// EMAIL OUTREACH (eo) — campaign-shaped email backlink pipeline
+// Spec: docs/superpowers/specs/2026-10-01-email-outreach-rebuild-design.md
+// Tables: eo_campaigns, eo_prospects, eo_touches, eo_stage_history (supabase/06-*.sql)
+// Every id, class, global and function here is eo-prefixed. Rows are kept in DB
+// (snake_case) shape — there is no camelCase mapping layer in this module.
+// ============================================================
+
+// EO-PURE-START — no DOM, no Supabase. Unit-tested by extracting this block.
+const EO_STAGES = ['Imported','Screening','Ready','Sent (Touch 1)','Follow-up 2','Follow-up 3','Follow-up 4',
+  'Replied','Interested','Call Needed','Draft Sent','Link Live','Closed',
+  'Bounced','Not Interested','No Response','Screened Out','On Hold','Do Not Contact'];
+const EO_SEQ_STAGES = ['Sent (Touch 1)','Follow-up 2','Follow-up 3','Follow-up 4'];
+const EO_TOUCH_STAGE = { 1: 'Sent (Touch 1)', 2: 'Follow-up 2', 3: 'Follow-up 3', 4: 'Follow-up 4' };
+const EO_REPLY_STAGES = ['Replied','Interested','Call Needed','Draft Sent','Link Live','Closed','Not Interested'];
+const EO_INTEREST_STAGES = ['Interested','Call Needed','Draft Sent','Link Live','Closed'];
+const EO_EXIT_STAGES = ['Bounced','Not Interested','No Response','Screened Out','On Hold','Do Not Contact'];
+const EO_EMAIL_STATUSES = ['verified','role_account','catch_all','unverified','no_email','bounced'];
+const EO_EMAIL_ORDER = { verified: 0, role_account: 1, unverified: 2, catch_all: 3 };
+const EO_IN_CODES = ['617','857','781','339','978','351'];
+const EO_CHECK_CODES = ['508','774'];
+const EO_TOLL_FREE = ['800','833','844','855','866','877','888'];
+
+function eoDateOnly(s) { return s ? String(s).slice(0, 10) : null; }
+function eoAddDays(ymd, n) {
+  const d = new Date(ymd + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+function eoDaysBetween(fromYmd, toYmd) {
+  return Math.round((Date.parse(toYmd + 'T00:00:00Z') - Date.parse(fromYmd + 'T00:00:00Z')) / 86400000);
+}
+function eoWeekday(ymd) { return new Date(ymd + 'T00:00:00Z').getUTCDay(); } // 0 Sun .. 6 Sat
+function eoRollWeekend(ymd) {
+  const wd = eoWeekday(ymd);
+  return wd === 6 ? eoAddDays(ymd, 2) : wd === 0 ? eoAddDays(ymd, 1) : ymd;
+}
+// Friday–Thursday week containing `today` (matches the SEO work log).
+function eoWeekStart(today) {
+  const back = (eoWeekday(today) - 5 + 7) % 7;
+  return eoAddDays(today, -back);
+}
+
+function eoTier(p, today) {
+  const d = eoDateOnly(p.last_real_post_date);
+  if (!d) return 'C';
+  const days = eoDaysBetween(d, today);
+  return days <= 90 ? 'A' : days <= 365 ? 'B' : 'C';
+}
+
+function eoTrack(p, campaign) {
+  return p.track || (campaign && campaign.default_track) || 'guest_post';
+}
+
+function eoNormDomain(v) {
+  if (!v) return null;
+  let s = String(v).trim().toLowerCase().replace(/^https?:\/\//, '').split(/[/?#]/)[0];
+  if (s.startsWith('www.')) s = s.slice(4);
+  return s || null;
+}
+
+// Spot Easy link URLs: one canonical spelling so the unique index catches repeats.
+function eoNormSpotEasyUrl(v) {
+  if (!v) return null;
+  let s = String(v).trim();
+  if (!s) return null;
+  if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+  try {
+    const u = new URL(s);
+    let host = u.hostname.toLowerCase();
+    if (host === 'spoteasy.com') host = 'www.spoteasy.com';
+    const path = u.pathname.replace(/\/+$/, '');
+    return 'https://' + host + path;
+  } catch (e) { return s; }
+}
+
+function eoAreaCode(phone) {
+  if (!phone) return null;
+  const s = String(phone).trim();
+  if (s.startsWith('+') && !s.startsWith('+1')) return 'intl';
+  let digits = s.replace(/\D/g, '');
+  if (digits.length === 11 && digits[0] === '1') digits = digits.slice(1);
+  return digits.length === 10 ? digits.slice(0, 3) : null;
+}
+
+// Sanket's geo rule. A signal, not proof — the UI only suggests it.
+function eoGeoFromPhone(phone) {
+  const ac = eoAreaCode(phone);
+  if (ac === null) return { status: 'CHECK', reason: 'No usable phone.' };
+  if (ac === 'intl') return { status: 'OUT', reason: 'Non-US phone.' };
+  if (EO_IN_CODES.includes(ac)) return { status: 'IN', reason: 'Greater Boston area code (' + ac + ').' };
+  if (EO_CHECK_CODES.includes(ac)) return { status: 'CHECK', reason: 'MA area code outside Greater Boston (' + ac + ').' };
+  if (EO_TOLL_FREE.includes(ac)) return { status: 'CHECK', reason: 'Toll-free number (' + ac + ').' };
+  return { status: 'OUT', reason: 'Area code ' + ac + ' is outside Massachusetts.' };
+}
+
+// touches: this prospect's touches (any order). Returns null when nothing is due.
+function eoNextDue(p, touches, campaign) {
+  if (!EO_SEQ_STAGES.includes(p.stage) || !touches || !touches.length) return null;
+  const last = touches.reduce((a, t) => (t.touch_number > a.touch_number ? t : a));
+  const max = (campaign && campaign.max_touches) || 4;
+  if (last.touch_number >= max) return null;
+  const interval = (campaign && campaign.touch_interval_days) || 7;
+  return eoRollWeekend(eoAddDays(eoDateOnly(last.sent_on), interval));
+}
+
+// Date the sequence ends (last touch + interval) once every touch is sent.
+function eoSequenceEnd(p, touches, campaign) {
+  if (!EO_SEQ_STAGES.includes(p.stage) || !touches || !touches.length) return null;
+  const last = touches.reduce((a, t) => (t.touch_number > a.touch_number ? t : a));
+  const max = (campaign && campaign.max_touches) || 4;
+  if (last.touch_number < max) return null;
+  const interval = (campaign && campaign.touch_interval_days) || 7;
+  return eoRollWeekend(eoAddDays(eoDateOnly(last.sent_on), interval));
+}
+
+// ctx: { campaign, prospects (all), today, igStage (Instagram pipeline stage or null) }
+// Returns { blocks: [...], warns: [...] }. Blocks stop the change; warns ask first.
+function eoCheckGate(p, toStage, ctx) {
+  const blocks = [], warns = [];
+  const today = ctx.today;
+  if (toStage === 'Ready') {
+    if (p.stage === 'Do Not Contact') blocks.push('This record is Do Not Contact. Move it to Screening first, with a note saying why.');
+    if (!(p.geo_status === 'IN' || (p.geo_status === 'CHECK' && p.geo_confirmed)))
+      blocks.push(p.geo_status === 'CHECK'
+        ? 'Geo is CHECK. Tick "Confirmed Greater Boston" with a note, or set geo to IN.'
+        : 'Geo must be IN (or CHECK with a manual confirmation). It is ' + (p.geo_status || 'not set') + '.');
+    if (!p.email) blocks.push('No email address.');
+    else if (p.email_status === 'no_email' || p.email_status === 'bounced')
+      blocks.push('Email status is ' + p.email_status + '.');
+    const tier = eoTier(p, today);
+    if (tier === 'C') blocks.push(p.last_real_post_date
+      ? 'Tier C: last real post is over a year old.'
+      : 'No last real post date. Read the blog and enter the date of the newest real post.');
+    if (!p.personal_angle || !String(p.personal_angle).trim()) blocks.push('Personal angle is empty. No angle, no send.');
+    const track = eoTrack(p, ctx.campaign);
+    if (track === 'link_insertion') {
+      if (!p.spoteasy_link_url) blocks.push('Link insertion track: add the Spot Easy post that links to them.');
+      if (!p.our_link_live_at) blocks.push('Link insertion track: our link must be live before the first email (set "Our link live on").');
+    } else if (!p.blog_fit_confirmed) {
+      blocks.push('Guest post track: confirm the blog has 3+ real posts and one reaches renters, leases, apartments, students or moving dates.');
+    }
+    if (p.angle_tag) {
+      const tag = String(p.angle_tag).trim().toLowerCase();
+      const used = (ctx.prospects || []).filter(o => o.id !== p.id && o.campaign_id === p.campaign_id
+        && o.angle_tag && String(o.angle_tag).trim().toLowerCase() === tag);
+      const retired = ((ctx.campaign && ctx.campaign.retired_angles) || []).some(a => String(a).toLowerCase() === tag);
+      if (used.length) warns.push('Angle "' + p.angle_tag + '" is already used by ' + used.map(o => o.business_name).join(', ') + '.');
+      else if (retired) warns.push('Angle "' + p.angle_tag + '" was already used in this vertical before the CRM.');
+    }
+    if (p.email) {
+      const em = String(p.email).trim().toLowerCase();
+      const same = (ctx.prospects || []).filter(o => o.id !== p.id && o.email && String(o.email).trim().toLowerCase() === em
+        && (!p.owner_group || o.owner_group !== p.owner_group));
+      if (same.length) warns.push('The same email is on ' + same.map(o => o.business_name).join(', ') + '. Consider one owner group.');
+    }
+    if (ctx.igStage === 'Backlink Acquired') warns.push('This business is already a Local Spots partner (Instagram pipeline: Backlink Acquired).');
+  }
+  if (EO_SEQ_STAGES.includes(toStage) && !EO_SEQ_STAGES.includes(p.stage) && p.stage !== 'Ready')
+    blocks.push('Touch stages move only when you log a sent email.');
+  return { blocks, warns };
+}
+
+// Warnings shown when marking an email sent.
+function eoSendWarnings(p) {
+  const w = [];
+  if (p.email_status === 'catch_all') w.push('Catch-all domain: this address cannot be verified. Send after verified addresses.');
+  if (p.email_status === 'unverified' || !p.email_status) w.push('Email is unverified. Verify before sending.');
+  return w;
+}
+
+// Order for today's first touches: verified, role, unverified, catch-all; then A before B; then newest post.
+function eoFirstTouchCompare(a, b, today) {
+  const ea = EO_EMAIL_ORDER[a.email_status] ?? 9, eb = EO_EMAIL_ORDER[b.email_status] ?? 9;
+  if (ea !== eb) return ea - eb;
+  const ta = eoTier(a, today), tb = eoTier(b, today);
+  if (ta !== tb) return ta < tb ? -1 : 1;
+  const da = eoDateOnly(a.last_real_post_date) || '', db = eoDateOnly(b.last_real_post_date) || '';
+  if (da !== db) return da > db ? -1 : 1;
+  return String(a.business_name).localeCompare(String(b.business_name));
+}
+
+// Did a prospect ever reach one of `stages`? Current stage or any history row.
+function eoReached(p, history, stages) {
+  if (stages.includes(p.stage)) return true;
+  return (history || []).some(h => h.prospect_id === p.id && stages.includes(h.to_stage));
+}
+
+// Dashboard numbers for a set of prospects. touchesBy: {prospect_id: [touches]}.
+function eoStats(prospects, touchesBy, history, campaignsById, today) {
+  const weekStart = eoWeekStart(today);
+  const byStage = {};
+  EO_STAGES.forEach(s => (byStage[s] = 0));
+  let sentWeek = 0, contacted = 0, replied = 0, interested = 0, linksLive = 0, touchesAll = 0, bounced = 0, dueToday = 0;
+  prospects.forEach(p => {
+    byStage[p.stage] = (byStage[p.stage] || 0) + 1;
+    const ts = touchesBy[p.id] || [];
+    touchesAll += ts.length;
+    ts.forEach(t => {
+      if (t.bounced) bounced++;
+      const d = eoDateOnly(t.sent_on);
+      if (d >= weekStart && d <= today) sentWeek++;
+    });
+    if (ts.some(t => t.touch_number === 1)) {
+      contacted++;
+      if (eoReached(p, history, EO_REPLY_STAGES)) replied++;
+      if (eoReached(p, history, EO_INTEREST_STAGES)) interested++;
+    }
+    if (p.stage === 'Link Live' || p.stage === 'Closed') linksLive++;
+    const due = eoNextDue(p, ts, campaignsById[p.campaign_id]);
+    if (due && due <= today) dueToday++;
+  });
+  const pct = (n, d) => (d ? Math.round((n / d) * 100) : 0);
+  return {
+    byStage, weekStart, sentWeek, contacted, replied, interested, linksLive,
+    replyRate: pct(replied, contacted), interestRate: pct(interested, contacted),
+    touchesAll, bounced, bounceRate: pct(bounced, touchesAll), dueToday,
+  };
+}
+// EO-PURE-END
+
+// ---------------------------------------------------------------- state
+let eoCampaigns = [], eoProspects = [], eoTouchesBy = {}, eoHistory = [];
+let eoView = 'today', eoEditingId = null, eoModalSnapshot = null, eoChannel = null, eoLoaded = false;
+let eoSortCol = 'business_name', eoSortDir = 1;
+
+function eoEsc(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function eoToday() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function eoFmtDate(ymd) {
+  if (!ymd) return '—';
+  const d = new Date(eoDateOnly(ymd) + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+function eoCampaign(id) { return eoCampaigns.find(c => c.id === id) || null; }
+function eoCampaignsById() { const m = {}; eoCampaigns.forEach(c => (m[c.id] = c)); return m; }
+function eoVertical(p) { const c = eoCampaign(p.campaign_id); return c ? c.vertical : '—'; }
+function eoProspect(id) { return eoProspects.find(p => p.id === id) || null; }
+function eoTouches(id) { return (eoTouchesBy[id] || []).slice().sort((a, b) => a.touch_number - b.touch_number); }
+function eoActor() { return (typeof currentUser !== 'undefined' && currentUser && currentUser.email) || null; }
+
+// Instagram pipeline overlap, by domain. Read-only use of the global `leads` array.
+function eoIgStage(p) {
+  const d = eoNormDomain(p.domain);
+  if (!d || typeof leads === 'undefined' || !Array.isArray(leads)) return null;
+  const hit = leads.find(l => eoNormDomain(l.url) === d);
+  return hit ? (hit.pipelineStage || 'unknown stage') : null;
+}
+
+// ---------------------------------------------------------------- data
+// Never rejects and never calls setStatus(): an eo failure must not break the CRM.
+// PostgREST caps a select at 1000 rows, so page through every table in full.
+async function eoSelectAll(table, cols, orderCol) {
+  const out = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await sb.from(table).select(cols).order(orderCol).range(from, from + 999);
+    if (error) throw error;
+    out.push(...(data || []));
+    if (!data || data.length < 1000) return out;
+  }
+}
+
+async function eoLoad() {
+  try {
+    const [c, p, t, h] = await Promise.all([
+      eoSelectAll('eo_campaigns', '*', 'vertical'),
+      eoSelectAll('eo_prospects', '*', 'id'),
+      eoSelectAll('eo_touches', '*', 'id'),
+      eoSelectAll('eo_stage_history', 'id,prospect_id,from_stage,to_stage,changed_at,changed_by', 'id'),
+    ]);
+    eoCampaigns = c;
+    eoProspects = p.sort((a, b) => String(a.business_name).localeCompare(String(b.business_name)));
+    eoTouchesBy = {};
+    t.forEach(x => (eoTouchesBy[x.prospect_id] = eoTouchesBy[x.prospect_id] || []).push(x));
+    eoHistory = h;
+    eoLoaded = true;
+    eoInitFilters();
+    if (typeof currentTab !== 'undefined' && currentTab === 'eo') eoRender();
+    eoSubscribe();
+  } catch (e) {
+    showToast('Could not load Email Outreach: ' + (e.message || e), 'error');
+  }
+}
+
+let eoRefreshTimer = null;
+function eoSubscribe() {
+  if (eoChannel) return;
+  try {
+    eoChannel = sb.channel('eo-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'eo_prospects' }, eoQueueRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'eo_touches' }, eoQueueRefresh)
+      .subscribe();
+  } catch (e) { /* realtime is optional */ }
+}
+let eoRefreshPending = false;
+function eoQueueRefresh() {
+  clearTimeout(eoRefreshTimer);
+  eoRefreshTimer = setTimeout(() => {
+    const m = document.getElementById('eoModal');
+    // Never refresh under an open edit. eoCloseModal() runs the deferred refresh.
+    if (m && m.classList.contains('open')) { eoRefreshPending = true; return; }
+    eoRefreshPending = false;
+    eoLoad();
+  }, 800);
+}
+
+function eoClean(v) {
+  if (v === undefined || v === null) return null;
+  if (typeof v === 'string') { const s = v.trim(); return s === '' ? null : s; }
+  return v;
+}
+// The single write funnel for prospects: normalizes before every insert/update.
+function eoDbFromRow(row) {
+  const out = {};
+  Object.keys(row).forEach(k => {
+    if (['id', 'created_at', 'updated_at'].includes(k)) return;
+    out[k] = eoClean(row[k]);
+  });
+  if ('domain' in out) out.domain = eoNormDomain(out.domain);
+  if ('spoteasy_link_url' in out) out.spoteasy_link_url = eoNormSpotEasyUrl(out.spoteasy_link_url);
+  if ('email' in out && out.email) out.email = out.email.toLowerCase();
+  ['geo_confirmed', 'blog_fit_confirmed'].forEach(k => { if (k in out) out[k] = !!out[k]; });
+  if ('posts_last_90_days' in out && out.posts_last_90_days !== null) {
+    const n = parseInt(out.posts_last_90_days, 10);
+    out.posts_last_90_days = Number.isFinite(n) ? n : null;
+  }
+  return out;
+}
+
+function eoFriendlyError(e) {
+  const msg = (e && (e.message || e.details)) || String(e);
+  if (e && e.code === '23505') {
+    if (/domain/.test(msg)) return 'Another prospect already has this domain. Search for it instead of adding a copy.';
+    if (/link/.test(msg)) return 'Another prospect is already linked from that Spot Easy post. Pick a different post.';
+    if (/touch/.test(msg) || /prospect_id/.test(msg)) return 'That touch number is already logged. Reload and try again.';
+  }
+  return msg;
+}
+
+async function eoSaveProspect(row) {
+  const payload = eoDbFromRow(row);
+  if (row.id) {
+    const { data, error } = await sb.from('eo_prospects').update(payload).eq('id', row.id).select().single();
+    if (error) throw error;
+    eoProspects = eoProspects.map(p => (p.id === data.id ? data : p));
+    return data;
+  }
+  payload.added_by_email = eoActor();
+  const { data, error } = await sb.from('eo_prospects').insert(payload).select().single();
+  if (error) throw error;
+  eoProspects.push(data);
+  return data;
+}
+
+async function eoSetStage(p, toStage, extra) {
+  const saved = await eoSaveProspect(Object.assign({ id: p.id, stage: toStage }, extra || {}));
+  eoHistory.push({ prospect_id: p.id, from_stage: p.stage, to_stage: toStage, changed_at: new Date().toISOString() });
+  return saved;
+}
+
+// Owner groups: offer to apply the same change to the rest of the group.
+function eoGroupMates(p, sameStage) {
+  if (!p.owner_group) return [];
+  return eoProspects.filter(o => o.id !== p.id && o.owner_group === p.owner_group
+    && (!sameStage || o.stage === p.stage));
+}
+
+// ---------------------------------------------------------------- actions
+async function eoMarkSent(id, dateOverride) {
+  const p = eoProspect(id);
+  if (!p) return;
+  const camp = eoCampaign(p.campaign_id);
+  const ts = eoTouches(id);
+  const n = ts.length ? ts[ts.length - 1].touch_number + 1 : 1;
+  const max = (camp && camp.max_touches) || 4;
+  if (n === 1 && p.stage !== 'Ready') {
+    alert('Only Ready records get a first email. ' + p.business_name + ' is at ' + p.stage + '.');
+    return;
+  }
+  if (n > 1 && !EO_SEQ_STAGES.includes(p.stage)) {
+    alert(p.business_name + ' is at ' + p.stage + ', so the sequence is stopped.');
+    return;
+  }
+  if (n > max) { alert('All ' + max + ' touches are already sent.'); return; }
+  const date = dateOverride || eoToday();
+  if (ts.length && date < eoDateOnly(ts[ts.length - 1].sent_on)) {
+    alert('Touch ' + n + ' cannot be dated before touch ' + (n - 1) + ' (' + eoFmtDate(ts[ts.length - 1].sent_on) + ').');
+    return;
+  }
+  if (date > eoToday()) { alert('That date is in the future. Log an email after you send it.'); return; }
+  const warns = n === 1 ? eoSendWarnings(p) : [];
+  if (eoWeekday(date) === 0 || eoWeekday(date) === 6) warns.push('That date is a weekend. The rule is no Saturday or Sunday sends.');
+  if (warns.length && !confirm(warns.join('\n') + '\n\nLog touch ' + n + ' anyway?')) return;
+  // Group logging is for follow-ups in one shared thread. A first email must pass
+  // each record's own Ready gate and the daily cap, so it is never bulk-logged.
+  const mates = n > 1 ? eoGroupMates(p, true) : [];
+  const alsoGroup = mates.length && confirm('Also log touch ' + n + ' for the rest of owner group "' + p.owner_group + '" ('
+    + mates.map(m => m.business_name).join(', ') + ')?');
+  const targets = [p].concat(alsoGroup ? mates : []);
+  const done = [];
+  try {
+    for (const t of targets) {
+      const tn = (eoTouches(t.id).slice(-1)[0] || { touch_number: 0 }).touch_number + 1;
+      if (tn > max) continue;
+      const { data, error } = await sb.from('eo_touches')
+        .insert({ prospect_id: t.id, touch_number: tn, sent_on: date, created_by: eoActor() }).select().single();
+      if (error) throw error;
+      try {
+        await eoSetStage(t, EO_TOUCH_STAGE[tn] || t.stage);
+      } catch (stageErr) {
+        // Keep touch and stage in step: remove the touch we just wrote.
+        await sb.from('eo_touches').delete().eq('id', data.id);
+        throw stageErr;
+      }
+      (eoTouchesBy[t.id] = eoTouchesBy[t.id] || []).push(data);
+      done.push(t.business_name);
+    }
+    showToast('Logged touch ' + n + ' for ' + done.join(', '));
+  } catch (e) {
+    showToast('Could not log the email' + (done.length ? ' (logged for ' + done.join(', ') + ' only)' : '') + ': ' + eoFriendlyError(e), 'error');
+  }
+  eoAfterChange(id);
+}
+
+async function eoMarkReplied(id) {
+  const p = eoProspect(id);
+  if (!p) return;
+  const mates = eoGroupMates(p, false).filter(m => EO_SEQ_STAGES.includes(m.stage) || m.stage === 'Ready');
+  const alsoGroup = mates.length && confirm('A reply covers the whole thread. Also mark ' + mates.map(m => m.business_name).join(', ') + ' as Replied?');
+  try {
+    for (const t of [p].concat(alsoGroup ? mates : [])) await eoSetStage(t, 'Replied');
+    showToast(p.business_name + ' marked Replied. The follow-up sequence has stopped.');
+  } catch (e) { showToast('Could not save: ' + eoFriendlyError(e), 'error'); }
+  eoAfterChange(id);
+}
+
+async function eoMarkBounced(id) {
+  const p = eoProspect(id);
+  if (!p) return;
+  const ts = eoTouches(id);
+  if (!ts.length) { alert('No email has been logged for ' + p.business_name + ' yet.'); return; }
+  if (!confirm('Mark the latest email to ' + p.business_name + ' as bounced? The record moves to Bounced.')) return;
+  try {
+    const last = ts[ts.length - 1];
+    const { error } = await sb.from('eo_touches').update({ bounced: true }).eq('id', last.id);
+    if (error) throw error;
+    last.bounced = true;
+    await eoSetStage(p, 'Bounced', { email_status: 'bounced' });
+    showToast(p.business_name + ' marked Bounced.');
+  } catch (e) { showToast('Could not save: ' + eoFriendlyError(e), 'error'); }
+  eoAfterChange(id);
+}
+
+async function eoMarkNoResponse(id) {
+  const p = eoProspect(id);
+  if (!p) return;
+  try { await eoSetStage(p, 'No Response'); showToast(p.business_name + ' moved to No Response.'); }
+  catch (e) { showToast('Could not save: ' + eoFriendlyError(e), 'error'); }
+  eoAfterChange(id);
+}
+
+async function eoUndoLastTouch(id) {
+  const p = eoProspect(id);
+  const ts = eoTouches(id);
+  if (!p || !ts.length) return;
+  const last = ts[ts.length - 1];
+  if (!confirm('Delete touch ' + last.touch_number + ' (' + eoFmtDate(last.sent_on) + ') for ' + p.business_name + '? Use this only to fix a mistake.')) return;
+  try {
+    const { error } = await sb.from('eo_touches').delete().eq('id', last.id);
+    if (error) throw error;
+    eoTouchesBy[id] = (eoTouchesBy[id] || []).filter(t => t.id !== last.id);
+    const prev = last.touch_number - 1;
+    if (EO_SEQ_STAGES.includes(p.stage)) await eoSetStage(p, prev ? EO_TOUCH_STAGE[prev] : 'Ready');
+    showToast('Touch ' + last.touch_number + ' removed.');
+  } catch (e) { showToast('Could not remove: ' + eoFriendlyError(e), 'error'); }
+  eoAfterChange(id);
+}
+
+function eoAfterChange(id) {
+  eoRender();
+  if (!eoEditingId || eoEditingId !== id) return;
+  // Refresh only what the action changed, so unsaved edits in other fields survive,
+  // and move the conflict snapshot forward so our own write is not flagged as someone else's.
+  const p = eoProspect(id);
+  if (!p) return;
+  eoModalSnapshot = p.updated_at;
+  document.getElementById('eo-stage').innerHTML = eoStageOptions(p.stage);
+  document.getElementById('eo-email_status').value = p.email_status || '';
+  eoRefreshModalHints();
+  eoRenderTouchesPane(p);
+}
+
+// ---------------------------------------------------------------- render: shell
+function eoInitFilters() {
+  const camp = document.getElementById('eoFilterCampaign');
+  if (camp) {
+    const cur = camp.value;
+    camp.innerHTML = '<option value="">All verticals</option>'
+      + eoCampaigns.map(c => '<option value="' + c.id + '">' + eoEsc(c.vertical) + '</option>').join('');
+    camp.value = cur;
+  }
+  const st = document.getElementById('eoFilterStage');
+  if (st && st.options.length <= 1) {
+    st.innerHTML = '<option value="">All stages</option><option value="__active">Active (not exited)</option>'
+      + EO_STAGES.map(s => '<option>' + eoEsc(s) + '</option>').join('');
+  }
+}
+
+function eoSwitchView(v) {
+  eoView = v;
+  ['today', 'prospects', 'dashboard'].forEach(x => {
+    const b = document.getElementById('eoViewBtn-' + x), s = document.getElementById('eoView-' + x);
+    if (b) b.classList.toggle('active', x === v);
+    if (s) s.classList.toggle('section-hidden', x !== v);
+  });
+  const pf = document.getElementById('eoProspectFilters');
+  if (pf) pf.style.display = v === 'prospects' ? 'flex' : 'none';
+  eoRender();
+}
+
+function eoScoped() {
+  const cid = (document.getElementById('eoFilterCampaign') || {}).value || '';
+  return cid ? eoProspects.filter(p => p.campaign_id === cid) : eoProspects.slice();
+}
+
+function eoRender() {
+  if (!document.getElementById('section-eo')) return;
+  if (!eoLoaded) return;
+  if (eoView === 'today') eoRenderToday();
+  else if (eoView === 'prospects') eoRenderProspects();
+  else eoRenderDashboard();
+}
+
+function eoStageBadge(stage) {
+  const cls = EO_EXIT_STAGES.includes(stage) ? 'exit'
+    : EO_SEQ_STAGES.includes(stage) ? 'seq'
+    : EO_INTEREST_STAGES.includes(stage) || stage === 'Replied' ? 'warm'
+    : stage === 'Ready' ? 'ready' : 'pre';
+  return '<span class="eo-badge eo-badge-' + cls + '">' + eoEsc(stage) + '</span>';
+}
+function eoEmailBadge(s) {
+  const cls = s === 'verified' || s === 'role_account' ? 'ok' : s === 'catch_all' || s === 'unverified' || !s ? 'warn' : 'bad';
+  return '<span class="eo-chip eo-chip-' + cls + '">' + eoEsc((s || 'unverified').replace('_', ' ')) + '</span>';
+}
+
+// ---------------------------------------------------------------- render: Today
+function eoRenderToday() {
+  const el = document.getElementById('eoView-today');
+  if (!el) return;
+  const today = eoToday();
+  const cmap = eoCampaignsById();
+  const scoped = eoScoped();
+
+  // 1. Replies needing action, oldest stage change first.
+  const lastChange = id => eoHistory.filter(h => h.prospect_id === id).reduce((a, h) => (h.changed_at > a ? h.changed_at : a), '');
+  const replies = scoped.filter(p => ['Replied', 'Interested', 'Call Needed', 'Draft Sent'].includes(p.stage)
+    || (p.stage === 'Link Live' && !p.our_link_live_at))
+    .sort((a, b) => (lastChange(a.id) || '').localeCompare(lastChange(b.id) || ''));
+
+  // 2. Follow-ups due, overdue first, one row per owner group.
+  const seenGroups = new Set();
+  const followUps = scoped.map(p => ({ p, due: eoNextDue(p, eoTouches(p.id), cmap[p.campaign_id]) }))
+    .filter(x => x.due && x.due <= today)
+    .sort((a, b) => a.due.localeCompare(b.due))
+    .filter(x => { if (!x.p.owner_group) return true; if (seenGroups.has(x.p.owner_group)) return false; seenGroups.add(x.p.owner_group); return true; });
+
+  // 3. First touches: Ready, per-campaign cap minus first touches already sent today.
+  const first = [];
+  eoCampaigns.filter(c => scoped.some(p => p.campaign_id === c.id)).forEach(c => {
+    const sentToday = eoProspects.filter(p => p.campaign_id === c.id)
+      .filter(p => eoTouches(p.id).some(t => t.touch_number === 1 && eoDateOnly(t.sent_on) === today)).length;
+    const room = Math.max(0, (c.daily_cap || 6) - sentToday);
+    const ready = scoped.filter(p => p.campaign_id === c.id && p.stage === 'Ready')
+      .sort((a, b) => eoFirstTouchCompare(a, b, today));
+    first.push({ c, sentToday, room, list: ready.slice(0, room), waiting: Math.max(0, ready.length - room) });
+  });
+
+  // 4. Sequence finished.
+  const finished = scoped.map(p => ({ p, end: eoSequenceEnd(p, eoTouches(p.id), cmap[p.campaign_id]) }))
+    .filter(x => x.end && x.end <= today);
+
+  const row = (p, sub, actions) => '<div class="eo-row">'
+    + '<div class="eo-row-main" onclick="eoOpenModal(\'' + p.id + '\')">'
+    + '<div class="eo-row-name">' + eoEsc(p.business_name) + ' <span class="eo-muted">· ' + eoEsc(eoVertical(p)) + '</span></div>'
+    + '<div class="eo-row-sub">' + sub + '</div></div>'
+    + '<div class="eo-row-actions">' + actions + '</div></div>';
+  const btn = (label, fn, id, kind) => '<button class="btn ' + (kind || 'btn-secondary') + ' eo-btn-sm" onclick="event.stopPropagation();' + fn + '(\'' + id + '\')">' + label + '</button>';
+  const block = (title, hint, inner, count) => '<div class="eo-card"><div class="eo-card-head"><div class="eo-card-title">' + title
+    + ' <span class="count-badge">' + count + '</span></div><div class="eo-muted">' + hint + '</div></div>' + inner + '</div>';
+  const empty = msg => '<div class="eo-empty">' + msg + '</div>';
+
+  const repliesHtml = replies.length ? replies.map(p => row(p,
+    eoStageBadge(p.stage) + (p.outcome_notes ? ' ' + eoEsc(String(p.outcome_notes).slice(0, 110)) : '')
+      + (p.stage === 'Link Live' && !p.our_link_live_at ? ' <span class="eo-warn-text">Our link is not marked live yet.</span>' : ''),
+    btn('Open', 'eoOpenModal', p.id, 'btn-primary'))).join('') : empty('No replies waiting.');
+
+  const followHtml = followUps.length ? followUps.map(({ p, due }) => {
+    const ts = eoTouches(p.id), n = ts.length + 1;
+    const late = eoDaysBetween(due, today);
+    const mates = eoGroupMates(p, false);
+    return row(p, 'Touch ' + n + ' due ' + eoFmtDate(due) + (late > 0 ? ' <span class="eo-warn-text">(' + late + 'd late)</span>' : '')
+      + ' · last sent ' + eoFmtDate(ts[ts.length - 1].sent_on) + ' · ' + eoEsc(p.email || 'no email')
+      + (mates.length ? ' · <span class="eo-muted">owner group: ' + eoEsc(p.owner_group) + ' (+' + mates.length + ')</span>' : ''),
+      btn('Sent touch ' + n, 'eoMarkSent', p.id, 'btn-primary') + btn('Replied', 'eoMarkReplied', p.id) + btn('Bounced', 'eoMarkBounced', p.id));
+  }).join('') : empty('No follow-ups due.');
+
+  const firstHtml = first.length ? first.map(g => '<div class="eo-subhead">' + eoEsc(g.c.vertical) + ' <span class="eo-muted">· cap ' + g.c.daily_cap
+    + ', sent today ' + g.sentToday + (g.waiting ? ', ' + g.waiting + ' more Ready waiting' : '') + '</span></div>'
+    + (g.list.length ? g.list.map(p => row(p,
+      eoEmailBadge(p.email_status) + ' Tier ' + eoTier(p, today) + ' · ' + eoEsc(p.email || 'no email')
+        + (p.angle_tag ? ' · angle: ' + eoEsc(p.angle_tag) : ''),
+      btn('Sent touch 1', 'eoMarkSent', p.id, 'btn-primary'))).join('')
+      : empty(g.room ? 'Nothing at Ready. Screen prospects in the Prospects view.' : 'Daily cap reached.'))).join('')
+    : empty('No campaigns.');
+
+  const finishedHtml = finished.length ? block('🏁 Sequence finished', 'All touches sent and no reply.', finished.map(({ p, end }) => row(p,
+    'Last touch window ended ' + eoFmtDate(end),
+    btn('No Response', 'eoMarkNoResponse', p.id, 'btn-primary') + btn('Replied', 'eoMarkReplied', p.id))).join(''), finished.length) : '';
+
+  el.innerHTML =
+      block('💬 Replies needing action', 'Reply, call, draft, or finish the link swap.', repliesHtml, replies.length)
+    + block('🔁 Follow-ups due', 'Touches are ' + ((eoCampaigns[0] || {}).touch_interval_days || 7) + ' days apart. Weekends roll to Monday.', followHtml, followUps.length)
+    + block('✉️ First emails today', 'Verified first, then role accounts, then unverified, catch-all last. Tier A before B.', firstHtml,
+        first.reduce((n, g) => n + g.list.length, 0))
+    + finishedHtml;
+}
+
+// ---------------------------------------------------------------- render: Prospects
+function eoFilteredProspects() {
+  const today = eoToday();
+  const q = ((document.getElementById('eoSearch') || {}).value || '').trim().toLowerCase();
+  const st = (document.getElementById('eoFilterStage') || {}).value || '';
+  const tier = (document.getElementById('eoFilterTier') || {}).value || '';
+  const em = (document.getElementById('eoFilterEmail') || {}).value || '';
+  const geo = (document.getElementById('eoFilterGeo') || {}).value || '';
+  return eoScoped().filter(p => {
+    if (q && ![p.business_name, p.domain, p.email, p.city, p.notes, p.owner_group].some(v => v && String(v).toLowerCase().includes(q))) return false;
+    if (st === '__active' && EO_EXIT_STAGES.includes(p.stage)) return false;
+    if (st && st !== '__active' && p.stage !== st) return false;
+    if (tier && eoTier(p, today) !== tier) return false;
+    if (em && (p.email_status || 'unverified') !== em) return false;
+    if (geo && p.geo_status !== geo) return false;
+    return true;
+  });
+}
+
+function eoSortBy(col) {
+  if (eoSortCol === col) eoSortDir = -eoSortDir; else { eoSortCol = col; eoSortDir = 1; }
+  eoRenderProspects();
+}
+
+function eoRenderProspects() {
+  const body = document.getElementById('eoTable');
+  if (!body) return;
+  const today = eoToday();
+  const cmap = eoCampaignsById();
+  const rows = eoFilteredProspects().map(p => {
+    const ts = eoTouches(p.id);
+    return { p, tier: eoTier(p, today), last: ts.length ? eoDateOnly(ts[ts.length - 1].sent_on) : '',
+      due: eoNextDue(p, ts, cmap[p.campaign_id]) || '', ig: eoIgStage(p) };
+  });
+  const key = r => eoSortCol === 'tier' ? r.tier : eoSortCol === 'last' ? r.last : eoSortCol === 'due' ? (r.due || '9999')
+    : eoSortCol === 'stage' ? EO_STAGES.indexOf(r.p.stage) : String(r.p[eoSortCol] || '').toLowerCase();
+  rows.sort((a, b) => (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) * eoSortDir);
+  const cnt = document.getElementById('eoCount');
+  if (cnt) cnt.textContent = rows.length;
+  body.innerHTML = rows.map(r => {
+    const p = r.p;
+    return '<tr onclick="eoOpenModal(\'' + p.id + '\')" style="cursor:pointer">'
+      + '<td><div style="font-weight:700;color:var(--text)">' + eoEsc(p.business_name) + '</div>'
+      + '<div class="eo-muted">' + eoEsc(p.domain || '') + (p.owner_group ? ' · group: ' + eoEsc(p.owner_group) : '') + '</div></td>'
+      + '<td>' + eoEsc(eoVertical(p)) + '</td>'
+      + '<td>' + eoStageBadge(p.stage) + (p.hold_reason && p.stage === 'On Hold' ? '<div class="eo-muted">' + eoEsc(p.hold_reason) + '</div>' : '') + '</td>'
+      + '<td title="' + (p.last_real_post_date ? 'Last real post ' + eoEsc(eoDateOnly(p.last_real_post_date)) : 'No last-post date') + '">' + r.tier + (p.last_real_post_date ? '' : '<span class="eo-muted">·no date</span>') + '</td>'
+      + '<td>' + eoEmailBadge(p.email_status) + '</td>'
+      + '<td>' + eoEsc(p.geo_status || '—') + (p.geo_confirmed ? ' ✓' : '') + '</td>'
+      + '<td>' + (r.last ? eoFmtDate(r.last) + ' <span class="eo-muted">#' + eoTouches(p.id).length + '</span>' : '—') + '</td>'
+      + '<td>' + (r.due ? (r.due <= today ? '<span class="eo-warn-text">' + eoFmtDate(r.due) + '</span>' : eoFmtDate(r.due)) : '—') + '</td>'
+      + '<td>' + (r.ig ? '<span class="eo-chip eo-chip-info" title="Also in the Instagram pipeline">IG: ' + eoEsc(r.ig) + '</span>' : '') + '</td>'
+      + '</tr>';
+  }).join('');
+  const emptyEl = document.getElementById('eoEmpty');
+  if (emptyEl) emptyEl.classList.toggle('section-hidden', rows.length > 0);
+}
+
+// ---------------------------------------------------------------- render: Dashboard
+function eoRenderDashboard() {
+  const el = document.getElementById('eoView-dashboard');
+  if (!el) return;
+  const today = eoToday();
+  const cmap = eoCampaignsById();
+  const groups = [{ label: 'All verticals', list: eoProspects }]
+    .concat(eoCampaigns.map(c => ({ label: c.vertical, list: eoProspects.filter(p => p.campaign_id === c.id) })));
+  const stats = groups.map(g => Object.assign({ label: g.label }, eoStats(g.list, eoTouchesBy, eoHistory, cmap, today)));
+  const metric = (name, f) => '<tr><td style="font-weight:700;color:var(--text)">' + name + '</td>' + stats.map(s => '<td>' + f(s) + '</td>').join('') + '</tr>';
+  const head = '<tr><th></th>' + stats.map(s => '<th>' + eoEsc(s.label) + '</th>').join('') + '</tr>';
+  const metrics = [
+    metric('Emails sent this week', s => s.sentWeek),
+    metric('Prospects emailed (ever)', s => s.contacted),
+    metric('Reply rate', s => s.replyRate + '% <span class="eo-muted">(' + s.replied + ')</span>'),
+    metric('Interested rate', s => s.interestRate + '% <span class="eo-muted">(' + s.interested + ')</span>'),
+    metric('Links live', s => s.linksLive),
+    metric('Bounces', s => s.bounced + ' <span class="eo-muted">(' + s.bounceRate + '% of ' + s.touchesAll + ' emails)</span>'),
+    metric('Follow-ups due now', s => s.dueToday),
+  ].join('');
+  const stageRows = EO_STAGES.filter(st => stats[0].byStage[st]).map(st => '<tr><td>' + eoStageBadge(st) + '</td>'
+    + stats.map(s => '<td>' + (s.byStage[st] || '·') + '</td>').join('') + '</tr>').join('');
+  el.innerHTML = '<div class="eo-card"><div class="eo-card-head"><div class="eo-card-title">📊 Scorecard</div><div class="eo-muted">Week = Friday '
+    + eoFmtDate(stats[0].weekStart) + ' to today. Rates use prospects that got touch 1.</div></div>'
+    + '<div class="table-wrap"><table><thead>' + head + '</thead><tbody>' + metrics + '</tbody></table></div></div>'
+    + '<div class="eo-card"><div class="eo-card-head"><div class="eo-card-title">Records per stage</div></div>'
+    + '<div class="table-wrap"><table><thead>' + head + '</thead><tbody>' + stageRows + '</tbody></table></div></div>';
+}
+
+// ---------------------------------------------------------------- record modal
+const EO_FIELDS = ['business_name', 'campaign_id', 'domain', 'blog_url', 'email', 'phone', 'city', 'instagram', 'owner_group',
+  'stage', 'hold_reason', 'track', 'email_status', 'geo_status', 'geo_reason', 'geo_confirmed', 'geo_confirm_note',
+  'last_real_post_date', 'blog_fit_confirmed', 'personal_angle', 'angle_tag', 'spoteasy_link_url', 'our_link_live_at',
+  'deal_format', 'their_link_url', 'their_link_verified_at', 'outcome_notes', 'notes'];
+
+function eoSwitchModalTab(t) {
+  ['details', 'screening', 'deal', 'touches', 'notes'].forEach(x => {
+    const tab = document.getElementById('eoModalTab-' + x), pane = document.getElementById('eoModalPane-' + x);
+    if (tab) tab.classList.toggle('active', x === t);
+    if (pane) pane.style.display = x === t ? 'block' : 'none';
+  });
+}
+
+function eoStageOptions(current) {
+  // Touch stages are set by logging emails, so they are offered only when already current.
+  return EO_STAGES.filter(s => !EO_SEQ_STAGES.includes(s) || s === current)
+    .map(s => '<option' + (s === current ? ' selected' : '') + '>' + eoEsc(s) + '</option>').join('');
+}
+
+function eoOpenAddModal() {
+  const cid = (document.getElementById('eoFilterCampaign') || {}).value || (eoCampaigns[0] || {}).id;
+  eoEditingId = null;
+  eoModalSnapshot = null;
+  eoFillModal({ campaign_id: cid, stage: 'Screening', geo_confirmed: false, blog_fit_confirmed: false });
+  document.getElementById('eoModalTitle').textContent = 'Add prospect';
+  document.getElementById('eoDeleteBtn').style.display = 'none';
+  eoSwitchModalTab('details');
+  document.getElementById('eoModal').classList.add('open');
+}
+
+function eoOpenModal(id) {
+  const p = eoProspect(id);
+  if (!p) return;
+  eoEditingId = id;
+  eoModalSnapshot = p.updated_at;
+  eoFillModal(p);
+  document.getElementById('eoModalTitle').textContent = p.business_name;
+  document.getElementById('eoDeleteBtn').style.display = '';
+  eoSwitchModalTab('details');
+  document.getElementById('eoModal').classList.add('open');
+}
+
+function eoCloseModal() {
+  document.getElementById('eoModal').classList.remove('open');
+  eoEditingId = null;
+  eoModalSnapshot = null;
+  if (eoRefreshPending) { eoRefreshPending = false; eoLoad(); }
+}
+
+function eoFillModal(p) {
+  if (!p) return;
+  const camp = document.getElementById('eo-campaign_id');
+  camp.innerHTML = eoCampaigns.map(c => '<option value="' + c.id + '">' + eoEsc(c.vertical) + '</option>').join('');
+  document.getElementById('eo-stage').innerHTML = eoStageOptions(p.stage);
+  EO_FIELDS.forEach(k => {
+    const el = document.getElementById('eo-' + k);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = !!p[k];
+    else if (el.type === 'date') el.value = eoDateOnly(p[k]) || '';
+    else el.value = p[k] == null ? '' : p[k];
+  });
+  eoRefreshModalHints();
+  eoRenderTouchesPane(p);
+}
+
+function eoReadModal() {
+  const row = {};
+  EO_FIELDS.forEach(k => {
+    const el = document.getElementById('eo-' + k);
+    if (!el) return;
+    row[k] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  return row;
+}
+
+// Live hints: tier, track, IG overlap, angle reuse, campaign rules.
+function eoRefreshModalHints() {
+  const row = eoReadModal();
+  const today = eoToday();
+  const camp = eoCampaign(row.campaign_id);
+  const tierEl = document.getElementById('eoTierHint');
+  if (tierEl) {
+    const d = row.last_real_post_date;
+    tierEl.textContent = d ? 'Tier ' + eoTier(row, today) + ' · ' + eoDaysBetween(d, today) + ' days since the last real post'
+      : 'Tier C until a last-post date is entered';
+  }
+  const trackEl = document.getElementById('eoTrackHint');
+  if (trackEl) {
+    const t = eoTrack(row, camp);
+    trackEl.textContent = t === 'link_insertion'
+      ? 'Link insertion: our link to them goes live BEFORE the first email.'
+      : 'Guest post: place nothing before sending.';
+  }
+  const igEl = document.getElementById('eoIgHint');
+  if (igEl) {
+    const ig = eoIgStage({ domain: row.domain });
+    igEl.innerHTML = ig ? 'Also in the Instagram pipeline: <b>' + eoEsc(ig) + '</b>'
+      + (ig === 'Backlink Acquired' ? ' (Local Spots partner — consider Do Not Contact)' : '') : '';
+    igEl.style.display = ig ? 'block' : 'none';
+  }
+  const angEl = document.getElementById('eoAngleHint');
+  if (angEl) {
+    const p = Object.assign({}, row, { id: eoEditingId });
+    const g = eoCheckGate(Object.assign({}, p, { stage: 'Screening' }), 'Ready', { campaign: camp, prospects: eoProspects, today, igStage: null });
+    const aw = g.warns.filter(w => w.startsWith('Angle'));
+    angEl.textContent = aw.join(' ');
+    angEl.style.display = aw.length ? 'block' : 'none';
+  }
+  const holdEl = document.getElementById('eoHoldWrap');
+  if (holdEl) holdEl.style.display = row.stage === 'On Hold' ? '' : 'none';
+  const rulesEl = document.getElementById('eoCampaignRules');
+  if (rulesEl) rulesEl.textContent = (camp && camp.rules) || 'No campaign rules recorded.';
+}
+
+function eoSuggestGeo() {
+  const g = eoGeoFromPhone(document.getElementById('eo-phone').value);
+  document.getElementById('eo-geo_status').value = g.status;
+  document.getElementById('eo-geo_reason').value = g.reason;
+  eoRefreshModalHints();
+}
+
+function eoRenderTouchesPane(p) {
+  const el = document.getElementById('eoTouchesList');
+  if (!el) return;
+  const ts = p && p.id ? eoTouches(p.id) : [];
+  el.innerHTML = ts.length ? ts.map(t => '<div class="eo-touch">Touch ' + t.touch_number + ' · ' + eoFmtDate(t.sent_on)
+    + (t.bounced ? ' <span class="eo-chip eo-chip-bad">bounced</span>' : '')
+    + (t.date_inferred ? ' <span class="eo-chip eo-chip-warn" title="The import guessed this date from the workbook tab name">date inferred</span>' : '')
+    + (t.created_by ? ' <span class="eo-muted">· ' + eoEsc(t.created_by) + '</span>' : '') + '</div>').join('')
+    : '<div class="eo-empty">No emails logged yet.</div>';
+  const due = p && p.id ? eoNextDue(p, ts, eoCampaign(p.campaign_id)) : null;
+  const dueEl = document.getElementById('eoNextDueHint');
+  if (dueEl) dueEl.textContent = due ? 'Next touch due ' + eoFmtDate(due) + '.' : (p && EO_SEQ_STAGES.includes(p.stage) ? 'All touches sent.' : 'No follow-up scheduled at this stage.');
+  const actions = document.getElementById('eoTouchActions');
+  if (actions) actions.style.display = p && p.id ? 'flex' : 'none';
+}
+
+function eoModalMarkSent() {
+  if (!eoEditingId) return;
+  const d = document.getElementById('eoTouchDate').value || eoToday();
+  eoMarkSent(eoEditingId, d);
+}
+
+async function eoSaveModal() {
+  const row = eoReadModal();
+  if (!row.business_name || !row.business_name.trim()) { alert('Business name is required.'); return; }
+  const today = eoToday();
+  const before = eoEditingId ? eoProspect(eoEditingId) : null;
+  const fromStage = before ? before.stage : null;
+  const merged = Object.assign({}, before || {}, eoDbFromRow(row), { id: eoEditingId });
+  merged.stage = fromStage || row.stage;
+  if (row.stage !== fromStage) {
+    const g = eoCheckGate(merged, row.stage, { campaign: eoCampaign(row.campaign_id), prospects: eoProspects, today, igStage: eoIgStage(merged) });
+    if (g.blocks.length) { alert('Cannot move to ' + row.stage + ':\n\n• ' + g.blocks.join('\n• ')); return; }
+    if (g.warns.length && !confirm(g.warns.join('\n') + '\n\nMove to ' + row.stage + ' anyway?')) return;
+  } else if (row.stage === 'Ready') {
+    // A Ready record must keep passing the gate, or an edit could empty the angle and still send.
+    const g = eoCheckGate(Object.assign({}, merged, { stage: 'Screening' }), 'Ready',
+      { campaign: eoCampaign(row.campaign_id), prospects: eoProspects, today, igStage: null });
+    if (g.blocks.length) { alert('This record is Ready, so it must still pass the gate:\n\n• ' + g.blocks.join('\n• ') + '\n\nFix these, or move it back to Screening.'); return; }
+  }
+  if (row.stage === 'On Hold' && !String(row.hold_reason || '').trim()) { alert('On Hold needs a reason.'); return; }
+  // Duplicate email: warn and offer one owner group.
+  if (row.email) {
+    const em = row.email.trim().toLowerCase();
+    const other = eoProspects.find(o => o.id !== eoEditingId && o.email && o.email.toLowerCase() === em);
+    if (other && (!row.owner_group || other.owner_group !== row.owner_group)) {
+      if (confirm(other.business_name + ' already uses ' + em + '. Put both in one owner group?')) {
+        const grp = other.owner_group || other.business_name;
+        row.owner_group = grp;
+        if (!other.owner_group) { try { await eoSaveProspect({ id: other.id, owner_group: grp }); } catch (e) { /* shown below if it matters */ } }
+      }
+    }
+  }
+  try {
+    if (eoEditingId) {
+      // Conflict check: someone else saved this record after the modal opened.
+      const { data: fresh, error } = await sb.from('eo_prospects').select('updated_at').eq('id', eoEditingId).single();
+      if (error) throw error;
+      if (eoModalSnapshot && fresh.updated_at !== eoModalSnapshot
+          && !confirm('Someone else changed this record after you opened it. Save your version over theirs?')) return;
+    }
+    const prevStage = fromStage;
+    const saved = await eoSaveProspect(Object.assign({}, row, { id: eoEditingId || undefined }));
+    if (prevStage && prevStage !== saved.stage) {
+      eoHistory.push({ prospect_id: saved.id, from_stage: prevStage, to_stage: saved.stage, changed_at: new Date().toISOString() });
+      const mates = eoGroupMates(Object.assign({}, saved, { stage: prevStage }), true);
+      if (mates.length && confirm('Also move ' + mates.map(m => m.business_name).join(', ') + ' (same owner group) to ' + saved.stage + '?')) {
+        // Each mate must pass the same gate on its own record.
+        const skipped = [];
+        for (const m of mates) {
+          const g = eoCheckGate(m, saved.stage, { campaign: eoCampaign(m.campaign_id), prospects: eoProspects, today, igStage: eoIgStage(m) });
+          if (g.blocks.length) { skipped.push(m.business_name + ': ' + g.blocks[0]); continue; }
+          await eoSetStage(m, saved.stage);
+        }
+        if (skipped.length) alert('Not moved, because they fail the gate:\n\n• ' + skipped.join('\n• '));
+      }
+    }
+    showToast('Saved ' + saved.business_name);
+    eoCloseModal();
+    eoRender();
+  } catch (e) {
+    showToast('Could not save: ' + eoFriendlyError(e), 'error');
+  }
+}
+
+async function eoDeleteProspect() {
+  const p = eoProspect(eoEditingId);
+  if (!p) return;
+  if (!confirm('Delete ' + p.business_name + ' and its email history? This cannot be undone. To stop emailing them, use Do Not Contact instead.')) return;
+  try {
+    const { error } = await sb.from('eo_prospects').delete().eq('id', p.id);
+    if (error) throw error;
+    eoProspects = eoProspects.filter(x => x.id !== p.id);
+    delete eoTouchesBy[p.id];
+    showToast('Deleted ' + p.business_name);
+    eoCloseModal();
+    eoRender();
+  } catch (e) { showToast('Could not delete: ' + eoFriendlyError(e), 'error'); }
+}
+
+// ---------------------------------------------------------------- list importer (new verticals)
+let eoImportRows = [], eoImportFileName = '';
+const EO_IMPORT_ALIASES = {
+  business_name: ['business_name', 'business', 'name', 'company', 'company_name', 'title'],
+  email: ['email', 'email_address', 'contact_email'],
+  phone: ['phone', 'phone_number', 'telephone'],
+  city: ['city', 'town', 'location'],
+  domain: ['domain'],
+  website: ['website', 'website_url', 'url', 'site'],
+  blog_url: ['blog_url', 'blog'],
+  instagram: ['instagram', 'ig'],
+  last_real_post_date: ['last_real_post_date', 'last_post', 'last_post_date'],
+  email_status: ['email_status', 'verify_status', 'verification'],
+  sitemap_cadence: ['cadence', 'sitemap_cadence', 'posts_per_mo'],
+  posts_last_90_days: ['posts_last_90_days'],
+  notes: ['notes', 'note', 'category'],
+};
+
+function eoOpenImport() {
+  eoImportRows = [];
+  document.getElementById('eoImportCampaign').innerHTML = eoCampaigns.map(c => '<option value="' + c.id + '">' + eoEsc(c.vertical) + '</option>').join('')
+    + '<option value="__new">+ New vertical…</option>';
+  document.getElementById('eoImportNewWrap').style.display = 'none';
+  document.getElementById('eoImportFile').value = '';
+  document.getElementById('eoImportPreview').innerHTML = '';
+  document.getElementById('eoImportCommit').disabled = true;
+  document.getElementById('eoImportModal').classList.add('open');
+}
+function eoCloseImport() { document.getElementById('eoImportModal').classList.remove('open'); }
+function eoImportCampaignChanged() {
+  document.getElementById('eoImportNewWrap').style.display = document.getElementById('eoImportCampaign').value === '__new' ? 'grid' : 'none';
+}
+
+function eoLoadSheetJs() {
+  if (window.XLSX) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Could not load the spreadsheet reader.'));
+    document.head.appendChild(s);
+  });
+}
+
+async function eoImportFileChosen(input) {
+  const f = input.files && input.files[0];
+  if (!f) return;
+  eoImportFileName = f.name;
+  try {
+    await eoLoadSheetJs();
+    const wb = XLSX.read(await f.arrayBuffer(), { type: 'array', cellDates: true });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const raw = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false, dateNF: 'yyyy-mm-dd' });
+    eoImportRows = raw.map(r => {
+      const lower = {};
+      Object.keys(r).forEach(k => (lower[String(k).trim().toLowerCase().replace(/\s+/g, '_')] = r[k]));
+      const out = {};
+      Object.entries(EO_IMPORT_ALIASES).forEach(([field, names]) => {
+        const hit = names.find(n => lower[n] !== undefined && String(lower[n]).trim() !== '');
+        if (hit) out[field] = String(lower[hit]).trim();
+      });
+      return out;
+    });
+    eoPreviewImport();
+  } catch (e) {
+    document.getElementById('eoImportPreview').innerHTML = '<div class="eo-warn-text">' + eoEsc(e.message || e) + '</div>';
+  }
+}
+
+function eoBuildImportRecords() {
+  // Social and directory hosts are not the business's own domain, so they never count for dedupe.
+  const SHARED_HOSTS = ['facebook.com', 'instagram.com', 'yelp.com', 'google.com', 'goo.gl', 'linktr.ee', 'linkedin.com', 'nextdoor.com', 'thumbtack.com', 'angi.com', 'houzz.com'];
+  const ownDomain = v => { const d = eoNormDomain(v); return d && !SHARED_HOSTS.some(h => d === h || d.endsWith('.' + h)) ? d : null; };
+  const existing = new Set(eoProspects.map(p => eoNormDomain(p.domain)).filter(Boolean));
+  const keyOf = (name, email) => (email ? 'e:' + String(email).trim().toLowerCase() : 'n:' + String(name).trim().toLowerCase());
+  const existingKeys = new Set(eoProspects.flatMap(p => [keyOf(p.business_name, null)].concat(p.email ? [keyOf(null, p.email)] : [])));
+  const inFile = new Set(), inFileKeys = new Set();
+  const ok = [], dup = [], bad = [];
+  eoImportRows.forEach(r => {
+    if (!r.business_name) { bad.push(r); return; }
+    const domain = ownDomain(r.domain) || ownDomain(r.website) || ownDomain(r.blog_url);
+    if (domain && (existing.has(domain) || inFile.has(domain))) { dup.push(Object.assign({ _domain: domain }, r)); return; }
+    if (!domain) {
+      // No usable domain: dedupe on email, else on business name.
+      const k = keyOf(r.business_name, r.email);
+      if (existingKeys.has(k) || inFileKeys.has(k)) { dup.push(r); return; }
+      inFileKeys.add(k);
+    }
+    if (domain) inFile.add(domain);
+    const geo = eoGeoFromPhone(r.phone);
+    const vs = (r.email_status || '').toLowerCase();
+    const status = !r.email ? 'no_email'
+      : vs === 'safe' || vs === 'verified' ? 'verified'
+      : EO_EMAIL_STATUSES.includes(vs) ? vs : 'unverified';
+    const lp = /^\d{4}-\d{2}-\d{2}/.test(r.last_real_post_date || '') ? r.last_real_post_date.slice(0, 10) : null;
+    ok.push({
+      business_name: r.business_name, domain, blog_url: r.blog_url || null, email: r.email || null, phone: r.phone || null,
+      city: r.city || null, instagram: r.instagram || null, email_status: status, geo_status: geo.status, geo_reason: geo.reason + ' (suggested from phone)',
+      last_real_post_date: lp, sitemap_cadence: r.sitemap_cadence || null, posts_last_90_days: r.posts_last_90_days || null,
+      notes: r.notes || null, stage: 'Imported', source: 'list-import:' + eoImportFileName,
+    });
+  });
+  return { ok, dup, bad };
+}
+
+function eoPreviewImport() {
+  const { ok, dup, bad } = eoBuildImportRecords();
+  const geo = { IN: 0, CHECK: 0, OUT: 0 };
+  ok.forEach(r => (geo[r.geo_status]++));
+  document.getElementById('eoImportPreview').innerHTML =
+    '<div class="eo-card" style="margin:0"><div><b>' + eoImportRows.length + '</b> rows read from ' + eoEsc(eoImportFileName) + '.</div>'
+    + '<div>✅ <b>' + ok.length + '</b> new prospects (geo suggestion: ' + geo.IN + ' IN, ' + geo.CHECK + ' CHECK, ' + geo.OUT + ' OUT)</div>'
+    + '<div>⏭ <b>' + dup.length + '</b> skipped as duplicates' + (dup.length ? ': ' + dup.slice(0, 8).map(d => eoEsc(d.business_name)).join(', ') + (dup.length > 8 ? '…' : '') : '') + '</div>'
+    + '<div>⚠️ <b>' + bad.length + '</b> skipped with no business name</div>'
+    + '<div class="eo-muted" style="margin-top:6px">Recognized columns: business_name, email, phone, city, domain or website, blog_url, instagram, last_post, verify_status, cadence, notes. New rows land at Imported.</div></div>';
+  document.getElementById('eoImportCommit').disabled = ok.length === 0;
+}
+
+async function eoCommitImport() {
+  const sel = document.getElementById('eoImportCampaign').value;
+  const btn = document.getElementById('eoImportCommit');
+  btn.disabled = true;
+  try {
+    let cid = sel;
+    if (sel === '__new') {
+      const vertical = document.getElementById('eoImportNewVertical').value.trim().toLowerCase();
+      const track = document.getElementById('eoImportNewTrack').value;
+      if (!vertical) { alert('Name the new vertical.'); btn.disabled = false; return; }
+      const { data, error } = await sb.from('eo_campaigns').insert({ vertical, default_track: track }).select().single();
+      if (error) throw error;
+      eoCampaigns.push(data);
+      cid = data.id;
+      // If a later chunk fails, a retry must reuse this vertical, not create it twice.
+      const sel2 = document.getElementById('eoImportCampaign');
+      sel2.insertAdjacentHTML('afterbegin', '<option value="' + data.id + '">' + eoEsc(data.vertical) + '</option>');
+      sel2.value = data.id;
+      eoImportCampaignChanged();
+      eoInitFilters();
+    }
+    const { ok } = eoBuildImportRecords();
+    const rows = ok.map(r => Object.assign(eoDbFromRow(r), { campaign_id: cid, added_by_email: eoActor() }));
+    let inserted = 0;
+    for (let i = 0; i < rows.length; i += 200) {
+      const { data, error } = await sb.from('eo_prospects').insert(rows.slice(i, i + 200)).select();
+      if (error) throw error;
+      inserted += data.length;
+      eoProspects = eoProspects.concat(data);
+    }
+    showToast('Imported ' + inserted + ' prospects. They are at Imported, ready to screen.');
+    eoCloseImport();
+    eoInitFilters();
+    eoRender();
+  } catch (e) {
+    showToast('Import stopped: ' + eoFriendlyError(e), 'error');
+    btn.disabled = false;
+  }
+}
+
+// ---------------------------------------------------------------- Daily Briefing
+function eoBriefingData() {
+  const today = eoToday();
+  const cmap = eoCampaignsById();
+  const replies = eoProspects.filter(p => ['Replied', 'Interested', 'Call Needed', 'Draft Sent'].includes(p.stage)
+    || (p.stage === 'Link Live' && !p.our_link_live_at));
+  const followUps = eoProspects.filter(p => { const d = eoNextDue(p, eoTouches(p.id), cmap[p.campaign_id]); return d && d <= today; });
+  let firstToday = 0;
+  eoCampaigns.forEach(c => {
+    const sent = eoProspects.filter(p => p.campaign_id === c.id && eoTouches(p.id).some(t => t.touch_number === 1 && eoDateOnly(t.sent_on) === today)).length;
+    const ready = eoProspects.filter(p => p.campaign_id === c.id && p.stage === 'Ready').length;
+    firstToday += Math.min(ready, Math.max(0, (c.daily_cap || 6) - sent));
+  });
+  return { replies, followUps, firstToday };
+}
 
 </script>
 </body>
