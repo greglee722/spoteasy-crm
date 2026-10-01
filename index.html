@@ -96,28 +96,6 @@ body.reminders-highlighted .kanban-card[data-has-reminder] {
   background:rgba(124,92,191,0.04);
 }
 
-/* Link Outreach reminder highlight — deliberately a SEPARATE class + attribute
-   from the lead one above, so the two pipelines never cross-highlight. */
-body.oc-reminders-highlighted tr[data-oc-reminder]    { background:rgba(124,92,191,0.06); }
-body.oc-reminders-highlighted tr[data-oc-reminder] td:first-child { box-shadow:inset 3px 0 0 var(--purple); }
-body.oc-reminders-highlighted .kanban-card[data-oc-reminder] {
-  border-left:3px solid var(--purple);
-  background:rgba(124,92,191,0.04);
-}
-
-/* Link Outreach table/board view toggle */
-.oc-viewtoggle { display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:var(--surface); }
-.oc-viewbtn { border:none; background:transparent; padding:7px 14px; font-size:12px; font-weight:700; color:var(--text3); cursor:pointer; font-family:inherit; }
-.oc-viewbtn.active { background:var(--accent); color:#fff; }
-.oc-csv-summary { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
-.oc-csv-chip { border:1px solid var(--border); border-radius:20px; padding:5px 14px; font-size:12px; font-weight:700; font-family:'DM Mono',monospace; }
-.oc-csv-chip.new { color:var(--green); border-color:var(--green); }
-.oc-csv-chip.dupe { color:var(--text3); }
-.oc-csv-chip.bad { color:var(--red); border-color:var(--red); }
-.oc-csv-list { font-size:12px; color:var(--text3); line-height:1.7; max-height:180px; overflow-y:auto; }
-.oc-csv-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:10px; }
-.oc-csv-table th, .oc-csv-table td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--border); }
-.oc-csv-table th { font-family:'DM Mono',monospace; text-transform:uppercase; font-size:10px; color:var(--text3); letter-spacing:0.05em; }
 .stat-label { font-size:11px; color:var(--text3); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.05em; }
 
 /* TOOLBAR */
@@ -393,7 +371,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.8</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.9</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -416,7 +394,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
   <div class="nav-tab active" onclick="switchTab('all')" id="tab-all">📋 All Leads</div>
   <div class="nav-tab" onclick="switchTab('pipeline')" id="tab-pipeline">🏆 Pipeline</div>
   <div class="nav-tab" onclick="switchTab('mockup')" id="tab-mockup">🎨 Mock Up</div>
-  <div class="nav-tab" onclick="switchTab('outreach')" id="tab-outreach" style="display:none">🔗 Link Outreach</div>
   <div class="nav-tab" onclick="switchTab('eo')" id="tab-eo">📧 Email Outreach</div>
   <div class="nav-tab" onclick="switchTab('settings')" id="tab-settings">⚙ Settings</div>
 </div>
@@ -625,87 +602,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
     </div><!-- end mockup-layout -->
   </div>
 
-  <!-- LINK OUTREACH -->
-  <div id="section-outreach" class="section-hidden">
-
-    <div class="stats-row" id="ocStatsRow">
-      <div class="stat-card"><div class="stat-val blue" id="ocStatTotal">—</div><div class="stat-label">Total Contacts</div></div>
-      <div class="stat-card"><div class="stat-val orange" id="ocStatActive">—</div><div class="stat-label">In Progress</div></div>
-      <div class="stat-card"><div class="stat-val green" id="ocStatAcquired">—</div><div class="stat-label">Links Acquired</div></div>
-      <div class="stat-card" id="ocStatReminderCard" onclick="toggleOcReminderHighlight()" style="cursor:pointer" title="Click to highlight contacts that have reminders">
-        <div class="stat-val purple" id="ocStatReminderCount">—</div>
-        <div class="stat-label">Reminders Due</div>
-      </div>
-    </div>
-
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <div class="oc-viewtoggle">
-          <button class="oc-viewbtn active" id="ocViewBtnTable" onclick="switchOcView('table')">Table</button>
-          <button class="oc-viewbtn" id="ocViewBtnBoard" onclick="switchOcView('board')">Board</button>
-        </div>
-        <div class="search-wrap">
-          <input type="text" class="search-input" id="ocSearch" placeholder="Search contacts..." oninput="renderOutreach()">
-          <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-        </div>
-        <select class="filter-select" id="ocFilterStage" onchange="renderOutreach()">
-          <option value="">All Stages</option>
-        </select>
-        <select class="filter-select" id="ocFilterType" onchange="renderOutreach()">
-          <option value="">All Types</option>
-        </select>
-        <select class="filter-select" id="ocFilterTier" onchange="renderOutreach()">
-          <option value="">All Tiers</option>
-        </select>
-        <span class="count-badge" id="ocCount">0</span>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-secondary" onclick="openOcPlaybook()" title="The working checklist for a Full Playbook target">📘 Playbook</button>
-        <button class="btn btn-secondary" onclick="openOcCsvUpload()">⬆ Import CSV</button>
-        <button class="btn btn-primary" onclick="openOcAddModal()">+ Add Contact</button>
-      </div>
-    </div>
-    <div style="text-align:right;margin:-8px 0 12px;font-size:11px;font-family:'DM Mono',monospace">
-      <a href="#" onclick="downloadOcCsvTemplate();return false;" style="color:var(--text3)">download CSV template</a>
-    </div>
-
-    <!-- Table view -->
-    <div id="ocViewTable">
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th onclick="sortOcBy('companyName')">Company ↕</th>
-            <th id="ocTierTh" onclick="sortOcBy('tier')">Tier <span style="cursor:help">ⓘ</span> ↕</th>
-            <th>Website</th>
-            <th onclick="sortOcBy('contactName')">Contact ↕</th>
-            <th>Email</th>
-            <th>Type</th>
-            <th>Stage</th>
-            <th>Reminder</th>
-            <th onclick="sortOcBy('lastUpdated')">Last Updated ↕</th>
-            <th></th>
-          </tr></thead>
-          <tbody id="ocTable"></tbody>
-        </table>
-        <div id="ocLoading" class="loading" style="display:none"><div class="spinner"></div> Loading contacts...</div>
-        <div id="ocEmpty" class="empty-state section-hidden">
-          <div class="empty-icon">🔗</div><div class="empty-title">No contacts found</div>
-          <div class="empty-desc">Add a contact or import a CSV to get started</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Board view -->
-    <div id="ocViewBoard" class="section-hidden">
-      <div class="kanban" id="ocKanbanBoard"></div>
-      <div id="ocEmptyBoard" class="empty-state section-hidden">
-        <div class="empty-icon">🔗</div><div class="empty-title">No contacts yet</div>
-        <div class="empty-desc">Add a contact or import a CSV to see the board</div>
-      </div>
-    </div>
-
-  </div>
-
 
   <!-- EMAIL OUTREACH (eo) — replaces Link Outreach. Spec 2026-10-01. -->
   <div id="section-eo" class="section-hidden">
@@ -829,8 +725,8 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         <div class="briefing-section-title">⚡ Today's Action Items</div>
         <div id="briefingActions" style="display:flex;flex-direction:column;gap:14px;"></div>
       </div>
-      <!-- Link Outreach block. Kept display:none AND empty when there are zero
-           outreach contacts, so the briefing is identical to its pre-feature form. -->
+      <!-- Email Outreach block. Kept display:none AND empty when there are zero
+           prospects, so the briefing is identical to its leads-only form. -->
       <div id="briefingOutreach" style="display:none"></div>
     </div>
     <div class="briefing-footer">
@@ -1023,81 +919,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
   </div>
 </div>
 
-<!-- ============================================================
-     LINK OUTREACH — contact modal + CSV import
-     All ids below are oc-prefixed. Never reuse f-*, modalTab-*,
-     modalPane-*, notesJournal, newNoteInput, csvFileInput, csvMapModal.
-     ============================================================ -->
-<!-- Playbook: the working checklist for a Full Playbook target. Deliberately
-     generic — this repo is PUBLIC, so no company assessments, no link-velocity
-     numbers, and nothing about how we pace the programme. The full internal
-     playbook lives outside the repo; keep it that way. -->
-<div class="modal-overlay" id="ocPlaybookModal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">📘 Outreach Playbook</div>
-      <button class="modal-close" onclick="closeOcPlaybook()">✕</button>
-    </div>
-    <div class="modal-body" style="padding:20px 24px;line-height:1.65;font-size:13px">
-
-      <p style="margin:0 0 18px;color:var(--text2)"><strong>Link to them first, then ask.</strong> The email is the last step, not the first. If the linking work is weak, no email saves it.</p>
-
-      <div style="font-weight:600;margin:0 0 8px">1. Do they link out at all?</div>
-      <p style="margin:0 0 18px;color:var(--text2)">Open two or three of their posts and count external links. A site that never links to anyone will not link to us, however good the pitch. Cheapest gate there is — do it before reading anything properly. Careful with small samples: three posts with no outbound links means "rarely", not "never".</p>
-
-      <div style="font-weight:600;margin:0 0 8px">2. Find a fact worth citing</div>
-      <p style="margin:0 0 10px;color:var(--text2)">Not a page to link to — a specific number, timeline, threshold or checklist step that would genuinely improve one of our articles. Read the actual post body; never infer content from the title or the slug. "Moving is stressful" is not a fact. "Book movers four weeks out" is.</p>
-      <p style="margin:0 0 6px;color:var(--text2)"><strong>Sort every fact into a bucket — they carry different risk:</strong></p>
-      <ul style="margin:0 0 18px;padding-left:20px;color:var(--text2)">
-        <li><strong>Their own advice</strong> ("start six weeks out") — it's their recommendation, it cannot be factually wrong. Safest, and the ideal kind.</li>
-        <li><strong>Their own claim about the world</strong> ("70% of leases turn over Sept 1") — if it's wrong and we repeat it, that's our byline on a bad stat. Verify independently or don't use it.</li>
-        <li><strong>Someone else's stat they're quoting</strong> — we'd be citing a citation. Cite the original instead, which gives them no link. Usually means find a different fact.</li>
-      </ul>
-
-      <div style="font-weight:600;margin:0 0 8px">3. Find the gap on our side</div>
-      <p style="margin:0 0 10px;color:var(--text2)"><strong>Never write a new paragraph to hold a link.</strong> Find the paragraph that is already weak and fix it. Two patterns that work:</p>
-      <ul style="margin:0 0 10px;padding-left:20px;color:var(--text2)">
-        <li><strong>The vague answer</strong> — we assert something without specifics ("book as early as possible").</li>
-        <li><strong>The unnamed category</strong> — we describe a type of service without naming a single provider.</li>
-      </ul>
-      <p style="margin:0 0 18px;color:var(--text2)">The test: <em>would we make this edit if there were no relationship?</em> If no, it's a planted link and it will read as one.</p>
-
-      <div style="font-weight:600;margin:0 0 8px">4. Verify before publishing</div>
-      <ul style="margin:0 0 18px;padding-left:20px;color:var(--text2)">
-        <li>Every claim about their business checked against <em>their own page</em>, and quoted. Never publish a claim their site doesn't make.</li>
-        <li><strong>Get the company name right.</strong> Check the <code>&lt;title&gt;</code> tag and footer copyright, not the domain — domains drop spaces and add plurals.</li>
-        <li>Any date maths worked out explicitly.</li>
-        <li>Read the page we're asking them to link <em>from</em> — its real title, its real audience.</li>
-      </ul>
-
-      <div style="font-weight:600;margin:0 0 8px">5. QA with fresh eyes</div>
-      <p style="margin:0 0 18px;color:var(--text2)">Before publishing, have someone who hasn't seen the drafting work review it. The brief: <em>does this read as paid, traded, or forced?</em> Anyone with context will rationalise. Then publish and confirm it actually landed — check the live page, don't trust a success message.</p>
-
-      <div style="font-weight:600;margin:0 0 8px">6. Then write the email</div>
-      <p style="margin:0 0 10px;color:var(--text2)">Who we are (one true credibility fact) → why them specifically → what we already did (describe the links accurately; they <em>will</em> click) → the ask, with an explicit escape hatch → close on one question they can answer with a single URL.</p>
-      <p style="margin:0 0 18px;color:var(--text2)">Ask them for a link on a commercial page. Offer them one on a service page rather than our homepage — deep links are usually what an SEO actually wants, and it matches the context of the sentence.</p>
-
-      <div style="font-weight:600;margin:0 0 8px">Hard rules</div>
-      <ul style="margin:0 0 18px;padding-left:20px;color:var(--text2)">
-        <li>Never publish a claim about their business that isn't on their site. Quote or cut.</li>
-        <li>Never invent a paragraph to hold a link. Fix a weak one.</li>
-        <li>Two links to one domain is the ceiling, and only if both are independently earned. One now and one later reads far more natural than two at once.</li>
-        <li>Descriptive anchors over brand-name-on-homepage.</li>
-        <li>Don't harden a hunch into a fact. "I gather you're behind X too" reads as an industry observation; "I know you own X" reads like we've been researching them.</li>
-        <li>Never overstate our own credentials — easiest thing to check, most expensive to be caught on.</li>
-      </ul>
-
-      <div style="font-weight:600;margin:0 0 8px">Tiers</div>
-      <p style="margin:0 0 4px;color:var(--text2)"><strong>Full Playbook</strong> — citable fact + they link out. Everything above applies.</p>
-      <p style="margin:0 0 4px;color:var(--text2)"><strong>Low Touch</strong> — real and relevant, but nothing citable or never links out. Generic outreach only.</p>
-      <p style="margin:0 0 4px;color:var(--text2)"><strong>Not a Fit</strong> — wrong audience or not local. Record why in the notes.</p>
-      <p style="margin:0 0 18px;color:var(--text2)">Tier is separate from Stage: stage is how far along they are, tier is how much effort they deserve.</p>
-
-      <p style="margin:0;padding-top:14px;border-top:1px solid var(--border);color:var(--text3);font-size:12px">Working checklist only. The full playbook — risk, pacing and target research — is kept outside this repo.</p>
-    </div>
-  </div>
-</div>
-
 <!-- EMAIL OUTREACH: record modal -->
 <div class="modal-overlay" id="eoModal">
   <div class="modal" style="max-width:760px">
@@ -1217,123 +1038,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
   </div>
 </div>
 
-<div class="modal-overlay" id="ocModal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="ocModalTitle">Add Contact</div>
-      <button class="modal-close" onclick="closeOcModal()">✕</button>
-    </div>
-    <div class="modal-body" style="padding:0">
-      <div style="display:flex;border-bottom:1px solid var(--border);padding:0 24px;background:var(--surface)">
-        <div id="ocModalTab-details" class="modal-tab active" onclick="switchOcModalTab('details')">Details</div>
-        <div id="ocModalTab-notes" class="modal-tab" onclick="switchOcModalTab('notes')">Notes</div>
-        <div id="ocModalTab-reminder" class="modal-tab" onclick="switchOcModalTab('reminder')">🗓 Reminder</div>
-      </div>
-
-      <!-- Details -->
-      <div id="ocModalPane-details" style="padding:20px 24px">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Company / Site *</label>
-            <input type="text" id="oc-companyName" placeholder="e.g. Boston Eats Blog">
-          </div>
-          <div class="form-group">
-            <label>Website URL</label>
-            <input type="url" id="oc-websiteUrl" placeholder="https://...">
-          </div>
-          <div class="form-group">
-            <label>Contact Name</label>
-            <input type="text" id="oc-contactName" placeholder="Who we're emailing">
-          </div>
-          <div class="form-group">
-            <label>Contact Email</label>
-            <input type="email" id="oc-contactEmail" placeholder="name@example.com">
-          </div>
-          <div class="form-group">
-            <label>Backlink Type</label>
-            <select id="oc-backlinkType"></select>
-          </div>
-          <div class="form-group">
-            <label>Tier <span id="ocTierHelp" style="font-weight:400;color:var(--text3);cursor:help">— screening result ⓘ</span></label>
-            <select id="oc-tier"></select>
-          </div>
-          <div class="form-group span2">
-            <label>Their Blog URL <span style="font-weight:400;color:var(--text3)">— where we look for a citable fact</span></label>
-            <input type="url" id="oc-blogUrl" placeholder="https://.../blog/">
-          </div>
-          <div class="form-group">
-            <label>Stage</label>
-            <select id="oc-outreachStage" onchange="ocSyncFirstContacted()"></select>
-          </div>
-          <div class="form-group span2">
-            <label>Our Target URL <span style="font-weight:400;color:var(--text3)">— the page we want linked</span></label>
-            <input type="url" id="oc-targetUrl" placeholder="https://www.spoteasy.com/...">
-          </div>
-          <div class="form-group span2">
-            <label>Live Link URL <span style="font-weight:400;color:var(--text3)">— where the link actually landed</span></label>
-            <input type="url" id="oc-liveUrl" placeholder="https://...">
-          </div>
-          <div class="form-group">
-            <label>First Contacted</label>
-            <input type="date" id="oc-firstContactedAt">
-            <div id="oc-firstContactedHint" style="display:none;font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5">
-              Screening and Queued both mean not contacted yet — this fills in automatically once the contact moves past them.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Notes -->
-      <div id="ocModalPane-notes" style="display:none;padding:20px 24px">
-        <div style="display:flex;gap:8px;margin-bottom:16px">
-          <textarea id="ocNewNoteInput" placeholder="Add a note..." style="flex:1;min-height:70px;resize:vertical"></textarea>
-          <button class="btn btn-primary" onclick="addOcNote()" style="align-self:flex-start;white-space:nowrap">+ Add Note</button>
-        </div>
-        <div id="ocNotesJournal" style="display:flex;flex-direction:column;gap:10px"></div>
-        <input type="hidden" id="oc-notes">
-      </div>
-
-      <!-- Reminder -->
-      <div id="ocModalPane-reminder" style="display:none;padding:20px 24px">
-        <div class="form-group">
-          <label>🗓 Reminder Date</label>
-          <div style="display:flex;gap:8px;align-items:center">
-            <input type="date" id="oc-nextReminderDate" style="flex:1">
-            <button type="button" onclick="setOcNextBizDay()" class="btn btn-secondary" style="padding:7px 12px;font-size:12px;white-space:nowrap">Next Biz Day</button>
-            <button type="button" onclick="clearOcReminder()" class="btn btn-secondary" style="padding:7px 10px;font-size:12px" title="Clear reminder">✕</button>
-          </div>
-          <input type="text" id="oc-reminderNote" placeholder="What's this reminder for? (optional)" style="margin-top:8px">
-        </div>
-        <p style="margin-top:14px;font-size:12px;color:var(--text3);line-height:1.6">
-          Set a date to follow up. The Reminders Due tile counts contacts whose reminder is due today or overdue — click it to highlight them in purple.
-        </p>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeOcModal()">Cancel</button>
-      <button class="btn btn-danger" id="ocDeleteBtn" style="display:none" onclick="deleteOcContact()">Delete</button>
-      <button class="btn btn-primary" onclick="saveOcContact()">Save Contact</button>
-    </div>
-  </div>
-</div>
-
-<input type="file" id="ocCsvFileInput" accept=".csv" style="display:none">
-
-<!-- OUTREACH CSV IMPORT PREVIEW -->
-<div class="csv-overlay" id="ocCsvModal">
-  <div class="csv-modal">
-    <div class="modal-header">
-      <div class="modal-title">Import Outreach Contacts</div>
-      <button class="modal-close" onclick="closeOcCsvModal()">✕</button>
-    </div>
-    <div class="modal-body" id="ocCsvBody"></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeOcCsvModal()">Cancel</button>
-      <button class="btn btn-primary" id="ocCsvImportBtn" onclick="commitOcCsvImport()">Import</button>
-    </div>
-  </div>
-</div>
-
 <script>
 // ============================================================
 // USER AUTH — Supabase Google OAuth (replaces Google Sheets API)
@@ -1394,7 +1098,6 @@ async function verifyAndLogin() {
   // Must run BEFORE maybeTriggerBriefing() so the briefing sees Email Outreach data.
   // eoLoad() has its own try/catch and can never reject — do not Promise.all it
   // with loadLeads(), a rejection there would escape and strand the login flow.
-  // (The retired Link Outreach loadOutreach() is no longer called; see v5.8.)
   await eoLoad();
   maybeTriggerBriefing();
   startPresence();
@@ -1513,27 +1216,26 @@ window.onload = async () => {
 // ============================================================
 function switchTab(tab) {
   currentTab = tab;
-  ['all','pipeline','mockup','outreach','eo','settings'].forEach(t => {
+  ['all','pipeline','mockup','eo','settings'].forEach(t => {
     const tabEl = document.getElementById(`tab-${t}`);
     const secEl = document.getElementById(`section-${t}`);
     if (tabEl) tabEl.classList.toggle('active', t === tab);
     if (secEl) secEl.classList.toggle('section-hidden', t !== tab);
   });
   // #statsRow lives OUTSIDE #section-all, so the lead stat cards would otherwise
-  // also render on the Link Outreach tab, above its own stats. Stash and restore
+  // also render on the Email Outreach tab, above its own views. Stash and restore
   // whatever loadLeads() set rather than assuming 'flex', so behaviour on every
   // other tab is byte-identical to before this feature existed.
   const sr = document.getElementById('statsRow');
   if (sr) {
-    if (tab === 'outreach' || tab === 'eo') {
-      if (sr.style.display !== 'none') sr.dataset.ocPrevDisplay = sr.style.display;
+    if (tab === 'eo') {
+      if (sr.style.display !== 'none') sr.dataset.eoPrevDisplay = sr.style.display;
       sr.style.display = 'none';
-    } else if (sr.dataset.ocPrevDisplay) {
-      sr.style.display = sr.dataset.ocPrevDisplay;
+    } else if (sr.dataset.eoPrevDisplay) {
+      sr.style.display = sr.dataset.eoPrevDisplay;
     }
   }
   if (tab === 'mockup') mockupPopulateLeadSelect();
-  if (tab === 'outreach') renderOutreach();
   if (tab === 'eo') eoRender();
 }
 
@@ -2880,7 +2582,7 @@ function handleDeepLink() {
       switchTab('pipeline');
       // Wait a tick for the kanban to render, then scroll + flash the column
       setTimeout(() => {
-        // Scoped to #kanbanBoard on purpose: the Link Outreach board also renders
+        // Scoped to #kanbanBoard on purpose: other boards may also render
         // .kanban-col[data-stage] nodes, and an unscoped query would resolve by DOM
         // order rather than by pipeline.
         const col = document.querySelector(`#kanbanBoard .kanban-col[data-stage="${CSS.escape(stage)}"]`);
@@ -3020,7 +2722,6 @@ const PRESENCE_TTL_MS = 5 * 60 * 1000;       // online if seen within 5 min
 let presenceTimer = null;
 let presenceChannel = null;
 let leadsChannel = null;
-let outreachChannel = null;
 
 async function writePresence() {
   if (!currentUser) return;
@@ -3084,7 +2785,6 @@ function startPresence() {
         () => silentRefreshLeads())
     .subscribe();
 
-  // The retired Link Outreach tab (outreach_contacts) is no longer subscribed or polled (v5.8).
   // Email Outreach keeps its own channel in eoSubscribe().
 
   presenceTimer = setInterval(() => {
@@ -3098,7 +2798,6 @@ function stopPresence() {
   if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
   if (presenceChannel) { sb.removeChannel(presenceChannel); presenceChannel = null; }
   if (leadsChannel) { sb.removeChannel(leadsChannel); leadsChannel = null; }
-  if (outreachChannel) { sb.removeChannel(outreachChannel); outreachChannel = null; }
   if (typeof eoChannel !== 'undefined' && eoChannel) { sb.removeChannel(eoChannel); eoChannel = null; }
   document.getElementById('presencePill').style.display = 'none';
 }
@@ -3260,11 +2959,11 @@ function renderBriefingModal() {
 
   // --- Email Outreach section (hidden + empty when there are no prospects) ---
   // Replaced the Link Outreach block on 2026-10-01. Sanket's three morning questions.
-  const ocEl = document.getElementById('briefingOutreach');
-  if (ocEl) {
+  const eoEl = document.getElementById('briefingOutreach');
+  if (eoEl) {
     if (typeof eoProspects === 'undefined' || !eoProspects.length) {
-      ocEl.innerHTML = '';
-      ocEl.style.display = 'none';
+      eoEl.innerHTML = '';
+      eoEl.style.display = 'none';
     } else {
       const eb = eoBriefingData();
       const eoStatRows = [
@@ -3278,7 +2977,7 @@ function renderBriefingModal() {
           : '<div class="briefing-empty-action">' + emptyMsg + '</div>';
         return '<div class="briefing-action-group"><div class="briefing-action-stage">' + emoji + ' ' + title + '</div>' + inner + '</div>';
       };
-      ocEl.innerHTML =
+      eoEl.innerHTML =
           '<hr class="briefing-divider">'
         + '<div><div class="briefing-section-title">📧 Email Outreach — Today</div>'
         + '<div class="briefing-stats">'
@@ -3289,7 +2988,7 @@ function renderBriefingModal() {
         +   eoGroup('💬', 'Replies needing action', eb.replies, 'No replies waiting')
         +   eoGroup('🔁', 'Follow-ups due', eb.followUps, 'None due')
         + '</div>';
-      ocEl.style.display = 'block';
+      eoEl.style.display = 'block';
     }
   }
 
@@ -3593,889 +3292,6 @@ async function confirmCsvImport() {
 }
 
 document.getElementById('csvMapModal').addEventListener('click', function(e){ if(e.target===this) closeCsvMapper(); });
-
-// ============================================================
-// ============================================================
-//  LINK OUTREACH  —  second pipeline (email: link swaps,
-//  guest posts, niche edits). Backed by public.outreach_contacts.
-//
-//  NAMESPACE RULE: every id, class, global and function below is
-//  oc-prefixed. Never reuse f-*, modalTab-*, modalPane-*,
-//  notesJournal, newNoteInput, csvFileInput, csvMapModal,
-//  data-has-reminder, or body.reminders-highlighted — those all
-//  belong to the local-business lead pipeline and the CRM resolves
-//  them with first-match getElementById / unscoped CSS.
-// ============================================================
-// ============================================================
-
-// Screening = imported but nobody has evaluated the target yet. Queued means
-// screened AND ready to email. Keeping them apart matters once a bulk import
-// lands: without it, "Queued" silently stops meaning "ready to contact" and
-// becomes "everything we have ever heard of".
-const OUTREACH_STAGES = ['Screening','Queued','1st Email','Follow Up','2nd Follow Up','Working','Link Acquired','Stale / No Response','Declined'];
-const OUTREACH_STAGE_COLORS = {
-  'Screening':'gray', 'Queued':'blue', '1st Email':'yellow', 'Follow Up':'yellow', '2nd Follow Up':'orange',
-  'Working':'purple', 'Link Acquired':'green', 'Stale / No Response':'gray', 'Declined':'red'
-};
-// Stages that mean "we have not contacted them yet" — a first-contacted date in
-// either is a contradiction. Enforced in ocDbFromRow(); see the note there.
-const OUTREACH_NOT_CONTACTED_STAGES = ['Screening','Queued'];
-// Stages that mean "we have emailed them and are waiting" — used for the stale check.
-const OUTREACH_EMAILED_STAGES = ['1st Email','Follow Up','2nd Follow Up'];
-const OUTREACH_ACTIVE_STAGES  = ['1st Email','Follow Up','2nd Follow Up','Working'];
-const BACKLINK_TYPES = ['Niche Edit','Link Swap','Guest Post'];
-// Screening result — how much effort a target deserves. Independent of stage:
-// stage is where they are in the process, tier is how hard we try.
-//   Full Playbook — has a blog with a genuinely citable fact AND links out.
-//                   Worth reading their content, fixing a gap in one of our
-//                   posts, publishing first, then emailing.
-//   Low Touch     — real and relevant, but nothing worth citing, or the site
-//                   never links out. Generic outreach only.
-//   Not a Fit     — wrong audience or not local. Don't pursue.
-// Named for what they mean on purpose: an earlier "Tier 1/Tier 2" scheme read
-// backwards (Tier 2 was the good one) and nobody could remember which was which.
-const OUTREACH_TIERS = ['Full Playbook','Low Touch','Not a Fit','Unscreened'];
-// Days without a reply before a contact is flagged stale in the daily briefing.
-// Single constant on purpose — changing the follow-up cadence is a one-line edit.
-const OUTREACH_STALE_DAYS = 7;
-
-const OUTREACH_COLUMNS = ['companyName','websiteUrl','blogUrl','tier','contactName','contactEmail','backlinkType','outreachStage','targetUrl','liveUrl','firstContactedAt','nextReminderDate','reminderNote','notes','lastUpdated','addedBy'];
-const OUTREACH_COLUMN_DB_MAP = {
-  _id:                'id',
-  companyName:        'company_name',
-  websiteUrl:         'website_url',
-  blogUrl:            'blog_url',
-  tier:               'tier',
-  contactName:        'contact_name',
-  contactEmail:       'contact_email',
-  backlinkType:       'backlink_type',
-  outreachStage:      'outreach_stage',
-  targetUrl:          'target_url',
-  liveUrl:            'live_url',
-  firstContactedAt:   'first_contacted_at',
-  nextReminderDate:   'next_reminder_date',
-  reminderNote:       'reminder_note',
-  notes:              'notes',
-  lastUpdated:        'last_updated',
-  addedBy:            'added_by_email',
-};
-
-let outreachContacts = [], editingOcId = null, ocSortCol = null, ocSortDir = 1,
-    _ocModalSnapshot = null, ocReminderFilterActive = false, ocView = 'table', dragOcId = null;
-
-function ocEsc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-// ------------------------------------------------------------
-// DATA LAYER
-// ------------------------------------------------------------
-function ocRowFromDb(r) {
-  const o = { _id: r.id };
-  Object.keys(OUTREACH_COLUMN_DB_MAP).forEach(k => { if (k !== '_id') o[k] = r[OUTREACH_COLUMN_DB_MAP[k]] || ''; });
-  return o;
-}
-
-function ocDbFromRow(c) {
-  const r = {};
-  // first_contacted_at invariant, enforced here because EVERY write path
-  // (modal save, kanban drop, CSV import) funnels through this function:
-  //   Screening or Queued = not contacted yet, so a date is a contradiction —
-  //   always blank. Any other stage with no date yet = stamp today.
-  // NOTE: this MUST test the not-contacted list, not `=== 'Queued'`. When
-  // Screening was added, a bare Queued check would have stamped today's date on
-  // every bulk-imported row, making 200+ untouched prospects look contacted.
-  if (OUTREACH_NOT_CONTACTED_STAGES.includes(c.outreachStage)) c.firstContactedAt = '';
-  else if (c.outreachStage && !c.firstContactedAt) c.firstContactedAt = new Date().toISOString().slice(0,10);
-  Object.keys(OUTREACH_COLUMN_DB_MAP).forEach(k => {
-    if (k === '_id') return;
-    const col = OUTREACH_COLUMN_DB_MAP[k];
-    let v = c[k];
-    // Postgres date/timestamptz columns reject '' — send null instead.
-    if (v === '' || v === undefined) v = null;
-    r[col] = v;
-  });
-  return r;
-}
-
-// NOTE: deliberately does NOT call setStatus(), touch #statsRow, #loadingAll or
-// #tableAll. Those are the lead pipeline's shared UI — an outreach failure must
-// never make a healthy CRM display "Error".
-async function loadOutreach() {
-  const loadingEl = document.getElementById('ocLoading');
-  if (loadingEl) loadingEl.style.display = 'flex';
-  try {
-    const { data, error } = await sb.from('outreach_contacts').select('*').order('updated_at', { ascending: false });
-    if (error) throw error;
-    outreachContacts = (data || []).map(ocRowFromDb);
-    renderOutreach();
-  } catch(e) {
-    outreachContacts = [];
-    showToast('Could not load Link Outreach contacts: ' + (e.message || e), 'error');
-  } finally {
-    if (loadingEl) loadingEl.style.display = 'none';
-  }
-}
-
-async function silentRefreshOutreach() {
-  // Mirrors silentRefreshLeads(): skip while the user is mid-edit, stay silent on error.
-  const modal = document.getElementById('ocModal');
-  if (modal && modal.classList.contains('open')) return;
-  try {
-    const { data, error } = await sb.from('outreach_contacts').select('*').order('updated_at', { ascending: false });
-    if (error) throw error;
-    outreachContacts = (data || []).map(ocRowFromDb);
-    if (currentTab === 'outreach') renderOutreach();
-    else updateOcStats();
-  } catch(e) { /* silent */ }
-}
-
-async function saveOutreachRow(row) {
-  // The first_contacted_at invariant lives in ocDbFromRow() — every write path
-  // goes through it, so it cannot be bypassed here or by the CSV importer.
-  const payload = ocDbFromRow(row);
-  if (row._id) {
-    const { data, error } = await sb.from('outreach_contacts').update(payload).eq('id', row._id).select().single();
-    if (error) throw error;
-    return ocRowFromDb(data);
-  }
-  payload.added_by_email = currentUser ? currentUser.email : null;
-  const { data, error } = await sb.from('outreach_contacts').insert(payload).select().single();
-  if (error) throw error;
-  return ocRowFromDb(data);
-}
-
-async function deleteOutreachRow(id) {
-  const { error } = await sb.from('outreach_contacts').delete().eq('id', id);
-  if (error) throw error;
-}
-
-async function fetchOcSnapshotById(id) {
-  const { data, error } = await sb.from('outreach_contacts').select('*').eq('id', id).single();
-  if (error) throw error;
-  return ocRowFromDb(data);
-}
-
-// ------------------------------------------------------------
-// OPTION LISTS — rendered from the constants, never hand-written in HTML,
-// so there is no multi-copy sync hazard. Runs at load, before auth resolves,
-// so a failed data load still leaves usable dropdowns.
-// ------------------------------------------------------------
-function initOcOptionLists() {
-  const stageOpts = OUTREACH_STAGES.map(s => '<option>' + ocEsc(s) + '</option>').join('');
-  const typeOpts  = BACKLINK_TYPES.map(t => '<option>' + ocEsc(t) + '</option>').join('');
-  const fStage = document.getElementById('ocFilterStage');
-  if (fStage) fStage.innerHTML = '<option value="">All Stages</option>' + stageOpts;
-  const fType = document.getElementById('ocFilterType');
-  if (fType) fType.innerHTML = '<option value="">All Types</option>' + typeOpts;
-  const mStage = document.getElementById('oc-outreachStage');
-  if (mStage) mStage.innerHTML = stageOpts;
-  const mType = document.getElementById('oc-backlinkType');
-  if (mType) mType.innerHTML = '<option value=""></option>' + typeOpts;
-  const tierOpts = OUTREACH_TIERS.map(t => '<option>' + ocEsc(t) + '</option>').join('');
-  const fTier = document.getElementById('ocFilterTier');
-  if (fTier) fTier.innerHTML = '<option value="">All Tiers</option>' + tierOpts;
-  const mTier = document.getElementById('oc-tier');
-  if (mTier) { mTier.innerHTML = '<option value=""></option>' + tierOpts; mTier.title = OUTREACH_TIER_HELP_SUMMARY; }
-  // Same help text on the column header, the filter and the modal label, all
-  // sourced from OUTREACH_TIER_HELP_SUMMARY so they cannot drift apart.
-  const tierTh = document.getElementById('ocTierTh');
-  if (tierTh) tierTh.title = OUTREACH_TIER_HELP_SUMMARY;
-  if (fTier) fTier.title = OUTREACH_TIER_HELP_SUMMARY;
-  const tierLbl = document.getElementById('ocTierHelp');
-  if (tierLbl) tierLbl.title = OUTREACH_TIER_HELP_SUMMARY;
-}
-
-// ------------------------------------------------------------
-// RENDER
-// ------------------------------------------------------------
-function switchOcView(view) {
-  ocView = view;
-  const t = document.getElementById('ocViewTable'), b = document.getElementById('ocViewBoard');
-  if (t) t.classList.toggle('section-hidden', view !== 'table');
-  if (b) b.classList.toggle('section-hidden', view !== 'board');
-  const bt = document.getElementById('ocViewBtnTable'), bb = document.getElementById('ocViewBtnBoard');
-  if (bt) bt.classList.toggle('active', view === 'table');
-  if (bb) bb.classList.toggle('active', view === 'board');
-  renderOutreach();
-}
-
-function filteredOutreach() {
-  const qEl = document.getElementById('ocSearch');
-  const q = qEl ? qEl.value.toLowerCase() : '';
-  const stEl = document.getElementById('ocFilterStage');
-  const tyEl = document.getElementById('ocFilterType');
-  const tiEl = document.getElementById('ocFilterTier');
-  const stage = stEl ? stEl.value : '';
-  const type  = tyEl ? tyEl.value : '';
-  const tier  = tiEl ? tiEl.value : '';
-  let list = [...outreachContacts];
-  if (q) list = list.filter(c => (c.companyName + c.contactName + c.contactEmail + c.websiteUrl).toLowerCase().includes(q));
-  if (stage) list = list.filter(c => c.outreachStage === stage);
-  if (type)  list = list.filter(c => c.backlinkType === type);
-  if (tier)  list = list.filter(c => c.tier === tier);
-  if (ocSortCol) list.sort((a,b) => {
-    const av = a[ocSortCol] || '', bv = b[ocSortCol] || '';
-    return av > bv ? ocSortDir : av < bv ? -ocSortDir : 0;
-  });
-  return list;
-}
-
-function sortOcBy(col) {
-  if (ocSortCol === col) ocSortDir *= -1; else { ocSortCol = col; ocSortDir = 1; }
-  renderOutreach();
-}
-
-function ocStagePill(s) {
-  if (!s) return '—';
-  const c = OUTREACH_STAGE_COLORS[s] || 'gray';
-  return '<span class="pill pill-' + c + '"><span class="pill-dot"></span>' + ocEsc(s) + '</span>';
-}
-
-const OUTREACH_TIER_COLORS = { 'Full Playbook':'green', 'Low Touch':'yellow', 'Not a Fit':'gray', 'Unscreened':'blue' };
-// Hover help. Defined once here and pushed into the column header, the modal
-// select, and every pill by initOcOptionLists()/ocTierPill() — so the wording
-// can never drift between the three places it appears.
-const OUTREACH_TIER_HELP = {
-  'Full Playbook': 'Their blog has a fact worth quoting, and their site links out. Worth the full treatment: read their content, find the fact, use it to fix a weak spot in one of our posts, publish that first, then email them.',
-  'Low Touch':     'Real, relevant business — but nothing worth quoting, or their site never links out. Generic outreach only. Not worth an afternoon.',
-  'Not a Fit':     'Wrong audience or not local. Do not pursue. The reason is in the contact notes.',
-  'Unscreened':    'Nobody has checked their blog yet. Screen before spending time on outreach.',
-};
-const OUTREACH_TIER_HELP_SUMMARY =
-  'How much effort a target deserves — separate from Stage, which is how far along they are.\n\n'
-  + OUTREACH_TIERS.map(t => t + ' — ' + OUTREACH_TIER_HELP[t]).join('\n\n');
-
-function ocTierPill(t) {
-  if (!t) return '—';
-  const c = OUTREACH_TIER_COLORS[t] || 'gray';
-  const help = OUTREACH_TIER_HELP[t];
-  return '<span class="pill pill-' + c + '"' + (help ? ' title="' + ocEsc(help) + '"' : '')
-    + '><span class="pill-dot"></span>' + ocEsc(t) + '</span>';
-}
-
-function ocLinkCell(url) {
-  if (!url) return '—';
-  return '<a href="' + ocEsc(url) + '" target="_blank" rel="noopener">' + ocEsc(url.replace(/^https?:\/\//,'').replace(/\/$/,'')) + '</a>';
-}
-
-function renderOutreach() {
-  updateOcStats();
-  if (ocView === 'board') renderOcBoard(); else renderOcTable();
-}
-
-function renderOcTable() {
-  const list = filteredOutreach();
-  const countEl = document.getElementById('ocCount');
-  if (countEl) countEl.textContent = list.length;
-  const tbody = document.getElementById('ocTable');
-  const empty = document.getElementById('ocEmpty');
-  if (!tbody) return;
-  if (!list.length) { tbody.innerHTML = ''; if (empty) empty.classList.remove('section-hidden'); return; }
-  if (empty) empty.classList.add('section-hidden');
-  tbody.innerHTML = list.map(c => {
-    const rem = c.nextReminderDate ? ' data-oc-reminder="1"' : '';
-    return '<tr' + rem + '>'
-      + '<td><div class="td-name" onclick="openOcModal(\'' + c._id + '\')">' + ocEsc(c.companyName || '—') + '</div>' + renderAttributionTag(c.addedBy) + '</td>'
-      + '<td>' + ocTierPill(c.tier) + '</td>'
-      + '<td class="td-url">' + ocLinkCell(c.websiteUrl) + '</td>'
-      + '<td>' + ocEsc(c.contactName || '—') + '</td>'
-      + '<td class="td-url">' + (c.contactEmail ? '<a href="mailto:' + ocEsc(c.contactEmail) + '">' + ocEsc(c.contactEmail) + '</a>' : '—') + '</td>'
-      + '<td style="font-size:12px;color:var(--text3);font-family:\'DM Mono\',monospace">' + ocEsc(c.backlinkType || '—') + '</td>'
-      + '<td>' + ocStagePill(c.outreachStage) + '</td>'
-      + '<td>' + reminderBadgeHtml(c.nextReminderDate, c.reminderNote) + '</td>'
-      + '<td style="font-size:12px;font-family:\'DM Mono\',monospace">' + fmtDate(c.lastUpdated) + '</td>'
-      + '<td><div class="row-actions">'
-      +   '<div class="action-btn" onclick="openOcModal(\'' + c._id + '\')">✏</div>'
-      +   '<div class="action-btn del" onclick="quickDeleteOc(\'' + c._id + '\')">🗑</div>'
-      + '</div></td>'
-      + '</tr>';
-  }).join('');
-}
-
-function renderOcBoard() {
-  const list = filteredOutreach();
-  const countEl = document.getElementById('ocCount');
-  if (countEl) countEl.textContent = list.length;
-  const board = document.getElementById('ocKanbanBoard');
-  const empty = document.getElementById('ocEmptyBoard');
-  if (!board) return;
-  if (!list.length) { board.innerHTML = ''; if (empty) empty.classList.remove('section-hidden'); return; }
-  if (empty) empty.classList.add('section-hidden');
-  board.innerHTML = OUTREACH_STAGES.map(stage => {
-    const cards = list.filter(c => c.outreachStage === stage);
-    const color = OUTREACH_STAGE_COLORS[stage] || 'gray';
-    const cardsHtml = cards.length ? cards.map(c => {
-      const days = daysSince(c.lastUpdated);
-      const rem = c.nextReminderDate ? ' data-oc-reminder="1"' : '';
-      return '<div class="kanban-card" draggable="true" data-id="' + c._id + '"' + rem
-        + ' ondragstart="ocDragStart(event,\'' + c._id + '\')"'
-        + ' ondragend="ocDragEnd(event)"'
-        + ' onclick="openOcModal(\'' + c._id + '\')">'
-        + '<div class="kanban-card-name">' + ocEsc(c.companyName) + '</div>'
-        + (c.backlinkType ? '<div class="kanban-card-type">' + ocEsc(c.backlinkType) + '</div>' : '')
-        + (c.websiteUrl ? '<div class="kanban-card-url">' + ocEsc(c.websiteUrl.replace(/^https?:\/\//,'').replace(/\/$/,'')) + '</div>' : '')
-        + '<div class="kanban-card-meta">'
-        +   (c.contactName ? '<div class="kanban-card-meta-row"><span>👤 ' + ocEsc(c.contactName) + '</span></div>' : '')
-        +   (days !== null ? '<div class="kanban-card-meta-row"><span>Updated</span>' + daysBadge(days) + '</div>' : '')
-        +   (c.nextReminderDate ? '<div class="kanban-card-meta-row"><span>🗓 Reminder</span>' + reminderBadgeHtml(c.nextReminderDate, c.reminderNote) + '</div>' : '')
-        + '</div>'
-        + renderAttributionTag(c.addedBy)
-        + '</div>';
-    }).join('') : '<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">Empty</div>';
-    return '<div class="kanban-col" data-stage="' + ocEsc(stage) + '"'
-      + ' ondragover="kanbanDragOver(event)" ondragleave="kanbanDragLeave(event)" ondrop="ocDrop(event,\'' + stage.replace(/'/g,"\\'") + '\')">'
-      + '<div class="kanban-header">'
-      +   '<span class="kanban-title" style="color:var(--' + (color === 'gray' ? 'text3' : color) + ')">' + ocEsc(stage) + '</span>'
-      +   '<span class="kanban-count">' + cards.length + '</span>'
-      + '</div>'
-      + '<div class="kanban-body">' + cardsHtml + '</div>'
-      + '</div>';
-  }).join('');
-}
-
-function updateOcStats() {
-  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  set('ocStatTotal', outreachContacts.length || '—');
-  set('ocStatActive', outreachContacts.filter(c => OUTREACH_ACTIVE_STAGES.includes(c.outreachStage)).length);
-  set('ocStatAcquired', outreachContacts.filter(c => c.outreachStage === 'Link Acquired').length);
-  const due = outreachContacts.filter(c => c.nextReminderDate && daysUntil(c.nextReminderDate) <= 0).length;
-  set('ocStatReminderCount', due || '—');
-  const card = document.getElementById('ocStatReminderCard');
-  if (card) card.style.outline = ocReminderFilterActive ? '2px solid var(--purple)' : '';
-}
-
-function toggleOcReminderHighlight() {
-  ocReminderFilterActive = !ocReminderFilterActive;
-  document.body.classList.toggle('oc-reminders-highlighted', ocReminderFilterActive);
-  updateOcStats();
-}
-
-// ------------------------------------------------------------
-// KANBAN DRAG/DROP
-// ------------------------------------------------------------
-function ocDragStart(e, id) {
-  dragOcId = id;
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', id);
-  setTimeout(() => { if (e.target) e.target.classList.add('dragging'); }, 0);
-}
-
-function ocDragEnd(e) {
-  if (e.target) e.target.classList.remove('dragging');
-  document.querySelectorAll('#ocKanbanBoard .kanban-col').forEach(col => col.classList.remove('drag-over'));
-  dragOcId = null;
-}
-
-async function ocDrop(e, newStage) {
-  e.preventDefault();
-  const col = e.currentTarget;
-  col.classList.remove('drag-over');
-  if (!dragOcId) return;
-  const c = outreachContacts.find(x => x._id === dragOcId);
-  if (!c || c.outreachStage === newStage) return;
-
-  const oldStage = c.outreachStage;
-  const oldFirst = c.firstContactedAt;
-  c.outreachStage = newStage;
-  c.lastUpdated = new Date().toISOString();
-  renderOutreach();
-
-  try {
-    const saved = await saveOutreachRow(c);
-    Object.assign(c, saved);
-    renderOutreach();
-    showToast('Moved to "' + newStage + '"', 'success');
-  } catch(err) {
-    c.outreachStage = oldStage;
-    c.firstContactedAt = oldFirst;
-    renderOutreach();
-    showToast('Move failed: ' + err.message, 'error');
-  }
-}
-
-// ------------------------------------------------------------
-// MODAL
-// ------------------------------------------------------------
-function switchOcModalTab(tab) {
-  ['details','notes','reminder'].forEach(t => {
-    const tabEl = document.getElementById('ocModalTab-' + t);
-    const paneEl = document.getElementById('ocModalPane-' + t);
-    if (tabEl) tabEl.classList.toggle('active', t === tab);
-    if (paneEl) paneEl.style.display = t === tab ? 'block' : 'none';
-  });
-}
-
-// Locks + blanks First Contacted while the stage means "not contacted yet"
-// (Screening or Queued). Mirrors the authoritative rule in ocDbFromRow() so the
-// form can never show a value the save path would strip.
-function ocSyncFirstContacted() {
-  const stageEl = document.getElementById('oc-outreachStage');
-  const dateEl  = document.getElementById('oc-firstContactedAt');
-  const hintEl  = document.getElementById('oc-firstContactedHint');
-  if (!stageEl || !dateEl) return;
-  const uncontacted = OUTREACH_NOT_CONTACTED_STAGES.includes(stageEl.value);
-  dateEl.disabled = uncontacted;
-  dateEl.style.opacity = uncontacted ? '0.5' : '';
-  dateEl.style.cursor = uncontacted ? 'not-allowed' : '';
-  if (uncontacted) dateEl.value = '';
-  if (hintEl) hintEl.style.display = uncontacted ? 'block' : 'none';
-}
-
-function clearOcForm() {
-  OUTREACH_COLUMNS.forEach(k => {
-    const el = document.getElementById('oc-' + k);
-    if (el) el.value = '';
-  });
-  const st = document.getElementById('oc-outreachStage');
-  if (st) st.value = 'Queued';
-  const ni = document.getElementById('ocNewNoteInput');
-  if (ni) ni.value = '';
-  renderOcNotesJournal('');
-  ocSyncFirstContacted();
-}
-
-function fillOcForm(c) {
-  OUTREACH_COLUMNS.forEach(k => {
-    const el = document.getElementById('oc-' + k);
-    if (el) el.value = c[k] || '';
-  });
-  renderOcNotesJournal(c.notes || '');
-  ocSyncFirstContacted();
-}
-
-function getOcFormValues() {
-  const o = {};
-  OUTREACH_COLUMNS.forEach(k => {
-    const el = document.getElementById('oc-' + k);
-    o[k] = el ? el.value : '';
-  });
-  return o;
-}
-
-function openOcAddModal() {
-  editingOcId = null;
-  _ocModalSnapshot = null;
-  clearOcForm();
-  document.getElementById('ocModalTitle').textContent = 'Add Contact';
-  document.getElementById('ocDeleteBtn').style.display = 'none';
-  switchOcModalTab('details');
-  document.getElementById('ocModal').classList.add('open');
-}
-
-async function openOcModal(id) {
-  const c = outreachContacts.find(x => x._id === id);
-  if (!c) { showToast('Contact not found', 'error'); return; }
-  editingOcId = id;
-  _ocModalSnapshot = JSON.stringify(c);
-  clearOcForm();
-  fillOcForm(c);
-  document.getElementById('ocModalTitle').textContent = c.companyName || 'Edit Contact';
-  document.getElementById('ocDeleteBtn').style.display = 'inline-flex';
-  switchOcModalTab('details');
-  document.getElementById('ocModal').classList.add('open');
-}
-
-function closeOcModal() {
-  document.getElementById('ocModal').classList.remove('open');
-  editingOcId = null;
-  _ocModalSnapshot = null;
-}
-
-// Static reference panel — no data layer, nothing to load or save.
-function openOcPlaybook()  { document.getElementById('ocPlaybookModal').classList.add('open'); }
-function closeOcPlaybook() { document.getElementById('ocPlaybookModal').classList.remove('open'); }
-
-async function saveOcContact() {
-  const vals = getOcFormValues();
-  if (!vals.companyName.trim()) { showToast('Company / Site is required', 'error'); return; }
-
-  // Conflict detection — mirrors the lead modal's _modalSnapshot pattern.
-  if (editingOcId && _ocModalSnapshot) {
-    try {
-      const fresh = await fetchOcSnapshotById(editingOcId);
-      const local = JSON.parse(_ocModalSnapshot);
-      const changedRemotely = OUTREACH_COLUMNS.some(k => (fresh[k] || '') !== (local[k] || ''));
-      if (changedRemotely && !confirm('This contact was changed by someone else since you opened it. Overwrite their changes?')) return;
-    } catch(e) { /* if the check fails, fall through and save */ }
-  }
-
-  const existing = editingOcId ? outreachContacts.find(x => x._id === editingOcId) : null;
-  const row = Object.assign({}, existing || {}, vals);
-  if (editingOcId) row._id = editingOcId;
-
-  // Match the lead pipeline's rule: last_updated only moves on a stage change.
-  const stageChanged = !existing || existing.outreachStage !== vals.outreachStage;
-  if (stageChanged) row.lastUpdated = new Date().toISOString();
-
-  try {
-    const saved = await saveOutreachRow(row);
-    if (existing) Object.assign(existing, saved);
-    else outreachContacts.unshift(saved);
-    closeOcModal();
-    renderOutreach();
-    showToast('Contact saved', 'success');
-  } catch(e) {
-    showToast('Save failed: ' + e.message, 'error');
-  }
-}
-
-async function deleteOcContact() {
-  if (!editingOcId) return;
-  if (!confirm('Delete this contact? This cannot be undone.')) return;
-  const id = editingOcId;
-  try {
-    await deleteOutreachRow(id);
-    outreachContacts = outreachContacts.filter(c => c._id !== id);
-    closeOcModal();
-    renderOutreach();
-    showToast('Contact deleted', 'success');
-  } catch(e) {
-    showToast('Delete failed: ' + e.message, 'error');
-  }
-}
-
-async function quickDeleteOc(id) {
-  const c = outreachContacts.find(x => x._id === id);
-  if (!c) return;
-  if (!confirm('Delete "' + (c.companyName || 'this contact') + '"?')) return;
-  try {
-    await deleteOutreachRow(id);
-    outreachContacts = outreachContacts.filter(x => x._id !== id);
-    renderOutreach();
-    showToast('Contact deleted', 'success');
-  } catch(e) {
-    showToast('Delete failed: ' + e.message, 'error');
-  }
-}
-
-// ------------------------------------------------------------
-// NOTES JOURNAL — re-implemented against oc-* ids. The lead versions
-// (renderNotesJournal/addNote/deleteNote/editNoteInline/saveNoteEdit) write
-// straight into #f-notes and must never be called from here.
-// parseNotes()/serializeNotes() ARE pure and are reused as-is.
-// ------------------------------------------------------------
-function renderOcNotesJournal(raw) {
-  const el = document.getElementById('ocNotesJournal');
-  if (!el) return;
-  const { entries, legacy } = parseNotes(raw);
-  const myInitials = currentUser ? currentUser.name.split(' ').map(p => p[0].toUpperCase()).join('') : null;
-  let html = '';
-  entries.forEach((entry, idx) => {
-    const firstNewline = entry.indexOf('\n');
-    const header = firstNewline !== -1 ? entry.substring(0, firstNewline).trim() : entry;
-    const body   = firstNewline !== -1 ? entry.substring(firstNewline + 1).trim() : '';
-    const isOwner = myInitials && header.split('|')[0].trim() === myInitials;
-    const btns = isOwner
-      ? '<button class="action-btn" onclick="editOcNoteInline(' + idx + ')" title="Edit">✏</button>'
-        + '<button class="action-btn del" onclick="deleteOcNote(' + idx + ')" title="Delete">🗑</button>'
-      : '';
-    html += '<div class="note-card" id="oc-note-card-' + idx + '">'
-      + '<div class="note-card-header" style="justify-content:space-between">'
-      +   '<span class="note-card-meta">' + ocEsc(header) + '</span>'
-      +   '<div style="display:flex;gap:4px;flex-shrink:0">' + btns + '</div>'
-      + '</div>'
-      + '<div class="note-card-text" id="oc-note-body-' + idx + '">' + ocEsc(body) + '</div>'
-      + '</div>';
-  });
-  if (legacy) {
-    html += '<div class="note-card-legacy"><div class="note-card-legacy-label">Previous notes</div>'
-      + '<div class="note-card-legacy-text">' + ocEsc(legacy) + '</div></div>';
-  }
-  if (!entries.length && !legacy) {
-    html = '<div style="color:var(--text3);font-size:13px;font-style:italic;text-align:center;padding:24px">No notes yet — add one above.</div>';
-  }
-  el.innerHTML = html;
-}
-
-function addOcNote() {
-  const input = document.getElementById('ocNewNoteInput');
-  const text = input.value.trim();
-  if (!text) { showToast('Type a note first', 'error'); return; }
-  const initials = currentUser ? currentUser.name.split(' ').map(p => p[0].toUpperCase()).join('') : '??';
-  const dateLabel = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' });
-  const field = document.getElementById('oc-notes');
-  const { entries, legacy } = parseNotes(field.value);
-  entries.unshift(initials + ' | ' + dateLabel + '\n' + text);
-  field.value = serializeNotes(entries, legacy);
-  input.value = '';
-  renderOcNotesJournal(field.value);
-}
-
-function deleteOcNote(idx) {
-  if (!confirm('Delete this note?')) return;
-  const field = document.getElementById('oc-notes');
-  const { entries, legacy } = parseNotes(field.value);
-  entries.splice(idx, 1);
-  field.value = serializeNotes(entries, legacy);
-  renderOcNotesJournal(field.value);
-}
-
-function editOcNoteInline(idx) {
-  const field = document.getElementById('oc-notes');
-  const { entries } = parseNotes(field.value);
-  const entry = entries[idx];
-  const firstNewline = entry.indexOf('\n');
-  const header = firstNewline !== -1 ? entry.substring(0, firstNewline).trim() : entry;
-  const body   = firstNewline !== -1 ? entry.substring(firstNewline + 1).trim() : '';
-  const card = document.getElementById('oc-note-card-' + idx);
-  if (!card) return;
-  card.innerHTML = '<div class="note-card-header" style="justify-content:space-between">'
-    + '<span class="note-card-meta">' + ocEsc(header) + '</span></div>'
-    + '<textarea id="oc-note-edit-' + idx + '" style="width:100%;min-height:70px;resize:vertical;margin-top:8px;font-family:\'Mulish\',sans-serif;font-size:13px;background:var(--surface);border:1px solid var(--accent);border-radius:6px;padding:8px;color:var(--text)">' + ocEsc(body) + '</textarea>'
-    + '<div style="display:flex;gap:6px;margin-top:8px;justify-content:flex-end">'
-    +   '<button class="btn btn-secondary" style="padding:4px 10px;font-size:12px" onclick="renderOcNotesJournal(document.getElementById(\'oc-notes\').value)">Cancel</button>'
-    +   '<button class="btn btn-primary" style="padding:4px 10px;font-size:12px" onclick="saveOcNoteEdit(' + idx + ')">Save</button>'
-    + '</div>';
-}
-
-function saveOcNoteEdit(idx) {
-  const ta = document.getElementById('oc-note-edit-' + idx);
-  const newBody = ta ? ta.value.trim() : '';
-  if (!newBody) { showToast('Note cannot be empty', 'error'); return; }
-  const field = document.getElementById('oc-notes');
-  const { entries, legacy } = parseNotes(field.value);
-  const entry = entries[idx];
-  const firstNewline = entry.indexOf('\n');
-  const header = firstNewline !== -1 ? entry.substring(0, firstNewline).trim() : entry;
-  entries[idx] = header + '\n' + newBody;
-  field.value = serializeNotes(entries, legacy);
-  renderOcNotesJournal(field.value);
-}
-
-function setOcNextBizDay() {
-  const el = document.getElementById('oc-nextReminderDate');
-  if (el) el.value = nextBusinessDay();
-}
-
-function clearOcReminder() {
-  const d = document.getElementById('oc-nextReminderDate');
-  const n = document.getElementById('oc-reminderNote');
-  if (d) d.value = '';
-  if (n) n.value = '';
-}
-
-// ------------------------------------------------------------
-// CSV IMPORT — entirely separate from the lead importer above.
-// Never reuse csvFileInput / csvMapModal / _csvRows / .csv-* classes.
-// ------------------------------------------------------------
-const OC_CSV_FIELDS = ['company_name','website_url','contact_name','contact_email','backlink_type','target_url','notes'];
-const OC_CSV_TO_UI = {
-  company_name:'companyName', website_url:'websiteUrl', contact_name:'contactName',
-  contact_email:'contactEmail', backlink_type:'backlinkType', target_url:'targetUrl', notes:'notes'
-};
-let _ocCsvParsed = null;
-
-function normalizeOcDomain(url) {
-  if (!url) return '';
-  return String(url).trim().toLowerCase()
-    .replace(/^https?:\/\//, '')
-    .replace(/^www\./, '')
-    .split(/[/?#]/)[0]
-    .replace(/\.$/, '');
-}
-
-// Hand-rolled parser: quoted fields, embedded commas, escaped "" and \r\n.
-function parseOcCsv(text) {
-  const rows = [];
-  let row = [], field = '', inQuotes = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (inQuotes) {
-      if (ch === '"') {
-        if (text[i+1] === '"') { field += '"'; i++; }
-        else inQuotes = false;
-      } else field += ch;
-    } else {
-      if (ch === '"') inQuotes = true;
-      else if (ch === ',') { row.push(field); field = ''; }
-      else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
-      else if (ch === '\r') { /* skip, \n handles the break */ }
-      else field += ch;
-    }
-  }
-  if (field.length || row.length) { row.push(field); rows.push(row); }
-  return rows.filter(r => r.some(c => c.trim() !== ''));
-}
-
-function openOcCsvUpload() {
-  const el = document.getElementById('ocCsvFileInput');
-  if (!el) return;
-  el.value = '';
-  el.click();
-}
-
-function downloadOcCsvTemplate() {
-  const csv = OC_CSV_FIELDS.join(',') + '\n'
-    + 'Boston Eats Blog,https://bostoneatsblog.com,Dana Ruiz,dana@bostoneatsblog.com,Guest Post,https://www.spoteasy.com/blog/example,Met at a meetup\n';
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'outreach-contacts-template.csv';
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
-function previewOcCsv(text) {
-  const rows = parseOcCsv(text);
-  if (!rows.length) { showToast('That CSV looks empty', 'error'); return; }
-
-  const headers = rows[0].map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
-  const idx = {};
-  OC_CSV_FIELDS.forEach(f => { const i = headers.indexOf(f); if (i !== -1) idx[f] = i; });
-  if (idx.company_name === undefined && idx.website_url === undefined) {
-    showToast('CSV needs at least a company_name or website_url column', 'error');
-    return;
-  }
-
-  const existingDomains = new Set(outreachContacts.map(c => normalizeOcDomain(c.websiteUrl)).filter(Boolean));
-  const seenInFile = new Set();
-  const fresh = [], dupes = [], invalid = [], badTypes = [];
-
-  for (let r = 1; r < rows.length; r++) {
-    const cells = rows[r];
-    const get = f => (idx[f] !== undefined && cells[idx[f]] !== undefined) ? cells[idx[f]].trim() : '';
-    const company = get('company_name'), site = get('website_url');
-    if (!company && !site) { invalid.push('Row ' + (r+1) + ' — no company or website'); continue; }
-
-    const dom = normalizeOcDomain(site);
-    if (dom && (existingDomains.has(dom) || seenInFile.has(dom))) { dupes.push(company || site); continue; }
-    if (dom) seenInFile.add(dom);
-
-    let type = get('backlink_type');
-    if (type) {
-      const match = BACKLINK_TYPES.find(t => t.toLowerCase() === type.toLowerCase());
-      if (match) type = match;
-      else { badTypes.push((company || site) + ' — "' + type + '"'); type = ''; }
-    }
-
-    const note = get('notes');
-    const initials = currentUser ? currentUser.name.split(' ').map(p => p[0].toUpperCase()).join('') : '??';
-    const dateLabel = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' });
-
-    fresh.push({
-      companyName: company || site,
-      websiteUrl: site,
-      contactName: get('contact_name'),
-      contactEmail: get('contact_email'),
-      backlinkType: type,
-      targetUrl: get('target_url'),
-      // Bulk imports land in Screening, not Queued. A CSV is a prospect list —
-      // nobody has evaluated these yet, and dropping them straight into Queued
-      // is what turns "ready to email" into "everything we have ever heard of".
-      outreachStage: 'Screening',
-      notes: note ? (initials + ' | ' + dateLabel + '\n' + note) : '',
-    });
-  }
-
-  _ocCsvParsed = fresh;
-
-  const listBlock = (title, items) => items.length
-    ? '<div style="margin-top:14px"><div class="briefing-section-title">' + title + '</div><div class="oc-csv-list">' + items.map(i => '— ' + ocEsc(i)).join('<br>') + '</div></div>'
-    : '';
-
-  const previewRows = fresh.slice(0, 10).map(c =>
-    '<tr><td>' + ocEsc(c.companyName) + '</td><td>' + ocEsc(c.websiteUrl || '—') + '</td><td>'
-    + ocEsc(c.contactEmail || '—') + '</td><td>' + ocEsc(c.backlinkType || '—') + '</td></tr>').join('');
-
-  document.getElementById('ocCsvBody').innerHTML =
-      '<div class="oc-csv-summary">'
-    +   '<span class="oc-csv-chip new">' + fresh.length + ' new</span>'
-    +   '<span class="oc-csv-chip dupe">' + dupes.length + ' duplicate</span>'
-    +   '<span class="oc-csv-chip bad">' + invalid.length + ' invalid</span>'
-    + '</div>'
-    + '<p style="font-size:12px;color:var(--text3);line-height:1.6">Duplicates are matched on website domain against contacts already in the CRM and against earlier rows in this file. They are <strong>skipped, never overwritten</strong>. All imported contacts start at stage <strong>Queued</strong>.</p>'
-    + (fresh.length ? '<table class="oc-csv-table"><thead><tr><th>Company</th><th>Website</th><th>Email</th><th>Type</th></tr></thead><tbody>' + previewRows + '</tbody></table>' : '')
-    + (fresh.length > 10 ? '<p style="font-size:11px;color:var(--text3);margin-top:8px">…and ' + (fresh.length - 10) + ' more</p>' : '')
-    + listBlock('Skipped as duplicates', dupes)
-    + listBlock('Skipped as invalid', invalid)
-    + listBlock('Imported with blank Backlink Type', badTypes);
-
-  const btn = document.getElementById('ocCsvImportBtn');
-  btn.textContent = 'Import ' + fresh.length + ' Contact' + (fresh.length !== 1 ? 's' : '');
-  btn.disabled = fresh.length === 0;
-  document.getElementById('ocCsvModal').classList.add('open');
-}
-
-function closeOcCsvModal() {
-  document.getElementById('ocCsvModal').classList.remove('open');
-  _ocCsvParsed = null;
-}
-
-async function commitOcCsvImport() {
-  if (!_ocCsvParsed || !_ocCsvParsed.length) return;
-  const btn = document.getElementById('ocCsvImportBtn');
-  const total = _ocCsvParsed.length;
-  btn.textContent = 'Importing...';
-  btn.disabled = true;
-  try {
-    const payload = _ocCsvParsed.map(c => {
-      const r = ocDbFromRow(c);
-      r.added_by_email = currentUser ? currentUser.email : null;
-      return r;
-    });
-    for (let i = 0; i < payload.length; i += 100) {
-      const chunk = payload.slice(i, i + 100);
-      const { error } = await sb.from('outreach_contacts').insert(chunk);
-      if (error) throw error;
-    }
-    closeOcCsvModal();
-    await loadOutreach();
-    showToast('Imported ' + total + ' contact' + (total !== 1 ? 's' : ''), 'success');
-  } catch(e) {
-    showToast('Import failed: ' + e.message, 'error');
-    btn.textContent = 'Import ' + total + ' Contact' + (total !== 1 ? 's' : '');
-    btn.disabled = false;
-  }
-}
-
-// ------------------------------------------------------------
-// DAILY BRIEFING DATA (rendered by the append-only blocks in
-// renderBriefingModal / sendBriefingToSlack)
-// ------------------------------------------------------------
-function buildOutreachBriefingData() {
-  const updatedYesterday = outreachContacts.filter(c => daysSince(c.lastUpdated) === 1);
-  return {
-    stats: {
-      emailsSent:    updatedYesterday.filter(c => c.outreachStage === '1st Email').length,
-      followUpsSent: updatedYesterday.filter(c => c.outreachStage === 'Follow Up' || c.outreachStage === '2nd Follow Up').length,
-      nowWorking:    updatedYesterday.filter(c => c.outreachStage === 'Working').length,
-      linksAcquired: updatedYesterday.filter(c => c.outreachStage === 'Link Acquired').length,
-    },
-    remindersDue: outreachContacts.filter(c => c.nextReminderDate && daysUntil(c.nextReminderDate) <= 0),
-    queued:       outreachContacts.filter(c => c.outreachStage === 'Queued'),
-    goneStale:    outreachContacts.filter(c => OUTREACH_EMAILED_STAGES.includes(c.outreachStage)
-                                            && daysSince(c.lastUpdated) !== null
-                                            && daysSince(c.lastUpdated) >= OUTREACH_STALE_DAYS),
-  };
-}
-
-// ------------------------------------------------------------
-// INIT — all listeners null-guarded and registered at the very end of the
-// script. An unguarded top-level getElementById(...).addEventListener on a
-// missing id throws and aborts every remaining top-level statement, which
-// would take presence, the template generator and the lead CSV importer with
-// it. node --check does not catch that.
-// ------------------------------------------------------------
-initOcOptionLists();
-
-(function initOcListeners() {
-  const fileEl = document.getElementById('ocCsvFileInput');
-  if (fileEl) fileEl.addEventListener('change', function() {
-    const file = this.files && this.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => { try { previewOcCsv(ev.target.result); } catch(err) { showToast('Could not read CSV: ' + err.message, 'error'); } };
-    reader.readAsText(file);
-  });
-
-  const csvModal = document.getElementById('ocCsvModal');
-  if (csvModal) csvModal.addEventListener('click', function(e) { if (e.target === this) closeOcCsvModal(); });
-
-  const ocModal = document.getElementById('ocModal');
-  if (ocModal) ocModal.addEventListener('click', function(e) { if (e.target === this) closeOcModal(); });
-})();
-
 
 // ============================================================
 // EMAIL OUTREACH (eo) — campaign-shaped email backlink pipeline
