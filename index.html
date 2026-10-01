@@ -393,7 +393,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.7</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v5.8</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -1391,11 +1391,10 @@ async function verifyAndLogin() {
   document.getElementById('loginOverlay').style.display = 'none';
   updateUserBadge();
   await loadLeads();
-  // Must run BEFORE maybeTriggerBriefing() so the briefing sees outreach data.
-  // loadOutreach() has its own try/catch and can never reject — do not Promise.all
-  // this with loadLeads(), a rejection there would escape and strand the login flow.
-  await loadOutreach();
-  // eoLoad() never rejects either; it must also finish before the briefing reads eoProspects.
+  // Must run BEFORE maybeTriggerBriefing() so the briefing sees Email Outreach data.
+  // eoLoad() has its own try/catch and can never reject — do not Promise.all it
+  // with loadLeads(), a rejection there would escape and strand the login flow.
+  // (The retired Link Outreach loadOutreach() is no longer called; see v5.8.)
   await eoLoad();
   maybeTriggerBriefing();
   startPresence();
@@ -3085,19 +3084,13 @@ function startPresence() {
         () => silentRefreshLeads())
     .subscribe();
 
-  // Realtime: instant refresh when anyone edits a Link Outreach contact.
-  outreachChannel = sb
-    .channel('outreach-watch')
-    .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'outreach_contacts' },
-        () => silentRefreshOutreach())
-    .subscribe();
+  // The retired Link Outreach tab (outreach_contacts) is no longer subscribed or polled (v5.8).
+  // Email Outreach keeps its own channel in eoSubscribe().
 
   presenceTimer = setInterval(() => {
     writePresence();
     pollPresence();
     silentRefreshLeads();
-    silentRefreshOutreach();
   }, PRESENCE_INTERVAL);
 }
 
