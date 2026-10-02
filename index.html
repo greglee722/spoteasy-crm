@@ -372,7 +372,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v6.3</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v6.4</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -997,7 +997,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="modal-overlay" id="eoImportModal">
   <div class="modal" style="max-width:620px">
     <div class="modal-header">
-      <div class="modal-title">Import a prospect list</div>
+      <div class="modal-title">Import a send plan or list</div>
       <button class="modal-close" onclick="eoCloseImport()">✕</button>
     </div>
     <div class="modal-body">
@@ -1006,7 +1006,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         <div class="form-group span2" id="eoImportNewWrap" style="display:none;grid-template-columns:1fr 1fr;gap:14px">
           <div class="form-group"><label>New vertical name</label><input type="text" id="eoImportNewVertical" placeholder="locksmiths"></div>
         </div>
-        <div class="form-group span2"><label>File (.xlsx or .csv, first sheet)</label><input type="file" id="eoImportFile" accept=".xlsx,.xls,.csv" onchange="eoImportFileChosen(this)"></div>
+        <div class="form-group span2"><label>File: a send plan (.xlsx with Day tabs) or a plain list (.xlsx / .csv)</label><input type="file" id="eoImportFile" accept=".xlsx,.xls,.csv" onchange="eoImportFileChosen(this)"></div>
         <div class="form-group span2" id="eoImportPreview"></div>
       </div>
     </div>
@@ -4141,7 +4141,7 @@ async function eoDeleteProspect() {
 }
 
 // ---------------------------------------------------------------- list importer (new verticals)
-let eoImportRows = [], eoImportFileName = '';
+let eoImportRows = [], eoImportFileName = '', eoImportPlan = null;
 const EO_IMPORT_ALIASES = {
   business_name: ['business_name', 'business', 'name', 'company', 'company_name', 'title'],
   email: ['email', 'email_address', 'contact_email'],
@@ -4151,11 +4151,16 @@ const EO_IMPORT_ALIASES = {
   website: ['website', 'website_url', 'url', 'site'],
   blog_url: ['blog_url', 'blog'],
   instagram: ['instagram', 'ig'],
-  notes: ['notes', 'note', 'category'],
+  last_real_post_date: ['last_real_post_date', 'last_post', 'last_post_date'],
+  category: ['category'],
+  best_matching_post: ['best_matching_post'],
+  notes: ['notes', 'note'],
 };
+// Send-plan columns that record sends. 'n'/'no'/blank mean nothing happened; anything else does.
+const EO_SENT_HEADER = /^(sent|1st email|bounced|replied|second email|2nd email|third email|3rd email|fourth email|4th email|outcome)/i;
 
 function eoOpenImport() {
-  eoImportRows = [];
+  eoImportRows = []; eoImportPlan = null;
   document.getElementById('eoImportCampaign').innerHTML = eoCampaigns.map(c => '<option value="' + c.id + '">' + eoEsc(c.vertical) + '</option>').join('')
     + '<option value="__new">+ New vertical…</option>';
   document.getElementById('eoImportNewWrap').style.display = 'none';
@@ -4167,6 +4172,7 @@ function eoOpenImport() {
 function eoCloseImport() { document.getElementById('eoImportModal').classList.remove('open'); }
 function eoImportCampaignChanged() {
   document.getElementById('eoImportNewWrap').style.display = document.getElementById('eoImportCampaign').value === '__new' ? 'grid' : 'none';
+  if (eoImportRows.length) eoPreviewImport();
 }
 
 function eoLoadSheetJs() {
@@ -4180,6 +4186,51 @@ function eoLoadSheetJs() {
   });
 }
 
+function eoImportKey(h) { return String(h == null ? '' : h).trim().toLowerCase().replace(/\s+/g, '_'); }
+function eoMapImportRow(obj) {
+  const out = {};
+  Object.entries(EO_IMPORT_ALIASES).forEach(([field, names]) => {
+    const hit = names.find(n => obj[n] !== undefined && String(obj[n]).trim() !== '');
+    if (hit) out[field] = String(obj[hit]).trim();
+  });
+  return out;
+}
+
+// Reads either Sanket's send plan (README + "Day N" tabs, a title row above each header)
+// or a flat list (first sheet, header in row 1). Only Day tabs are imported from a send plan.
+function eoParseWorkbook(wb) {
+  const dayTabs = wb.SheetNames.filter(n => /^\s*day\b/i.test(n));
+  if (!dayTabs.length) {
+    const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '', raw: false, dateNF: 'yyyy-mm-dd' });
+    return { mode: 'list', rows: raw.map(r => { const o = {}; Object.keys(r).forEach(k => (o[eoImportKey(k)] = r[k])); return eoMapImportRow(o); }) };
+  }
+  const readme = wb.SheetNames.find(n => /read\s*me/i.test(n));
+  const rules = readme ? XLSX.utils.sheet_to_json(wb.Sheets[readme], { header: 1, defval: '', raw: false })
+    .map(r => String(r[0] || '').trim()).filter(Boolean).join('\n') : '';
+  const rows = [], tabs = [], sent = [];
+  dayTabs.forEach(tab => {
+    const grid = XLSX.utils.sheet_to_json(wb.Sheets[tab], { header: 1, defval: '', raw: false, dateNF: 'yyyy-mm-dd' });
+    const hi = grid.findIndex(r => r.some(c => eoImportKey(c) === 'business_name'));
+    if (hi < 0) { tabs.push({ tab, count: 0, note: 'no business_name header' }); return; }
+    const header = grid[hi].map(eoImportKey);
+    const rawHeader = grid[hi].map(c => String(c || '').trim());
+    let count = 0;
+    grid.slice(hi + 1).forEach(r => {
+      const obj = {};
+      header.forEach((h, i) => { if (h) obj[h] = r[i]; });
+      const m = eoMapImportRow(obj);
+      if (!m.business_name) return;
+      const marks = rawHeader.map((h, i) => (EO_SENT_HEADER.test(h) && !['', 'n', 'no'].includes(String(r[i] || '').trim().toLowerCase())) ? h : null).filter(Boolean);
+      if (marks.length) sent.push(m.business_name + ' (' + tab.trim() + ': ' + marks.join(', ') + ')');
+      m._tab = tab.trim();
+      rows.push(m); count++;
+    });
+    tabs.push({ tab: tab.trim(), count });
+  });
+  const skipped = wb.SheetNames.filter(n => !dayTabs.includes(n) && n !== readme);
+  return { mode: 'plan', rows, tabs, sent, rules, skipped };
+}
+
 async function eoImportFileChosen(input) {
   const f = input.files && input.files[0];
   if (!f) return;
@@ -4187,18 +4238,18 @@ async function eoImportFileChosen(input) {
   try {
     await eoLoadSheetJs();
     const wb = XLSX.read(await f.arrayBuffer(), { type: 'array', cellDates: true });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const raw = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false, dateNF: 'yyyy-mm-dd' });
-    eoImportRows = raw.map(r => {
-      const lower = {};
-      Object.keys(r).forEach(k => (lower[String(k).trim().toLowerCase().replace(/\s+/g, '_')] = r[k]));
-      const out = {};
-      Object.entries(EO_IMPORT_ALIASES).forEach(([field, names]) => {
-        const hit = names.find(n => lower[n] !== undefined && String(lower[n]).trim() !== '');
-        if (hit) out[field] = String(lower[hit]).trim();
-      });
-      return out;
-    });
+    const parsed = eoParseWorkbook(wb);
+    eoImportRows = parsed.rows;
+    eoImportPlan = parsed.mode === 'plan' ? parsed : null;
+    if (eoImportPlan) {
+      // A send plan is usually a new vertical: preselect "New" and suggest a name from the file.
+      const sel = document.getElementById('eoImportCampaign');
+      const guess = f.name.replace(/\.[^.]+$/, '').replace(/_?send_?plan.*$/i, '').replace(/[_-]+/g, ' ').trim().toLowerCase();
+      const existing = eoCampaigns.find(c => c.vertical === guess);
+      if (existing) sel.value = existing.id;
+      else { sel.value = '__new'; document.getElementById('eoImportNewVertical').value = guess; }
+      eoImportCampaignChanged();
+    }
     eoPreviewImport();
   } catch (e) {
     document.getElementById('eoImportPreview').innerHTML = '<div class="eo-warn-text">' + eoEsc(e.message || e) + '</div>';
@@ -4225,10 +4276,14 @@ function eoBuildImportRecords() {
       inFileKeys.add(k);
     }
     if (domain) inFile.add(domain);
+    const notes = [r._tab ? 'Imported from ' + eoImportFileName + ', tab "' + r._tab + '".' : null,
+      r.category ? 'category: ' + r.category : null, r.best_matching_post ? 'best matching post: ' + r.best_matching_post : null,
+      r.notes || null].filter(Boolean).join('\n');
+    const lp = /^\d{4}-\d{2}-\d{2}/.test(r.last_real_post_date || '') ? r.last_real_post_date.slice(0, 10) : null;
     ok.push({
       business_name: r.business_name, domain, blog_url: r.blog_url || null, email: r.email || null, phone: r.phone || null,
-      city: r.city || null, instagram: r.instagram || null, notes: r.notes || null,
-      stage: 'Opportunity', source: 'list-import:' + eoImportFileName,
+      city: r.city || null, instagram: r.instagram || null, last_real_post_date: lp, notes: notes || null,
+      stage: 'Opportunity', source: (eoImportPlan ? 'send-plan:' : 'list-import:') + eoImportFileName + (r._tab ? ' / ' + r._tab : ''),
     });
   });
   return { ok, dup, bad };
@@ -4236,25 +4291,42 @@ function eoBuildImportRecords() {
 
 function eoPreviewImport() {
   const { ok, dup, bad } = eoBuildImportRecords();
-  document.getElementById('eoImportPreview').innerHTML =
-    '<div class="eo-card" style="margin:0"><div><b>' + eoImportRows.length + '</b> rows read from ' + eoEsc(eoImportFileName) + '.</div>'
-    + '<div>✅ <b>' + ok.length + '</b> new prospects</div>'
+  const plan = eoImportPlan;
+  let html = '<div class="eo-card" style="margin:0">';
+  if (plan) {
+    html += '<div><b>Send plan</b> ' + eoEsc(eoImportFileName) + ': ' + plan.rows.length + ' businesses on ' + plan.tabs.length + ' Day tabs ('
+      + plan.tabs.map(t => eoEsc(t.tab) + ' ' + t.count).join(', ') + ').</div>';
+    if (plan.skipped.length) html += '<div class="eo-muted">Not imported (by design): ' + plan.skipped.map(eoEsc).join(', ') + '.</div>';
+    if (plan.rules) html += '<div class="eo-muted">The README becomes the vertical\'s rules (new vertical only).</div>';
+  } else {
+    html += '<div><b>' + eoImportRows.length + '</b> rows read from ' + eoEsc(eoImportFileName) + ' (first sheet).</div>';
+  }
+  html += '<div>✅ <b>' + ok.length + '</b> new prospects, in file order, at Opportunity</div>'
     + '<div>⏭ <b>' + dup.length + '</b> skipped as duplicates' + (dup.length ? ': ' + dup.slice(0, 8).map(d => eoEsc(d.business_name)).join(', ') + (dup.length > 8 ? '…' : '') : '') + '</div>'
-    + '<div>⚠️ <b>' + bad.length + '</b> skipped with no business name</div>'
-    + '<div class="eo-muted" style="margin-top:6px">Recognized columns: business_name, email, phone, city, domain or website, blog_url, instagram, notes. New rows land at Opportunity.</div></div>';
-  document.getElementById('eoImportCommit').disabled = ok.length === 0;
+    + '<div>⚠️ <b>' + bad.length + '</b> skipped with no business name</div>';
+  const blocked = plan && plan.sent.length;
+  if (blocked) {
+    html += '<div class="eo-alert" style="margin-top:8px"><b>Not imported:</b> ' + plan.sent.length + ' rows already show emails sent or an outcome. '
+      + 'Ask Greg to import this plan so the email dates carry over: ' + plan.sent.slice(0, 5).map(eoEsc).join('; ') + (plan.sent.length > 5 ? '…' : '') + '</div>';
+  }
+  html += '<div class="eo-muted" style="margin-top:6px">Recognized columns: business_name, email, phone, city, domain or website, blog_url, instagram, last_post, category, best_matching_post, notes.</div></div>';
+  document.getElementById('eoImportPreview').innerHTML = html;
+  document.getElementById('eoImportCommit').disabled = ok.length === 0 || !!blocked;
 }
 
 async function eoCommitImport() {
   const sel = document.getElementById('eoImportCampaign').value;
   const btn = document.getElementById('eoImportCommit');
+  if (eoImportPlan && eoImportPlan.sent.length) return;
   btn.disabled = true;
   try {
     let cid = sel;
     if (sel === '__new') {
       const vertical = document.getElementById('eoImportNewVertical').value.trim().toLowerCase();
       if (!vertical) { alert('Name the new vertical.'); btn.disabled = false; return; }
-      const { data, error } = await sb.from('eo_campaigns').insert({ vertical, default_track: 'guest_post', max_touches: 3 }).select().single();
+      if (eoCampaigns.some(c => c.vertical === vertical)) { alert('A vertical called "' + vertical + '" already exists. Pick it from the list.'); btn.disabled = false; return; }
+      const { data, error } = await sb.from('eo_campaigns')
+        .insert({ vertical, default_track: 'guest_post', max_touches: 3, rules: (eoImportPlan && eoImportPlan.rules) || null }).select().single();
       if (error) throw error;
       eoCampaigns.push(data);
       cid = data.id;
@@ -4266,7 +4338,9 @@ async function eoCommitImport() {
       eoInitFilters();
     }
     const { ok } = eoBuildImportRecords();
-    const rows = ok.map(r => Object.assign(eoDbFromRow(r), { campaign_id: cid, added_by_email: eoActor() }));
+    // created_at one second apart keeps the file order: Today sends the oldest record first.
+    const base = Date.now();
+    const rows = ok.map((r, i) => Object.assign(eoDbFromRow(r), { campaign_id: cid, added_by_email: eoActor(), created_at: new Date(base + i * 1000).toISOString() }));
     let inserted = 0;
     for (let i = 0; i < rows.length; i += 200) {
       const { data, error } = await sb.from('eo_prospects').insert(rows.slice(i, i + 200)).select();
