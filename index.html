@@ -372,7 +372,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v6.2</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v6.3</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -3406,7 +3406,8 @@ function eoStats(prospects, touchesBy, history, campaignsById, today) {
   const weekStart = eoWeekStart(today);
   const byStage = {};
   EO_STAGES.forEach(s => (byStage[s] = 0));
-  let sentWeek = 0, contacted = 0, replied = 0, interested = 0, acquired = 0, acquiredWeek = 0, touchesAll = 0, bounced = 0, dueToday = 0;
+  const lastStart = eoAddDays(weekStart, -7), lastEnd = eoAddDays(weekStart, -1);
+  let sentWeek = 0, contacted = 0, replied = 0, interested = 0, acquired = 0, acquiredWeek = 0, acquiredLastWeek = 0, touchesAll = 0, bounced = 0, dueToday = 0;
   prospects.forEach(p => {
     byStage[p.stage] = (byStage[p.stage] || 0) + 1;
     const ts = touchesBy[p.id] || [];
@@ -3424,16 +3425,17 @@ function eoStats(prospects, touchesBy, history, campaignsById, today) {
     if (p.stage === 'Backlink Acquired') {
       acquired++;
       // This week = the record reached Backlink Acquired (history date) inside the Fri–Thu week.
-      const hit = (history || []).some(h => h.prospect_id === p.id && h.to_stage === 'Backlink Acquired'
-        && eoLocalDate(h.changed_at) >= weekStart && eoLocalDate(h.changed_at) <= today);
-      if (hit) acquiredWeek++;
+      const dates = (history || []).filter(h => h.prospect_id === p.id && h.to_stage === 'Backlink Acquired')
+        .map(h => eoLocalDate(h.changed_at));
+      if (dates.some(d => d >= weekStart && d <= today)) acquiredWeek++;
+      if (dates.some(d => d >= lastStart && d <= lastEnd)) acquiredLastWeek++;
     }
     const due = eoNextDue(p, ts, campaignsById[p.campaign_id]);
     if (due && due <= today) dueToday++;
   });
   const pct = (n, d) => (d ? Math.round((n / d) * 100) : 0);
   return {
-    byStage, weekStart, sentWeek, contacted, replied, interested, acquired, acquiredWeek,
+    byStage, weekStart, lastStart, lastEnd, sentWeek, contacted, replied, interested, acquired, acquiredWeek, acquiredLastWeek,
     replyRate: pct(replied, contacted), interestRate: pct(interested, contacted),
     touchesAll, bounced, bounceRate: pct(bounced, touchesAll), dueToday,
   };
@@ -3949,6 +3951,7 @@ function eoRenderDashboard() {
     metric('Reply rate', s => s.replyRate + '% <span class="eo-muted">(' + s.replied + ')</span>'),
     metric('Interested rate', s => s.interestRate + '% <span class="eo-muted">(' + s.interested + ')</span>'),
     metric('Backlinks acquired this week', s => s.acquiredWeek),
+    metric('Backlinks acquired last week (' + eoFmtDate(stats[0].lastStart) + ' – ' + eoFmtDate(stats[0].lastEnd) + ')', s => s.acquiredLastWeek),
     metric('Backlinks acquired (all time)', s => s.acquired),
     metric('Bounces', s => s.bounced + ' <span class="eo-muted">(' + s.bounceRate + '% of ' + s.touchesAll + ' emails)</span>'),
     metric('Follow-ups due now', s => s.dueToday),
