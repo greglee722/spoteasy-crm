@@ -339,6 +339,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 .eo-badge-seq { background:rgba(124,92,191,0.12); color:var(--purple); }
 .eo-badge-warm { background:rgba(0,184,122,0.12); color:var(--green); }
 .eo-badge-exit { background:rgba(122,154,181,0.15); color:var(--text3); }
+.eo-badge-done { background:var(--green); color:#fff; }
 .eo-chip { display:inline-block; font-size:10px; font-weight:800; padding:1px 7px; border-radius:8px; font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.03em; }
 .eo-chip-ok { background:rgba(0,184,122,0.12); color:var(--green); }
 .eo-chip-warn { background:rgba(240,165,0,0.15); color:#a86f00; }
@@ -371,7 +372,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px">
     <img src="logo.png" alt="Spot Easy" style="height:32px;display:block">
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v6.0</span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.03em">v6.1</span>
   </div>
   <div class="topbar-right">
     <div class="presence-pill" id="presencePill" style="display:none">
@@ -619,9 +620,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
             <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
           </div>
           <select class="filter-select" id="eoFilterStage" onchange="eoRenderProspects()"><option value="">All stages</option></select>
-          <select class="filter-select" id="eoFilterTier" onchange="eoRenderProspects()"><option value="">All tiers</option><option>A</option><option>B</option><option>C</option></select>
-          <select class="filter-select" id="eoFilterEmail" onchange="eoRenderProspects()"><option value="">Any email status</option><option value="verified">verified</option><option value="role_account">role account</option><option value="unverified">unverified</option><option value="catch_all">catch-all</option><option value="no_email">no email</option><option value="bounced">bounced</option></select>
-          <select class="filter-select" id="eoFilterGeo" onchange="eoRenderProspects()"><option value="">Any geo</option><option>IN</option><option>CHECK</option><option>OUT</option></select>
           <span class="count-badge" id="eoCount">0</span>
         </div>
       </div>
@@ -640,9 +638,7 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
             <th onclick="eoSortBy('business_name')">Business ↕</th>
             <th>Vertical</th>
             <th onclick="eoSortBy('stage')">Stage ↕</th>
-            <th onclick="eoSortBy('tier')">Tier ↕</th>
             <th>Email</th>
-            <th>Geo</th>
             <th onclick="eoSortBy('last')">Last sent ↕</th>
             <th onclick="eoSortBy('due')">Next due ↕</th>
             <th>Instagram</th>
@@ -929,7 +925,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
     <div class="modal-body" style="padding:0">
       <div style="display:flex;flex-wrap:wrap;border-bottom:1px solid var(--border);padding:0 24px;background:var(--surface)">
         <div id="eoModalTab-details" class="modal-tab active" onclick="eoSwitchModalTab('details')">Details</div>
-        <div id="eoModalTab-screening" class="modal-tab" onclick="eoSwitchModalTab('screening')">Screening</div>
         <div id="eoModalTab-deal" class="modal-tab" onclick="eoSwitchModalTab('deal')">Deal</div>
         <div id="eoModalTab-touches" class="modal-tab" onclick="eoSwitchModalTab('touches')">Emails</div>
         <div id="eoModalTab-notes" class="modal-tab" onclick="eoSwitchModalTab('notes')">Notes</div>
@@ -940,7 +935,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
           <div class="form-group span2"><label>Business name *</label><input type="text" id="eo-business_name"></div>
           <div class="form-group"><label>Vertical</label><select id="eo-campaign_id" onchange="eoRefreshModalHints()"></select></div>
           <div class="form-group"><label>Stage</label><select id="eo-stage" onchange="eoRefreshModalHints()"></select></div>
-          <div class="form-group span2" id="eoHoldWrap" style="display:none"><label>On Hold reason *</label><input type="text" id="eo-hold_reason" placeholder="no email, verify first, dormant, ..."></div>
           <div class="form-group"><label>Domain</label><input type="text" id="eo-domain" placeholder="example.com" oninput="eoRefreshModalHints()"></div>
           <div class="form-group"><label>Blog URL</label><input type="url" id="eo-blog_url" placeholder="https://..."></div>
           <div class="form-group"><label>Email</label><input type="email" id="eo-email"></div>
@@ -948,9 +942,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
           <div class="form-group"><label>City</label><input type="text" id="eo-city"></div>
           <div class="form-group"><label>Instagram</label><input type="text" id="eo-instagram"></div>
           <div class="form-group"><label>Owner group</label><input type="text" id="eo-owner_group" placeholder="Same owner = one thread"></div>
-          <div class="form-group"><label>Track</label>
-            <select id="eo-track" onchange="eoRefreshModalHints()"><option value="">Campaign default</option><option value="guest_post">Guest post</option><option value="link_insertion">Link insertion</option></select>
-            <div class="eo-hint" id="eoTrackHint"></div></div>
           <div class="form-group span2"><div class="eo-info" id="eoIgHint" style="display:none"></div></div>
           <div class="form-group span2">
             <label>Sending rules</label>
@@ -960,30 +951,19 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         </div>
       </div>
 
-      <div id="eoModalPane-screening" style="padding:20px 24px;display:none">
-        <div class="form-grid">
-          <div class="form-group"><label>Email status</label>
-            <select id="eo-email_status"><option value="">(not set)</option><option value="verified">verified</option><option value="role_account">role account</option><option value="unverified">unverified</option><option value="catch_all">catch-all</option><option value="no_email">no email</option><option value="bounced">bounced</option></select></div>
-          <div class="form-group"><label>Geo</label>
-            <div style="display:flex;gap:6px"><select id="eo-geo_status" style="flex:1"><option value="">(not set)</option><option>IN</option><option>CHECK</option><option>OUT</option></select>
-            <button class="btn btn-secondary eo-btn-sm" type="button" onclick="eoSuggestGeo()" title="Suggest from the phone area code">From phone</button></div></div>
-          <div class="form-group span2"><label>Geo reason</label><input type="text" id="eo-geo_reason"></div>
-          <div class="form-group span2"><label class="eo-check"><input type="checkbox" id="eo-geo_confirmed"> Confirmed Greater Boston (manual override for CHECK)</label>
-            <input type="text" id="eo-geo_confirm_note" placeholder="How you confirmed it"></div>
-          <div class="form-group"><label>Last real post</label><input type="date" id="eo-last_real_post_date" oninput="eoRefreshModalHints()"><div class="eo-hint" id="eoTierHint"></div></div>
-          <div class="form-group"><label>Angle tag</label><input type="text" id="eo-angle_tag" placeholder="short label" oninput="eoRefreshModalHints()"><div class="eo-alert" id="eoAngleHint" style="display:none;margin-top:4px"></div></div>
-          <div class="form-group span2"><label>Personal angle * (required for Ready)</label><textarea id="eo-personal_angle" style="min-height:70px" placeholder="The specific reason, drawn from their actual blog"></textarea></div>
-          <div class="form-group span2"><label class="eo-check"><input type="checkbox" id="eo-blog_fit_confirmed"> Guest post fit: the blog has 3+ real posts, and at least one reaches renters, leases, apartments, students or moving dates</label></div>
-          <div class="form-group"><label>Spot Easy post that links to them</label><input type="url" id="eo-spoteasy_link_url" placeholder="https://www.spoteasy.com/blog/..."><div class="eo-hint">One prospect per Spot Easy post.</div></div>
-          <div class="form-group"><label>Our link live on</label><input type="date" id="eo-our_link_live_at"></div>
-        </div>
-      </div>
-
       <div id="eoModalPane-deal" style="padding:20px 24px;display:none">
         <div class="form-grid">
           <div class="form-group"><label>Deal format</label>
-            <select id="eo-deal_format"><option value="">(not set)</option><option value="guest_post">Guest post</option><option value="paragraph">Paragraph in their post</option><option value="link_insertion">Link insertion</option></select></div>
+            <select id="eo-deal_format" onchange="eoRefreshModalHints()"><option value="">(not set)</option><option value="guest_post">Guest Post</option><option value="link_exchange">Link Exchange</option></select>
+            <div class="eo-hint">Guest Post: we write a blog for them, and they link to us. Link Exchange: each side adds a paragraph that links to the other.</div></div>
           <div class="form-group"><label>Their link verified live on</label><input type="date" id="eo-their_link_verified_at"></div>
+          <div class="form-group span2" id="eoLinkExchangeRows" style="display:none">
+            <div class="form-grid">
+              <div class="form-group"><label>Our post that links to them</label><input type="url" id="eo-spoteasy_link_url" placeholder="https://www.spoteasy.com/blog/..." oninput="eoRefreshModalHints()"><div class="eo-hint">One prospect per Spot Easy post.</div></div>
+              <div class="form-group"><label>Our link live on</label><input type="date" id="eo-our_link_live_at" oninput="eoRefreshModalHints()"></div>
+              <div class="form-group span2"><div class="eo-alert" id="eoDeadlineHint"></div></div>
+            </div>
+          </div>
           <div class="form-group span2"><label>Their page that links to us</label><input type="url" id="eo-their_link_url" placeholder="https://..."><div class="eo-hint">Check it is dofollow and the page is indexable before you set the date.</div></div>
           <div class="form-group span2"><label>Outcome notes</label><textarea id="eo-outcome_notes"></textarea></div>
         </div>
@@ -1025,7 +1005,6 @@ textarea.mockup-input { min-height:80px; resize:vertical; line-height:1.5; }
         <div class="form-group span2"><label>Vertical</label><select id="eoImportCampaign" onchange="eoImportCampaignChanged()"></select></div>
         <div class="form-group span2" id="eoImportNewWrap" style="display:none;grid-template-columns:1fr 1fr;gap:14px">
           <div class="form-group"><label>New vertical name</label><input type="text" id="eoImportNewVertical" placeholder="locksmiths"></div>
-          <div class="form-group"><label>Default track</label><select id="eoImportNewTrack"><option value="guest_post">Guest post</option><option value="link_insertion">Link insertion</option></select></div>
         </div>
         <div class="form-group span2"><label>File (.xlsx or .csv, first sheet)</label><input type="file" id="eoImportFile" accept=".xlsx,.xls,.csv" onchange="eoImportFileChosen(this)"></div>
         <div class="form-group span2" id="eoImportPreview"></div>
@@ -2979,7 +2958,7 @@ function renderBriefingModal() {
       const eoStatRows = [
         { label: 'First emails to send', val: eb.firstToday,        cls: eb.firstToday > 0 ? 'positive' : 'zero' },
         { label: 'Follow-ups due',       val: eb.followUps.length,  cls: eb.followUps.length > 0 ? 'positive' : 'zero' },
-        { label: 'Replies needing action', val: eb.replies.length,  cls: eb.replies.length > 0 ? 'green' : 'zero' },
+        { label: 'Needs a reply or action', val: eb.replies.length,  cls: eb.replies.length > 0 ? 'green' : 'zero' },
       ];
       const eoGroup = (emoji, title, items, emptyMsg) => {
         const inner = items.length
@@ -2995,7 +2974,7 @@ function renderBriefingModal() {
             + '<span class="briefing-stat-val ' + r.cls + '">' + r.val + '</span></div>').join('')
         + '</div></div>'
         + '<div style="margin-top:20px;display:flex;flex-direction:column;gap:14px">'
-        +   eoGroup('💬', 'Replies needing action', eb.replies, 'No replies waiting')
+        +   eoGroup('💬', 'Needs a reply or action', eb.replies, 'Nothing waiting on us')
         +   eoGroup('🔁', 'Follow-ups due', eb.followUps, 'None due')
         + '</div>';
       eoEl.style.display = 'block';
@@ -3087,8 +3066,8 @@ async function sendBriefingToSlack() {
         '📧 *Email Outreach — Today:*',
         fmt('First emails to send', eb.firstToday),
         fmt('Follow-ups due', eb.followUps.length),
-        fmt('Replies needing action', eb.replies.length),
-        '💬 *Replies needing action:*',
+        fmt('Needs a reply or action', eb.replies.length),
+        '💬 *Needs a reply or action:*',
         eoList(eb.replies),
         '🔁 *Follow-ups due:*',
         eoList(eb.followUps),
@@ -3312,19 +3291,17 @@ document.getElementById('csvMapModal').addEventListener('click', function(e){ if
 // ============================================================
 
 // EO-PURE-START — no DOM, no Supabase. Unit-tested by extracting this block.
-const EO_STAGES = ['Imported','Screening','Ready','Sent (Touch 1)','Follow-up 2','Follow-up 3','Follow-up 4',
-  'Replied','Interested','Call Needed','Draft Sent','Link Live','Closed',
-  'Bounced','Not Interested','No Response','Screened Out','On Hold','Do Not Contact'];
-const EO_SEQ_STAGES = ['Sent (Touch 1)','Follow-up 2','Follow-up 3','Follow-up 4'];
-const EO_TOUCH_STAGE = { 1: 'Sent (Touch 1)', 2: 'Follow-up 2', 3: 'Follow-up 3', 4: 'Follow-up 4' };
-const EO_REPLY_STAGES = ['Replied','Interested','Call Needed','Draft Sent','Link Live','Closed','Not Interested'];
-const EO_INTEREST_STAGES = ['Interested','Call Needed','Draft Sent','Link Live','Closed'];
-const EO_EXIT_STAGES = ['Bounced','Not Interested','No Response','Screened Out','On Hold','Do Not Contact'];
-const EO_EMAIL_STATUSES = ['verified','role_account','catch_all','unverified','no_email','bounced'];
-const EO_EMAIL_ORDER = { verified: 0, role_account: 1, unverified: 2, catch_all: 3 };
-const EO_IN_CODES = ['617','857','781','339','978','351'];
-const EO_CHECK_CODES = ['508','774'];
-const EO_TOLL_FREE = ['800','833','844','855','866','877','888'];
+// Stages (v6.1, Greg 2026-10-02): Opportunity > 1st Email > 2nd Email > 3rd Email, then one of
+// Interested, Backlink Required, Backlink Acquired, On Hold, No Response, Declined.
+const EO_STAGES = ['Opportunity','1st Email','2nd Email','3rd Email',
+  'Interested','Backlink Required','Backlink Acquired','On Hold','No Response','Declined'];
+const EO_SEQ_STAGES = ['1st Email','2nd Email','3rd Email'];
+const EO_TOUCH_STAGE = { 1: '1st Email', 2: '2nd Email', 3: '3rd Email' };
+const EO_REPLY_STAGES = ['Interested','Backlink Required','Backlink Acquired','Declined'];
+const EO_INTEREST_STAGES = ['Interested','Backlink Required','Backlink Acquired'];
+const EO_EXIT_STAGES = ['No Response','Declined','On Hold'];
+const EO_DEAL_FORMATS = { guest_post: 'Guest Post', link_exchange: 'Link Exchange' };
+const EO_HOLD_BUSINESS_DAYS = 7;
 
 function eoDateOnly(s) { return s ? String(s).slice(0, 10) : null; }
 function eoAddDays(ymd, n) {
@@ -3340,21 +3317,20 @@ function eoRollWeekend(ymd) {
   const wd = eoWeekday(ymd);
   return wd === 6 ? eoAddDays(ymd, 2) : wd === 0 ? eoAddDays(ymd, 1) : ymd;
 }
+// Add n business days (Mon–Fri, no holidays).
+function eoAddBusinessDays(ymd, n) {
+  let d = ymd, left = n;
+  while (left > 0) {
+    d = eoAddDays(d, 1);
+    const wd = eoWeekday(d);
+    if (wd !== 0 && wd !== 6) left--;
+  }
+  return d;
+}
 // Friday–Thursday week containing `today` (matches the SEO work log).
 function eoWeekStart(today) {
   const back = (eoWeekday(today) - 5 + 7) % 7;
   return eoAddDays(today, -back);
-}
-
-function eoTier(p, today) {
-  const d = eoDateOnly(p.last_real_post_date);
-  if (!d) return 'C';
-  const days = eoDaysBetween(d, today);
-  return days <= 90 ? 'A' : days <= 365 ? 'B' : 'C';
-}
-
-function eoTrack(p, campaign) {
-  return p.track || (campaign && campaign.default_track) || 'guest_post';
 }
 
 function eoNormDomain(v) {
@@ -3379,109 +3355,37 @@ function eoNormSpotEasyUrl(v) {
   } catch (e) { return s; }
 }
 
-function eoAreaCode(phone) {
-  if (!phone) return null;
-  const s = String(phone).trim();
-  if (s.startsWith('+') && !s.startsWith('+1')) return 'intl';
-  let digits = s.replace(/\D/g, '');
-  if (digits.length === 11 && digits[0] === '1') digits = digits.slice(1);
-  return digits.length === 10 ? digits.slice(0, 3) : null;
-}
-
-// Sanket's geo rule. A signal, not proof — the UI only suggests it.
-function eoGeoFromPhone(phone) {
-  const ac = eoAreaCode(phone);
-  if (ac === null) return { status: 'CHECK', reason: 'No usable phone.' };
-  if (ac === 'intl') return { status: 'OUT', reason: 'Non-US phone.' };
-  if (EO_IN_CODES.includes(ac)) return { status: 'IN', reason: 'Greater Boston area code (' + ac + ').' };
-  if (EO_CHECK_CODES.includes(ac)) return { status: 'CHECK', reason: 'MA area code outside Greater Boston (' + ac + ').' };
-  if (EO_TOLL_FREE.includes(ac)) return { status: 'CHECK', reason: 'Toll-free number (' + ac + ').' };
-  return { status: 'OUT', reason: 'Area code ' + ac + ' is outside Massachusetts.' };
-}
-
 // touches: this prospect's touches (any order). Returns null when nothing is due.
 function eoNextDue(p, touches, campaign) {
   if (!EO_SEQ_STAGES.includes(p.stage) || !touches || !touches.length) return null;
   const last = touches.reduce((a, t) => (t.touch_number > a.touch_number ? t : a));
-  const max = (campaign && campaign.max_touches) || 4;
+  const max = (campaign && campaign.max_touches) || 3;
   if (last.touch_number >= max) return null;
   const interval = (campaign && campaign.touch_interval_days) || 7;
   return eoRollWeekend(eoAddDays(eoDateOnly(last.sent_on), interval));
 }
 
-// Date the sequence ends (last touch + interval) once every touch is sent.
+// Date the sequence ends (last email + interval) once every email is sent.
 function eoSequenceEnd(p, touches, campaign) {
   if (!EO_SEQ_STAGES.includes(p.stage) || !touches || !touches.length) return null;
   const last = touches.reduce((a, t) => (t.touch_number > a.touch_number ? t : a));
-  const max = (campaign && campaign.max_touches) || 4;
+  const max = (campaign && campaign.max_touches) || 3;
   if (last.touch_number < max) return null;
   const interval = (campaign && campaign.touch_interval_days) || 7;
   return eoRollWeekend(eoAddDays(eoDateOnly(last.sent_on), interval));
 }
 
-// ctx: { campaign, prospects (all), today, igStage (Instagram pipeline stage or null) }
-// Returns { blocks: [...], warns: [...] }. Blocks stop the change; warns ask first.
-function eoCheckGate(p, toStage, ctx) {
-  const blocks = [], warns = [];
-  const today = ctx.today;
-  if (toStage === 'Ready') {
-    if (p.stage === 'Do Not Contact') blocks.push('This record is Do Not Contact. Move it to Screening first, with a note saying why.');
-    if (!(p.geo_status === 'IN' || (p.geo_status === 'CHECK' && p.geo_confirmed)))
-      blocks.push(p.geo_status === 'CHECK'
-        ? 'Geo is CHECK. Tick "Confirmed Greater Boston" with a note, or set geo to IN.'
-        : 'Geo must be IN (or CHECK with a manual confirmation). It is ' + (p.geo_status || 'not set') + '.');
-    if (!p.email) blocks.push('No email address.');
-    else if (p.email_status === 'no_email' || p.email_status === 'bounced')
-      blocks.push('Email status is ' + p.email_status + '.');
-    const tier = eoTier(p, today);
-    if (tier === 'C') blocks.push(p.last_real_post_date
-      ? 'Tier C: last real post is over a year old.'
-      : 'No last real post date. Read the blog and enter the date of the newest real post.');
-    if (!p.personal_angle || !String(p.personal_angle).trim()) blocks.push('Personal angle is empty. No angle, no send.');
-    const track = eoTrack(p, ctx.campaign);
-    if (track === 'link_insertion') {
-      if (!p.spoteasy_link_url) blocks.push('Link insertion track: add the Spot Easy post that links to them.');
-      if (!p.our_link_live_at) blocks.push('Link insertion track: our link must be live before the first email (set "Our link live on").');
-    } else if (!p.blog_fit_confirmed) {
-      blocks.push('Guest post track: confirm the blog has 3+ real posts and one reaches renters, leases, apartments, students or moving dates.');
-    }
-    if (p.angle_tag) {
-      const tag = String(p.angle_tag).trim().toLowerCase();
-      const used = (ctx.prospects || []).filter(o => o.id !== p.id && o.campaign_id === p.campaign_id
-        && o.angle_tag && String(o.angle_tag).trim().toLowerCase() === tag);
-      const retired = ((ctx.campaign && ctx.campaign.retired_angles) || []).some(a => String(a).toLowerCase() === tag);
-      if (used.length) warns.push('Angle "' + p.angle_tag + '" is already used by ' + used.map(o => o.business_name).join(', ') + '.');
-      else if (retired) warns.push('Angle "' + p.angle_tag + '" was already used in this vertical before the CRM.');
-    }
-    if (p.email) {
-      const em = String(p.email).trim().toLowerCase();
-      const same = (ctx.prospects || []).filter(o => o.id !== p.id && o.email && String(o.email).trim().toLowerCase() === em
-        && (!p.owner_group || o.owner_group !== p.owner_group));
-      if (same.length) warns.push('The same email is on ' + same.map(o => o.business_name).join(', ') + '. Consider one owner group.');
-    }
-    if (ctx.igStage === 'Backlink Acquired') warns.push('This business is already a Local Spots partner (Instagram pipeline: Backlink Acquired).');
-  }
-  if (EO_SEQ_STAGES.includes(toStage) && !EO_SEQ_STAGES.includes(p.stage) && p.stage !== 'Ready')
-    blocks.push('Touch stages move only when you log a sent email.');
-  return { blocks, warns };
+// Link exchange: the date by which they must link back, counted from the day our link went live.
+// After it passes with no backlink, the record moves to On Hold and our link comes down.
+function eoLinkDeadline(p) {
+  if (p.deal_format !== 'link_exchange' || !p.our_link_live_at || p.their_link_verified_at) return null;
+  return eoAddBusinessDays(eoDateOnly(p.our_link_live_at), EO_HOLD_BUSINESS_DAYS);
 }
 
-// Warnings shown when marking an email sent.
-function eoSendWarnings(p) {
-  const w = [];
-  if (p.email_status === 'catch_all') w.push('Catch-all domain: this address cannot be verified. Send after verified addresses.');
-  if (p.email_status === 'unverified' || !p.email_status) w.push('Email is unverified. Verify before sending.');
-  return w;
-}
-
-// Order for today's first touches: verified, role, unverified, catch-all; then A before B; then newest post.
-function eoFirstTouchCompare(a, b, today) {
-  const ea = EO_EMAIL_ORDER[a.email_status] ?? 9, eb = EO_EMAIL_ORDER[b.email_status] ?? 9;
-  if (ea !== eb) return ea - eb;
-  const ta = eoTier(a, today), tb = eoTier(b, today);
-  if (ta !== tb) return ta < tb ? -1 : 1;
-  const da = eoDateOnly(a.last_real_post_date) || '', db = eoDateOnly(b.last_real_post_date) || '';
-  if (da !== db) return da > db ? -1 : 1;
+// First emails today: oldest record first, then name.
+function eoFirstTouchCompare(a, b) {
+  const ca = String(a.created_at || ''), cb = String(b.created_at || '');
+  if (ca !== cb) return ca < cb ? -1 : 1;
   return String(a.business_name).localeCompare(String(b.business_name));
 }
 
@@ -3496,7 +3400,7 @@ function eoStats(prospects, touchesBy, history, campaignsById, today) {
   const weekStart = eoWeekStart(today);
   const byStage = {};
   EO_STAGES.forEach(s => (byStage[s] = 0));
-  let sentWeek = 0, contacted = 0, replied = 0, interested = 0, linksLive = 0, touchesAll = 0, bounced = 0, dueToday = 0;
+  let sentWeek = 0, contacted = 0, replied = 0, interested = 0, acquired = 0, touchesAll = 0, bounced = 0, dueToday = 0;
   prospects.forEach(p => {
     byStage[p.stage] = (byStage[p.stage] || 0) + 1;
     const ts = touchesBy[p.id] || [];
@@ -3511,13 +3415,13 @@ function eoStats(prospects, touchesBy, history, campaignsById, today) {
       if (eoReached(p, history, EO_REPLY_STAGES)) replied++;
       if (eoReached(p, history, EO_INTEREST_STAGES)) interested++;
     }
-    if (p.stage === 'Link Live' || p.stage === 'Closed') linksLive++;
+    if (p.stage === 'Backlink Acquired') acquired++;
     const due = eoNextDue(p, ts, campaignsById[p.campaign_id]);
     if (due && due <= today) dueToday++;
   });
   const pct = (n, d) => (d ? Math.round((n / d) * 100) : 0);
   return {
-    byStage, weekStart, sentWeek, contacted, replied, interested, linksLive,
+    byStage, weekStart, sentWeek, contacted, replied, interested, acquired,
     replyRate: pct(replied, contacted), interestRate: pct(interested, contacted),
     touchesAll, bounced, bounceRate: pct(bounced, touchesAll), dueToday,
   };
@@ -3682,29 +3586,27 @@ async function eoMarkSent(id, dateOverride) {
   const camp = eoCampaign(p.campaign_id);
   const ts = eoTouches(id);
   const n = ts.length ? ts[ts.length - 1].touch_number + 1 : 1;
-  const max = (camp && camp.max_touches) || 4;
-  if (n === 1 && p.stage !== 'Ready') {
-    alert('Only Ready records get a first email. ' + p.business_name + ' is at ' + p.stage + '.');
+  const max = (camp && camp.max_touches) || 3;
+  if (n === 1 && p.stage !== 'Opportunity') {
+    alert('Only Opportunity records get a first email. ' + p.business_name + ' is at ' + p.stage + '.');
     return;
   }
   if (n > 1 && !EO_SEQ_STAGES.includes(p.stage)) {
-    alert(p.business_name + ' is at ' + p.stage + ', so the sequence is stopped.');
+    alert(p.business_name + ' is at ' + p.stage + ', so the email sequence is stopped.');
     return;
   }
-  if (n > max) { alert('All ' + max + ' touches are already sent.'); return; }
+  if (n > max) { alert('All ' + max + ' emails are already sent.'); return; }
   const date = dateOverride || eoToday();
   if (ts.length && date < eoDateOnly(ts[ts.length - 1].sent_on)) {
-    alert('Touch ' + n + ' cannot be dated before touch ' + (n - 1) + ' (' + eoFmtDate(ts[ts.length - 1].sent_on) + ').');
+    alert('Email ' + n + ' cannot be dated before email ' + (n - 1) + ' (' + eoFmtDate(ts[ts.length - 1].sent_on) + ').');
     return;
   }
   if (date > eoToday()) { alert('That date is in the future. Log an email after you send it.'); return; }
-  const warns = n === 1 ? eoSendWarnings(p) : [];
-  if (eoWeekday(date) === 0 || eoWeekday(date) === 6) warns.push('That date is a weekend. The rule is no Saturday or Sunday sends.');
-  if (warns.length && !confirm(warns.join('\n') + '\n\nLog touch ' + n + ' anyway?')) return;
-  // Group logging is for follow-ups in one shared thread. A first email must pass
-  // each record's own Ready gate and the daily cap, so it is never bulk-logged.
+  if ((eoWeekday(date) === 0 || eoWeekday(date) === 6)
+      && !confirm('That date is a weekend. The rule is no Saturday or Sunday sends.\n\nLog email ' + n + ' anyway?')) return;
+  // Group logging is for follow-ups in one shared thread; a first email is never bulk-logged.
   const mates = n > 1 ? eoGroupMates(p, true) : [];
-  const alsoGroup = mates.length && confirm('Also log touch ' + n + ' for the rest of owner group "' + p.owner_group + '" ('
+  const alsoGroup = mates.length && confirm('Also log email ' + n + ' for the rest of owner group "' + p.owner_group + '" ('
     + mates.map(m => m.business_name).join(', ') + ')?');
   const targets = [p].concat(alsoGroup ? mates : []);
   const done = [];
@@ -3718,14 +3620,14 @@ async function eoMarkSent(id, dateOverride) {
       try {
         await eoSetStage(t, EO_TOUCH_STAGE[tn] || t.stage);
       } catch (stageErr) {
-        // Keep touch and stage in step: remove the touch we just wrote.
+        // Keep emails and stage in step: remove the email row we just wrote.
         await sb.from('eo_touches').delete().eq('id', data.id);
         throw stageErr;
       }
       (eoTouchesBy[t.id] = eoTouchesBy[t.id] || []).push(data);
       done.push(t.business_name);
     }
-    showToast('Logged touch ' + n + ' for ' + done.join(', '));
+    showToast('Logged email ' + n + ' for ' + done.join(', '));
   } catch (e) {
     showToast('Could not log the email' + (done.length ? ' (logged for ' + done.join(', ') + ' only)' : '') + ': ' + eoFriendlyError(e), 'error');
   }
@@ -3735,37 +3637,57 @@ async function eoMarkSent(id, dateOverride) {
 async function eoMarkReplied(id) {
   const p = eoProspect(id);
   if (!p) return;
-  const mates = eoGroupMates(p, false).filter(m => EO_SEQ_STAGES.includes(m.stage) || m.stage === 'Ready');
-  const alsoGroup = mates.length && confirm('A reply covers the whole thread. Also mark ' + mates.map(m => m.business_name).join(', ') + ' as Replied?');
+  const mates = eoGroupMates(p, false).filter(m => EO_SEQ_STAGES.includes(m.stage) || m.stage === 'Opportunity');
+  const alsoGroup = mates.length && confirm('A reply covers the whole thread. Also mark ' + mates.map(m => m.business_name).join(', ') + ' as Interested?');
   try {
-    for (const t of [p].concat(alsoGroup ? mates : [])) await eoSetStage(t, 'Replied');
-    showToast(p.business_name + ' marked Replied. The follow-up sequence has stopped.');
+    for (const t of [p].concat(alsoGroup ? mates : [])) await eoSetStage(t, 'Interested');
+    showToast(p.business_name + ' moved to Interested. The follow-up emails have stopped.');
   } catch (e) { showToast('Could not save: ' + eoFriendlyError(e), 'error'); }
   eoAfterChange(id);
 }
 
+// A bounce ends the sequence: the latest email is flagged, the record goes to No Response.
 async function eoMarkBounced(id) {
   const p = eoProspect(id);
   if (!p) return;
   const ts = eoTouches(id);
   if (!ts.length) { alert('No email has been logged for ' + p.business_name + ' yet.'); return; }
-  if (!confirm('Mark the latest email to ' + p.business_name + ' as bounced? The record moves to Bounced.')) return;
+  if (!confirm('Mark the latest email to ' + p.business_name + ' as bounced? The record moves to No Response.')) return;
   try {
     const last = ts[ts.length - 1];
     const { error } = await sb.from('eo_touches').update({ bounced: true }).eq('id', last.id);
     if (error) throw error;
     last.bounced = true;
-    await eoSetStage(p, 'Bounced', { email_status: 'bounced' });
-    showToast(p.business_name + ' marked Bounced.');
+    await eoSetStage(p, 'No Response', { email_status: 'bounced' });
+    showToast(p.business_name + ': email bounced, moved to No Response.');
   } catch (e) { showToast('Could not save: ' + eoFriendlyError(e), 'error'); }
   eoAfterChange(id);
 }
 
-async function eoMarkNoResponse(id) {
+async function eoMoveTo(id, stage) {
   const p = eoProspect(id);
   if (!p) return;
-  try { await eoSetStage(p, 'No Response'); showToast(p.business_name + ' moved to No Response.'); }
+  try { await eoSetStage(p, stage); showToast(p.business_name + ' moved to ' + stage + '.'); }
   catch (e) { showToast('Could not save: ' + eoFriendlyError(e), 'error'); }
+  eoAfterChange(id);
+}
+function eoMarkNoResponse(id) { return eoMoveTo(id, 'No Response'); }
+function eoMarkOnHold(id) { return eoMoveTo(id, 'On Hold'); }
+
+// On Hold reminder clears once our link is down: the live date is emptied and a note is kept.
+async function eoLinkRemoved(id) {
+  const p = eoProspect(id);
+  if (!p) return;
+  if (!confirm('Confirm our link to ' + p.business_name + ' has been removed from ' + (p.spoteasy_link_url || 'our post') + '?')) return;
+  try {
+    // Append to the stored notes, not the cached copy, so another user's newer note survives.
+    const { data: fresh, error } = await sb.from('eo_prospects').select('notes').eq('id', p.id).single();
+    if (error) throw error;
+    const note = (fresh.notes ? fresh.notes + '\n' : '') + eoToday() + ': our link removed from ' + (p.spoteasy_link_url || 'our post')
+      + ' (was live since ' + (eoDateOnly(p.our_link_live_at) || '?') + '); no backlink from them.';
+    await eoSaveProspect({ id: p.id, our_link_live_at: null, notes: note });
+    showToast('Noted: our link to ' + p.business_name + ' is removed.');
+  } catch (e) { showToast('Could not save: ' + eoFriendlyError(e), 'error'); }
   eoAfterChange(id);
 }
 
@@ -3774,14 +3696,14 @@ async function eoUndoLastTouch(id) {
   const ts = eoTouches(id);
   if (!p || !ts.length) return;
   const last = ts[ts.length - 1];
-  if (!confirm('Delete touch ' + last.touch_number + ' (' + eoFmtDate(last.sent_on) + ') for ' + p.business_name + '? Use this only to fix a mistake.')) return;
+  if (!confirm('Delete email ' + last.touch_number + ' (' + eoFmtDate(last.sent_on) + ') for ' + p.business_name + '? Use this only to fix a mistake.')) return;
   try {
     const { error } = await sb.from('eo_touches').delete().eq('id', last.id);
     if (error) throw error;
     eoTouchesBy[id] = (eoTouchesBy[id] || []).filter(t => t.id !== last.id);
     const prev = last.touch_number - 1;
-    if (EO_SEQ_STAGES.includes(p.stage)) await eoSetStage(p, prev ? EO_TOUCH_STAGE[prev] : 'Ready');
-    showToast('Touch ' + last.touch_number + ' removed.');
+    if (EO_SEQ_STAGES.includes(p.stage)) await eoSetStage(p, prev ? (EO_TOUCH_STAGE[prev] || p.stage) : 'Opportunity');
+    showToast('Email ' + last.touch_number + ' removed.');
   } catch (e) { showToast('Could not remove: ' + eoFriendlyError(e), 'error'); }
   eoAfterChange(id);
 }
@@ -3795,7 +3717,8 @@ function eoAfterChange(id) {
   if (!p) return;
   eoModalSnapshot = p.updated_at;
   document.getElementById('eo-stage').innerHTML = eoStageOptions(p.stage);
-  document.getElementById('eo-email_status').value = p.email_status || '';
+  document.getElementById('eo-our_link_live_at').value = eoDateOnly(p.our_link_live_at) || '';
+  document.getElementById('eo-notes').value = p.notes || '';
   eoRefreshModalHints();
   eoRenderTouchesPane(p);
 }
@@ -3811,7 +3734,7 @@ function eoInitFilters() {
   }
   const st = document.getElementById('eoFilterStage');
   if (st && st.options.length <= 1) {
-    st.innerHTML = '<option value="">All stages</option><option value="__active">Active (not exited)</option>'
+    st.innerHTML = '<option value="">All stages</option><option value="__active">Active (not ended)</option>'
       + EO_STAGES.map(s => '<option>' + eoEsc(s) + '</option>').join('');
   }
 }
@@ -3842,15 +3765,11 @@ function eoRender() {
 }
 
 function eoStageBadge(stage) {
-  const cls = EO_EXIT_STAGES.includes(stage) ? 'exit'
+  const cls = stage === 'Backlink Acquired' ? 'done'
+    : EO_EXIT_STAGES.includes(stage) ? 'exit'
     : EO_SEQ_STAGES.includes(stage) ? 'seq'
-    : EO_INTEREST_STAGES.includes(stage) || stage === 'Replied' ? 'warm'
-    : stage === 'Ready' ? 'ready' : 'pre';
+    : stage === 'Interested' || stage === 'Backlink Required' ? 'warm' : 'pre';
   return '<span class="eo-badge eo-badge-' + cls + '">' + eoEsc(stage) + '</span>';
-}
-function eoEmailBadge(s) {
-  const cls = s === 'verified' || s === 'role_account' ? 'ok' : s === 'catch_all' || s === 'unverified' || !s ? 'warn' : 'bad';
-  return '<span class="eo-chip eo-chip-' + cls + '">' + eoEsc((s || 'unverified').replace('_', ' ')) + '</span>';
 }
 
 // ---------------------------------------------------------------- render: Today
@@ -3860,32 +3779,36 @@ function eoRenderToday() {
   const today = eoToday();
   const cmap = eoCampaignsById();
   const scoped = eoScoped();
-
-  // 1. Replies needing action, oldest stage change first.
   const lastChange = id => eoHistory.filter(h => h.prospect_id === id).reduce((a, h) => (h.changed_at > a ? h.changed_at : a), '');
-  const replies = scoped.filter(p => ['Replied', 'Interested', 'Call Needed', 'Draft Sent'].includes(p.stage)
-    || (p.stage === 'Link Live' && !p.our_link_live_at))
-    .sort((a, b) => (lastChange(a.id) || '').localeCompare(lastChange(b.id) || ''));
 
-  // 2. Follow-ups due, overdue first, one row per owner group.
+  // 1. Interested: they replied, sell them on the guest post.
+  const interested = scoped.filter(p => p.stage === 'Interested')
+    .sort((a, b) => (lastChange(a.id) || '').localeCompare(lastChange(b.id) || ''));
+  // 2. Backlink Required: waiting on their link. Link exchanges carry a deadline.
+  const required = scoped.filter(p => p.stage === 'Backlink Required')
+    .map(p => ({ p, deadline: eoLinkDeadline(p) }))
+    .sort((a, b) => (a.deadline || '9999').localeCompare(b.deadline || '9999'));
+  // 3. On Hold with our link still up: take it down.
+  const toRemove = scoped.filter(p => p.stage === 'On Hold' && p.deal_format === 'link_exchange' && p.our_link_live_at);
+
+  // 4. Follow-ups due, overdue first, one row per owner group.
   const seenGroups = new Set();
   const followUps = scoped.map(p => ({ p, due: eoNextDue(p, eoTouches(p.id), cmap[p.campaign_id]) }))
     .filter(x => x.due && x.due <= today)
     .sort((a, b) => a.due.localeCompare(b.due))
     .filter(x => { if (!x.p.owner_group) return true; if (seenGroups.has(x.p.owner_group)) return false; seenGroups.add(x.p.owner_group); return true; });
 
-  // 3. First touches: Ready, per-campaign cap minus first touches already sent today.
+  // 5. First emails: Opportunity, per-vertical cap minus first emails already sent today.
   const first = [];
   eoCampaigns.filter(c => scoped.some(p => p.campaign_id === c.id)).forEach(c => {
     const sentToday = eoProspects.filter(p => p.campaign_id === c.id)
       .filter(p => eoTouches(p.id).some(t => t.touch_number === 1 && eoDateOnly(t.sent_on) === today)).length;
     const room = Math.max(0, (c.daily_cap || 6) - sentToday);
-    const ready = scoped.filter(p => p.campaign_id === c.id && p.stage === 'Ready')
-      .sort((a, b) => eoFirstTouchCompare(a, b, today));
+    const ready = scoped.filter(p => p.campaign_id === c.id && p.stage === 'Opportunity').sort(eoFirstTouchCompare);
     first.push({ c, sentToday, room, list: ready.slice(0, room), waiting: Math.max(0, ready.length - room) });
   });
 
-  // 4. Sequence finished.
+  // 6. Sequence finished: last email is a full interval old and no reply.
   const finished = scoped.map(p => ({ p, end: eoSequenceEnd(p, eoTouches(p.id), cmap[p.campaign_id]) }))
     .filter(x => x.end && x.end <= today);
 
@@ -3898,58 +3821,64 @@ function eoRenderToday() {
   const block = (title, hint, inner, count) => '<div class="eo-card"><div class="eo-card-head"><div class="eo-card-title">' + title
     + ' <span class="count-badge">' + count + '</span></div><div class="eo-muted">' + hint + '</div></div>' + inner + '</div>';
   const empty = msg => '<div class="eo-empty">' + msg + '</div>';
+  const fmtLabel = p => p.deal_format ? EO_DEAL_FORMATS[p.deal_format] || p.deal_format : 'format not set';
 
-  const repliesHtml = replies.length ? replies.map(p => row(p,
-    eoStageBadge(p.stage) + (p.outcome_notes ? ' ' + eoEsc(String(p.outcome_notes).slice(0, 110)) : '')
-      + (p.stage === 'Link Live' && !p.our_link_live_at ? ' <span class="eo-warn-text">Our link is not marked live yet.</span>' : ''),
-    btn('Open', 'eoOpenModal', p.id, 'btn-primary'))).join('') : empty('No replies waiting.');
+  const interestedHtml = interested.length ? interested.map(p => row(p,
+    (p.outcome_notes ? eoEsc(String(p.outcome_notes).slice(0, 120)) : '<span class="eo-muted">No outcome notes yet.</span>'),
+    btn('Open', 'eoOpenModal', p.id, 'btn-primary'))).join('') : empty('No one waiting on a reply from us.');
+
+  const requiredHtml = required.length ? required.map(({ p, deadline }) => {
+    const late = deadline && deadline < today;
+    const sub = eoEsc(fmtLabel(p))
+      + (deadline ? ' · our link live ' + eoFmtDate(p.our_link_live_at) + ' · they must link back by ' + eoFmtDate(deadline)
+        + (late ? ' <span class="eo-warn-text">(deadline passed)</span>' : '') : '')
+      + (p.deal_format === 'link_exchange' && !p.our_link_live_at ? ' · <span class="eo-muted">our link not live yet</span>' : '');
+    return row(p, sub, (late ? btn('Move to On Hold', 'eoMarkOnHold', p.id, 'btn-primary') : '') + btn('Open', 'eoOpenModal', p.id));
+  }).join('') : empty('Nothing waiting on a backlink.');
+
+  const removeHtml = toRemove.length ? block('🧹 Remove our link', 'On Hold: they did not link back. Take our link down, then confirm.',
+    toRemove.map(p => row(p, 'Our link is on ' + (p.spoteasy_link_url ? '<a href="' + eoEsc(p.spoteasy_link_url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + eoEsc(p.spoteasy_link_url) + '</a>' : 'our post (URL not recorded)'),
+      btn('Link removed', 'eoLinkRemoved', p.id, 'btn-primary'))).join(''), toRemove.length) : '';
 
   const followHtml = followUps.length ? followUps.map(({ p, due }) => {
     const ts = eoTouches(p.id), n = ts.length + 1;
     const late = eoDaysBetween(due, today);
     const mates = eoGroupMates(p, false);
-    return row(p, 'Touch ' + n + ' due ' + eoFmtDate(due) + (late > 0 ? ' <span class="eo-warn-text">(' + late + 'd late)</span>' : '')
+    return row(p, 'Email ' + n + ' due ' + eoFmtDate(due) + (late > 0 ? ' <span class="eo-warn-text">(' + late + 'd late)</span>' : '')
       + ' · last sent ' + eoFmtDate(ts[ts.length - 1].sent_on) + ' · ' + eoEsc(p.email || 'no email')
       + (mates.length ? ' · <span class="eo-muted">owner group: ' + eoEsc(p.owner_group) + ' (+' + mates.length + ')</span>' : ''),
-      btn('Sent touch ' + n, 'eoMarkSent', p.id, 'btn-primary') + btn('Replied', 'eoMarkReplied', p.id) + btn('Bounced', 'eoMarkBounced', p.id));
+      btn('Sent email ' + n, 'eoMarkSent', p.id, 'btn-primary') + btn('Replied', 'eoMarkReplied', p.id) + btn('Bounced', 'eoMarkBounced', p.id));
   }).join('') : empty('No follow-ups due.');
 
   const firstHtml = first.length ? first.map(g => '<div class="eo-subhead">' + eoEsc(g.c.vertical) + ' <span class="eo-muted">· cap ' + g.c.daily_cap
-    + ', sent today ' + g.sentToday + (g.waiting ? ', ' + g.waiting + ' more Ready waiting' : '') + '</span></div>'
-    + (g.list.length ? g.list.map(p => row(p,
-      eoEmailBadge(p.email_status) + ' Tier ' + eoTier(p, today) + ' · ' + eoEsc(p.email || 'no email')
-        + (p.angle_tag ? ' · angle: ' + eoEsc(p.angle_tag) : ''),
-      btn('Sent touch 1', 'eoMarkSent', p.id, 'btn-primary'))).join('')
-      : empty(g.room ? 'Nothing at Ready. Screen prospects in the Prospects view.' : 'Daily cap reached.'))).join('')
+    + ', sent today ' + g.sentToday + (g.waiting ? ', ' + g.waiting + ' more waiting' : '') + '</span></div>'
+    + (g.list.length ? g.list.map(p => row(p, eoEsc(p.email || 'no email'),
+      btn('Sent email 1', 'eoMarkSent', p.id, 'btn-primary'))).join('')
+      : empty(g.room ? 'No Opportunity records left in this vertical.' : 'Daily cap reached.'))).join('')
     : empty('No campaigns.');
 
-  const finishedHtml = finished.length ? block('🏁 Sequence finished', 'All touches sent and no reply.', finished.map(({ p, end }) => row(p,
-    'Last touch window ended ' + eoFmtDate(end),
+  const finishedHtml = finished.length ? block('🏁 Sequence finished', 'All 3 emails sent and no reply.', finished.map(({ p, end }) => row(p,
+    'Last email window ended ' + eoFmtDate(end),
     btn('No Response', 'eoMarkNoResponse', p.id, 'btn-primary') + btn('Replied', 'eoMarkReplied', p.id))).join(''), finished.length) : '';
 
   el.innerHTML =
-      block('💬 Replies needing action', 'Reply, call, draft, or finish the link swap.', repliesHtml, replies.length)
-    + block('🔁 Follow-ups due', 'Touches are ' + ((eoCampaigns[0] || {}).touch_interval_days || 7) + ' days apart. Weekends roll to Monday.', followHtml, followUps.length)
-    + block('✉️ First emails today', 'Verified first, then role accounts, then unverified, catch-all last. Tier A before B.', firstHtml,
+      block('💬 Interested', 'They replied. Sell them on the guest post.', interestedHtml, interested.length)
+    + block('⏳ Backlink Required', 'Waiting on their link. Link exchanges: ' + EO_HOLD_BUSINESS_DAYS + ' business days after our link goes live.', requiredHtml, required.length)
+    + removeHtml
+    + block('🔁 Follow-ups due', 'Emails are ' + ((eoCampaigns[0] || {}).touch_interval_days || 7) + ' days apart. Weekends roll to Monday.', followHtml, followUps.length)
+    + block('✉️ First emails today', 'Opportunity records, oldest first, up to the daily cap.', firstHtml,
         first.reduce((n, g) => n + g.list.length, 0))
     + finishedHtml;
 }
 
 // ---------------------------------------------------------------- render: Prospects
 function eoFilteredProspects() {
-  const today = eoToday();
   const q = ((document.getElementById('eoSearch') || {}).value || '').trim().toLowerCase();
   const st = (document.getElementById('eoFilterStage') || {}).value || '';
-  const tier = (document.getElementById('eoFilterTier') || {}).value || '';
-  const em = (document.getElementById('eoFilterEmail') || {}).value || '';
-  const geo = (document.getElementById('eoFilterGeo') || {}).value || '';
   return eoScoped().filter(p => {
     if (q && ![p.business_name, p.domain, p.email, p.city, p.notes, p.owner_group].some(v => v && String(v).toLowerCase().includes(q))) return false;
-    if (st === '__active' && EO_EXIT_STAGES.includes(p.stage)) return false;
+    if (st === '__active' && (EO_EXIT_STAGES.includes(p.stage) || p.stage === 'Backlink Acquired')) return false;
     if (st && st !== '__active' && p.stage !== st) return false;
-    if (tier && eoTier(p, today) !== tier) return false;
-    if (em && (p.email_status || 'unverified') !== em) return false;
-    if (geo && p.geo_status !== geo) return false;
     return true;
   });
 }
@@ -3966,10 +3895,10 @@ function eoRenderProspects() {
   const cmap = eoCampaignsById();
   const rows = eoFilteredProspects().map(p => {
     const ts = eoTouches(p.id);
-    return { p, tier: eoTier(p, today), last: ts.length ? eoDateOnly(ts[ts.length - 1].sent_on) : '',
+    return { p, last: ts.length ? eoDateOnly(ts[ts.length - 1].sent_on) : '',
       due: eoNextDue(p, ts, cmap[p.campaign_id]) || '', ig: eoIgStage(p) };
   });
-  const key = r => eoSortCol === 'tier' ? r.tier : eoSortCol === 'last' ? r.last : eoSortCol === 'due' ? (r.due || '9999')
+  const key = r => eoSortCol === 'last' ? r.last : eoSortCol === 'due' ? (r.due || '9999')
     : eoSortCol === 'stage' ? EO_STAGES.indexOf(r.p.stage) : String(r.p[eoSortCol] || '').toLowerCase();
   rows.sort((a, b) => (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) * eoSortDir);
   const cnt = document.getElementById('eoCount');
@@ -3980,10 +3909,8 @@ function eoRenderProspects() {
       + '<td><div style="font-weight:700;color:var(--text)">' + eoEsc(p.business_name) + '</div>'
       + '<div class="eo-muted">' + eoEsc(p.domain || '') + (p.owner_group ? ' · group: ' + eoEsc(p.owner_group) : '') + '</div></td>'
       + '<td>' + eoEsc(eoVertical(p)) + '</td>'
-      + '<td>' + eoStageBadge(p.stage) + (p.hold_reason && p.stage === 'On Hold' ? '<div class="eo-muted">' + eoEsc(p.hold_reason) + '</div>' : '') + '</td>'
-      + '<td title="' + (p.last_real_post_date ? 'Last real post ' + eoEsc(eoDateOnly(p.last_real_post_date)) : 'No last-post date') + '">' + r.tier + (p.last_real_post_date ? '' : '<span class="eo-muted">·no date</span>') + '</td>'
-      + '<td>' + eoEmailBadge(p.email_status) + '</td>'
-      + '<td>' + eoEsc(p.geo_status || '—') + (p.geo_confirmed ? ' ✓' : '') + '</td>'
+      + '<td>' + eoStageBadge(p.stage) + '</td>'
+      + '<td>' + eoEsc(p.email || '—') + '</td>'
       + '<td>' + (r.last ? eoFmtDate(r.last) + ' <span class="eo-muted">#' + eoTouches(p.id).length + '</span>' : '—') + '</td>'
       + '<td>' + (r.due ? (r.due <= today ? '<span class="eo-warn-text">' + eoFmtDate(r.due) + '</span>' : eoFmtDate(r.due)) : '—') + '</td>'
       + '<td>' + (r.ig ? '<span class="eo-chip eo-chip-info" title="Also in the Instagram pipeline">IG: ' + eoEsc(r.ig) + '</span>' : '') + '</td>'
@@ -4006,17 +3933,17 @@ function eoRenderDashboard() {
   const head = '<tr><th></th>' + stats.map(s => '<th>' + eoEsc(s.label) + '</th>').join('') + '</tr>';
   const metrics = [
     metric('Emails sent this week', s => s.sentWeek),
-    metric('Prospects emailed (ever)', s => s.contacted),
+    metric('Businesses emailed (ever)', s => s.contacted),
     metric('Reply rate', s => s.replyRate + '% <span class="eo-muted">(' + s.replied + ')</span>'),
     metric('Interested rate', s => s.interestRate + '% <span class="eo-muted">(' + s.interested + ')</span>'),
-    metric('Links live', s => s.linksLive),
+    metric('Backlinks acquired', s => s.acquired),
     metric('Bounces', s => s.bounced + ' <span class="eo-muted">(' + s.bounceRate + '% of ' + s.touchesAll + ' emails)</span>'),
     metric('Follow-ups due now', s => s.dueToday),
   ].join('');
   const stageRows = EO_STAGES.filter(st => stats[0].byStage[st]).map(st => '<tr><td>' + eoStageBadge(st) + '</td>'
     + stats.map(s => '<td>' + (s.byStage[st] || '·') + '</td>').join('') + '</tr>').join('');
   el.innerHTML = '<div class="eo-card"><div class="eo-card-head"><div class="eo-card-title">📊 Scorecard</div><div class="eo-muted">Week = Friday '
-    + eoFmtDate(stats[0].weekStart) + ' to today. Rates use prospects that got touch 1.</div></div>'
+    + eoFmtDate(stats[0].weekStart) + ' to today. Rates use businesses that got email 1.</div></div>'
     + '<div class="table-wrap"><table><thead>' + head + '</thead><tbody>' + metrics + '</tbody></table></div></div>'
     + '<div class="eo-card"><div class="eo-card-head"><div class="eo-card-title">Records per stage</div></div>'
     + '<div class="table-wrap"><table><thead>' + head + '</thead><tbody>' + stageRows + '</tbody></table></div></div>';
@@ -4024,12 +3951,11 @@ function eoRenderDashboard() {
 
 // ---------------------------------------------------------------- record modal
 const EO_FIELDS = ['business_name', 'campaign_id', 'domain', 'blog_url', 'email', 'phone', 'city', 'instagram', 'owner_group',
-  'stage', 'hold_reason', 'track', 'email_status', 'geo_status', 'geo_reason', 'geo_confirmed', 'geo_confirm_note',
-  'last_real_post_date', 'blog_fit_confirmed', 'personal_angle', 'angle_tag', 'spoteasy_link_url', 'our_link_live_at',
-  'deal_format', 'their_link_url', 'their_link_verified_at', 'outcome_notes', 'notes'];
+  'stage', 'deal_format', 'spoteasy_link_url', 'our_link_live_at', 'their_link_url', 'their_link_verified_at',
+  'outcome_notes', 'notes'];
 
 function eoSwitchModalTab(t) {
-  ['details', 'screening', 'deal', 'touches', 'notes'].forEach(x => {
+  ['details', 'deal', 'touches', 'notes'].forEach(x => {
     const tab = document.getElementById('eoModalTab-' + x), pane = document.getElementById('eoModalPane-' + x);
     if (tab) tab.classList.toggle('active', x === t);
     if (pane) pane.style.display = x === t ? 'block' : 'none';
@@ -4037,16 +3963,18 @@ function eoSwitchModalTab(t) {
 }
 
 function eoStageOptions(current) {
-  // Touch stages are set by logging emails, so they are offered only when already current.
-  return EO_STAGES.filter(s => !EO_SEQ_STAGES.includes(s) || s === current)
-    .map(s => '<option' + (s === current ? ' selected' : '') + '>' + eoEsc(s) + '</option>').join('');
+  // Email stages are set by logging emails, so they are offered only when already current.
+  // A stage outside the list (old data) stays selected, so a save never rewrites it silently.
+  const list = EO_STAGES.filter(s => !EO_SEQ_STAGES.includes(s) || s === current);
+  if (current && !list.includes(current)) list.unshift(current);
+  return list.map(s => '<option' + (s === current ? ' selected' : '') + '>' + eoEsc(s) + '</option>').join('');
 }
 
 function eoOpenAddModal() {
   const cid = (document.getElementById('eoFilterCampaign') || {}).value || (eoCampaigns[0] || {}).id;
   eoEditingId = null;
   eoModalSnapshot = null;
-  eoFillModal({ campaign_id: cid, stage: 'Screening', geo_confirmed: false, blog_fit_confirmed: false });
+  eoFillModal({ campaign_id: cid, stage: 'Opportunity' });
   document.getElementById('eoModalTitle').textContent = 'Add prospect';
   document.getElementById('eoDeleteBtn').style.display = 'none';
   eoSwitchModalTab('details');
@@ -4080,8 +4008,7 @@ function eoFillModal(p) {
   EO_FIELDS.forEach(k => {
     const el = document.getElementById('eo-' + k);
     if (!el) return;
-    if (el.type === 'checkbox') el.checked = !!p[k];
-    else if (el.type === 'date') el.value = eoDateOnly(p[k]) || '';
+    if (el.type === 'date') el.value = eoDateOnly(p[k]) || '';
     else el.value = p[k] == null ? '' : p[k];
   });
   eoRefreshModalHints();
@@ -4092,70 +4019,43 @@ function eoReadModal() {
   const row = {};
   EO_FIELDS.forEach(k => {
     const el = document.getElementById('eo-' + k);
-    if (!el) return;
-    row[k] = el.type === 'checkbox' ? el.checked : el.value;
+    if (el) row[k] = el.value;
   });
   return row;
 }
 
-// Live hints: tier, track, IG overlap, angle reuse, campaign rules.
+// Live hints: Instagram overlap, the link-exchange rows and deadline, campaign rules.
 function eoRefreshModalHints() {
   const row = eoReadModal();
-  const today = eoToday();
-  const camp = eoCampaign(row.campaign_id);
-  const tierEl = document.getElementById('eoTierHint');
-  if (tierEl) {
-    const d = row.last_real_post_date;
-    tierEl.textContent = d ? 'Tier ' + eoTier(row, today) + ' · ' + eoDaysBetween(d, today) + ' days since the last real post'
-      : 'Tier C until a last-post date is entered';
-  }
-  const trackEl = document.getElementById('eoTrackHint');
-  if (trackEl) {
-    const t = eoTrack(row, camp);
-    trackEl.textContent = t === 'link_insertion'
-      ? 'Link insertion: our link to them goes live BEFORE the first email.'
-      : 'Guest post: place nothing before sending.';
-  }
   const igEl = document.getElementById('eoIgHint');
   if (igEl) {
     const ig = eoIgStage({ domain: row.domain });
-    igEl.innerHTML = ig ? 'Also in the Instagram pipeline: <b>' + eoEsc(ig) + '</b>'
-      + (ig === 'Backlink Acquired' ? ' (Local Spots partner — consider Do Not Contact)' : '') : '';
+    igEl.innerHTML = ig ? 'Also in the Instagram pipeline: <b>' + eoEsc(ig) + '</b>' : '';
     igEl.style.display = ig ? 'block' : 'none';
   }
-  const angEl = document.getElementById('eoAngleHint');
-  if (angEl) {
-    const p = Object.assign({}, row, { id: eoEditingId });
-    const g = eoCheckGate(Object.assign({}, p, { stage: 'Screening' }), 'Ready', { campaign: camp, prospects: eoProspects, today, igStage: null });
-    const aw = g.warns.filter(w => w.startsWith('Angle'));
-    angEl.textContent = aw.join(' ');
-    angEl.style.display = aw.length ? 'block' : 'none';
+  const lx = document.getElementById('eoLinkExchangeRows');
+  if (lx) lx.style.display = row.deal_format === 'link_exchange' ? '' : 'none';
+  const dl = document.getElementById('eoDeadlineHint');
+  if (dl) {
+    const d = eoLinkDeadline(row);
+    dl.textContent = d ? 'If they have not linked back by ' + eoFmtDate(d) + ' (' + EO_HOLD_BUSINESS_DAYS + ' business days), move them to On Hold and remove our link.' : '';
   }
-  const holdEl = document.getElementById('eoHoldWrap');
-  if (holdEl) holdEl.style.display = row.stage === 'On Hold' ? '' : 'none';
   const rulesEl = document.getElementById('eoCampaignRules');
-  if (rulesEl) rulesEl.textContent = (camp && camp.rules) || 'No campaign rules recorded.';
-}
-
-function eoSuggestGeo() {
-  const g = eoGeoFromPhone(document.getElementById('eo-phone').value);
-  document.getElementById('eo-geo_status').value = g.status;
-  document.getElementById('eo-geo_reason').value = g.reason;
-  eoRefreshModalHints();
+  if (rulesEl) { const camp = eoCampaign(row.campaign_id); rulesEl.textContent = (camp && camp.rules) || 'No campaign rules recorded.'; }
 }
 
 function eoRenderTouchesPane(p) {
   const el = document.getElementById('eoTouchesList');
   if (!el) return;
   const ts = p && p.id ? eoTouches(p.id) : [];
-  el.innerHTML = ts.length ? ts.map(t => '<div class="eo-touch">Touch ' + t.touch_number + ' · ' + eoFmtDate(t.sent_on)
+  el.innerHTML = ts.length ? ts.map(t => '<div class="eo-touch">Email ' + t.touch_number + ' · ' + eoFmtDate(t.sent_on)
     + (t.bounced ? ' <span class="eo-chip eo-chip-bad">bounced</span>' : '')
     + (t.date_inferred ? ' <span class="eo-chip eo-chip-warn" title="The import guessed this date from the workbook tab name">date inferred</span>' : '')
     + (t.created_by ? ' <span class="eo-muted">· ' + eoEsc(t.created_by) + '</span>' : '') + '</div>').join('')
     : '<div class="eo-empty">No emails logged yet.</div>';
   const due = p && p.id ? eoNextDue(p, ts, eoCampaign(p.campaign_id)) : null;
   const dueEl = document.getElementById('eoNextDueHint');
-  if (dueEl) dueEl.textContent = due ? 'Next touch due ' + eoFmtDate(due) + '.' : (p && EO_SEQ_STAGES.includes(p.stage) ? 'All touches sent.' : 'No follow-up scheduled at this stage.');
+  if (dueEl) dueEl.textContent = due ? 'Next email due ' + eoFmtDate(due) + '.' : (p && EO_SEQ_STAGES.includes(p.stage) ? 'All emails sent.' : 'No follow-up scheduled at this stage.');
   const actions = document.getElementById('eoTouchActions');
   if (actions) actions.style.display = p && p.id ? 'flex' : 'none';
 }
@@ -4169,22 +4069,10 @@ function eoModalMarkSent() {
 async function eoSaveModal() {
   const row = eoReadModal();
   if (!row.business_name || !row.business_name.trim()) { alert('Business name is required.'); return; }
-  const today = eoToday();
   const before = eoEditingId ? eoProspect(eoEditingId) : null;
   const fromStage = before ? before.stage : null;
-  const merged = Object.assign({}, before || {}, eoDbFromRow(row), { id: eoEditingId });
-  merged.stage = fromStage || row.stage;
-  if (row.stage !== fromStage) {
-    const g = eoCheckGate(merged, row.stage, { campaign: eoCampaign(row.campaign_id), prospects: eoProspects, today, igStage: eoIgStage(merged) });
-    if (g.blocks.length) { alert('Cannot move to ' + row.stage + ':\n\n• ' + g.blocks.join('\n• ')); return; }
-    if (g.warns.length && !confirm(g.warns.join('\n') + '\n\nMove to ' + row.stage + ' anyway?')) return;
-  } else if (row.stage === 'Ready') {
-    // A Ready record must keep passing the gate, or an edit could empty the angle and still send.
-    const g = eoCheckGate(Object.assign({}, merged, { stage: 'Screening' }), 'Ready',
-      { campaign: eoCampaign(row.campaign_id), prospects: eoProspects, today, igStage: null });
-    if (g.blocks.length) { alert('This record is Ready, so it must still pass the gate:\n\n• ' + g.blocks.join('\n• ') + '\n\nFix these, or move it back to Screening.'); return; }
-  }
-  if (row.stage === 'On Hold' && !String(row.hold_reason || '').trim()) { alert('On Hold needs a reason.'); return; }
+  if (row.stage === 'On Hold' && row.stage !== fromStage && row.deal_format !== 'link_exchange'
+      && !confirm('On Hold is for link exchanges where they did not link back. Move ' + row.business_name + ' to On Hold anyway?')) return;
   // Duplicate email: warn and offer one owner group.
   if (row.email) {
     const em = row.email.trim().toLowerCase();
@@ -4205,20 +4093,12 @@ async function eoSaveModal() {
       if (eoModalSnapshot && fresh.updated_at !== eoModalSnapshot
           && !confirm('Someone else changed this record after you opened it. Save your version over theirs?')) return;
     }
-    const prevStage = fromStage;
     const saved = await eoSaveProspect(Object.assign({}, row, { id: eoEditingId || undefined }));
-    if (prevStage && prevStage !== saved.stage) {
-      eoHistory.push({ prospect_id: saved.id, from_stage: prevStage, to_stage: saved.stage, changed_at: new Date().toISOString() });
-      const mates = eoGroupMates(Object.assign({}, saved, { stage: prevStage }), true);
+    if (fromStage && fromStage !== saved.stage) {
+      eoHistory.push({ prospect_id: saved.id, from_stage: fromStage, to_stage: saved.stage, changed_at: new Date().toISOString() });
+      const mates = eoGroupMates(Object.assign({}, saved, { stage: fromStage }), true);
       if (mates.length && confirm('Also move ' + mates.map(m => m.business_name).join(', ') + ' (same owner group) to ' + saved.stage + '?')) {
-        // Each mate must pass the same gate on its own record.
-        const skipped = [];
-        for (const m of mates) {
-          const g = eoCheckGate(m, saved.stage, { campaign: eoCampaign(m.campaign_id), prospects: eoProspects, today, igStage: eoIgStage(m) });
-          if (g.blocks.length) { skipped.push(m.business_name + ': ' + g.blocks[0]); continue; }
-          await eoSetStage(m, saved.stage);
-        }
-        if (skipped.length) alert('Not moved, because they fail the gate:\n\n• ' + skipped.join('\n• '));
+        for (const m of mates) await eoSetStage(m, saved.stage);
       }
     }
     showToast('Saved ' + saved.business_name);
@@ -4232,7 +4112,7 @@ async function eoSaveModal() {
 async function eoDeleteProspect() {
   const p = eoProspect(eoEditingId);
   if (!p) return;
-  if (!confirm('Delete ' + p.business_name + ' and its email history? This cannot be undone. To stop emailing them, use Do Not Contact instead.')) return;
+  if (!confirm('Delete ' + p.business_name + ' and its email history? This cannot be undone. To stop emailing them, use Declined instead.')) return;
   try {
     const { error } = await sb.from('eo_prospects').delete().eq('id', p.id);
     if (error) throw error;
@@ -4255,10 +4135,6 @@ const EO_IMPORT_ALIASES = {
   website: ['website', 'website_url', 'url', 'site'],
   blog_url: ['blog_url', 'blog'],
   instagram: ['instagram', 'ig'],
-  last_real_post_date: ['last_real_post_date', 'last_post', 'last_post_date'],
-  email_status: ['email_status', 'verify_status', 'verification'],
-  sitemap_cadence: ['cadence', 'sitemap_cadence', 'posts_per_mo'],
-  posts_last_90_days: ['posts_last_90_days'],
   notes: ['notes', 'note', 'category'],
 };
 
@@ -4333,17 +4209,10 @@ function eoBuildImportRecords() {
       inFileKeys.add(k);
     }
     if (domain) inFile.add(domain);
-    const geo = eoGeoFromPhone(r.phone);
-    const vs = (r.email_status || '').toLowerCase();
-    const status = !r.email ? 'no_email'
-      : vs === 'safe' || vs === 'verified' ? 'verified'
-      : EO_EMAIL_STATUSES.includes(vs) ? vs : 'unverified';
-    const lp = /^\d{4}-\d{2}-\d{2}/.test(r.last_real_post_date || '') ? r.last_real_post_date.slice(0, 10) : null;
     ok.push({
       business_name: r.business_name, domain, blog_url: r.blog_url || null, email: r.email || null, phone: r.phone || null,
-      city: r.city || null, instagram: r.instagram || null, email_status: status, geo_status: geo.status, geo_reason: geo.reason + ' (suggested from phone)',
-      last_real_post_date: lp, sitemap_cadence: r.sitemap_cadence || null, posts_last_90_days: r.posts_last_90_days || null,
-      notes: r.notes || null, stage: 'Imported', source: 'list-import:' + eoImportFileName,
+      city: r.city || null, instagram: r.instagram || null, notes: r.notes || null,
+      stage: 'Opportunity', source: 'list-import:' + eoImportFileName,
     });
   });
   return { ok, dup, bad };
@@ -4351,14 +4220,12 @@ function eoBuildImportRecords() {
 
 function eoPreviewImport() {
   const { ok, dup, bad } = eoBuildImportRecords();
-  const geo = { IN: 0, CHECK: 0, OUT: 0 };
-  ok.forEach(r => (geo[r.geo_status]++));
   document.getElementById('eoImportPreview').innerHTML =
     '<div class="eo-card" style="margin:0"><div><b>' + eoImportRows.length + '</b> rows read from ' + eoEsc(eoImportFileName) + '.</div>'
-    + '<div>✅ <b>' + ok.length + '</b> new prospects (geo suggestion: ' + geo.IN + ' IN, ' + geo.CHECK + ' CHECK, ' + geo.OUT + ' OUT)</div>'
+    + '<div>✅ <b>' + ok.length + '</b> new prospects</div>'
     + '<div>⏭ <b>' + dup.length + '</b> skipped as duplicates' + (dup.length ? ': ' + dup.slice(0, 8).map(d => eoEsc(d.business_name)).join(', ') + (dup.length > 8 ? '…' : '') : '') + '</div>'
     + '<div>⚠️ <b>' + bad.length + '</b> skipped with no business name</div>'
-    + '<div class="eo-muted" style="margin-top:6px">Recognized columns: business_name, email, phone, city, domain or website, blog_url, instagram, last_post, verify_status, cadence, notes. New rows land at Imported.</div></div>';
+    + '<div class="eo-muted" style="margin-top:6px">Recognized columns: business_name, email, phone, city, domain or website, blog_url, instagram, notes. New rows land at Opportunity.</div></div>';
   document.getElementById('eoImportCommit').disabled = ok.length === 0;
 }
 
@@ -4370,9 +4237,8 @@ async function eoCommitImport() {
     let cid = sel;
     if (sel === '__new') {
       const vertical = document.getElementById('eoImportNewVertical').value.trim().toLowerCase();
-      const track = document.getElementById('eoImportNewTrack').value;
       if (!vertical) { alert('Name the new vertical.'); btn.disabled = false; return; }
-      const { data, error } = await sb.from('eo_campaigns').insert({ vertical, default_track: track }).select().single();
+      const { data, error } = await sb.from('eo_campaigns').insert({ vertical, default_track: 'guest_post', max_touches: 3 }).select().single();
       if (error) throw error;
       eoCampaigns.push(data);
       cid = data.id;
@@ -4392,7 +4258,7 @@ async function eoCommitImport() {
       inserted += data.length;
       eoProspects = eoProspects.concat(data);
     }
-    showToast('Imported ' + inserted + ' prospects. They are at Imported, ready to screen.');
+    showToast('Imported ' + inserted + ' prospects at Opportunity.');
     eoCloseImport();
     eoInitFilters();
     eoRender();
@@ -4406,18 +4272,19 @@ async function eoCommitImport() {
 function eoBriefingData() {
   const today = eoToday();
   const cmap = eoCampaignsById();
-  const replies = eoProspects.filter(p => ['Replied', 'Interested', 'Call Needed', 'Draft Sent'].includes(p.stage)
-    || (p.stage === 'Link Live' && !p.our_link_live_at));
+  // "Replies" = everything that needs us: Interested, overdue link exchanges, links to take down.
+  const replies = eoProspects.filter(p => p.stage === 'Interested'
+    || (p.stage === 'Backlink Required' && eoLinkDeadline(p) && eoLinkDeadline(p) < today)
+    || (p.stage === 'On Hold' && p.deal_format === 'link_exchange' && p.our_link_live_at));
   const followUps = eoProspects.filter(p => { const d = eoNextDue(p, eoTouches(p.id), cmap[p.campaign_id]); return d && d <= today; });
   let firstToday = 0;
   eoCampaigns.forEach(c => {
     const sent = eoProspects.filter(p => p.campaign_id === c.id && eoTouches(p.id).some(t => t.touch_number === 1 && eoDateOnly(t.sent_on) === today)).length;
-    const ready = eoProspects.filter(p => p.campaign_id === c.id && p.stage === 'Ready').length;
+    const ready = eoProspects.filter(p => p.campaign_id === c.id && p.stage === 'Opportunity').length;
     firstToday += Math.min(ready, Math.max(0, (c.daily_cap || 6) - sent));
   });
   return { replies, followUps, firstToday };
 }
-
 </script>
 </body>
 </html>
